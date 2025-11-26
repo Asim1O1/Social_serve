@@ -5,7 +5,8 @@ function App() {
 
   return (
     <>
-    You are inside app.
+      <p className='text-red-400'>This is good.</p>
+      You are inside app.
     </>
   )
 }
