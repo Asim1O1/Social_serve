@@ -13,9 +13,17 @@ import {
 } from "../utils/jwt.js";
 
 export const registerVolunteerService = async (data) => {
-  const { firstName, lastName, email, phoneNumber, password } = data;
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+    skills,
+    interests,
+    profilePic,
+  } = data;
 
-  // Check if email exists
   const existingUser = await findUserByEmail(email);
   assertOrThrow(
     !existingUser,
@@ -23,14 +31,16 @@ export const registerVolunteerService = async (data) => {
     "Email is already registered"
   );
 
-  // Create volunteer account
   const user = await createUser({
     firstName,
     lastName,
     email,
     phoneNumber,
     password,
-    role: "VOLUNTEER", // ← Hardcoded, secure
+    role: "VOLUNTEER",
+    skills: skills || [],
+    interests: interests || [],
+    profilePic: profilePic || null,
   });
 
   return {
@@ -48,7 +58,6 @@ export const registerOrganizerService = async (data) => {
     email,
     phoneNumber,
     password,
-
     organizationName,
     organizationDescription,
     organizationType,
@@ -58,7 +67,6 @@ export const registerOrganizerService = async (data) => {
     organizationLogo,
   } = data;
 
-  // Check if email exists
   const existingUser = await findUserByEmail(email);
   assertOrThrow(
     !existingUser,
@@ -66,22 +74,19 @@ export const registerOrganizerService = async (data) => {
     "Email is already registered"
   );
 
-  // Validate required organization fields
   assertOrThrow(
     organizationName,
     HTTP_STATUS.BAD_REQUEST,
     "Organization name is required"
   );
 
-  // Create organizer account
   const user = await createUser({
     firstName,
     lastName,
     email,
     phoneNumber,
     password,
-    role: "ADMIN", // ← Hardcoded, secure
-
+    role: "ADMIN",
     organizationName,
     organizationDescription: organizationDescription || null,
     organizationType: organizationType || null,
