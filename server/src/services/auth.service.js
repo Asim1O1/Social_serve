@@ -55,8 +55,7 @@ export const registerOrganizerService = async (data) => {
   const {
     firstName,
     lastName,
-    email,
-    phoneNumber,
+
     password,
     organizationName,
     organizationDescription,
