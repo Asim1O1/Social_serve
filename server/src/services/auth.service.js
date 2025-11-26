@@ -12,13 +12,10 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt.js";
 
-export const registerUserService = async ({
-  firstName,
-  lastName,
-  email,
-  password,
-  role,
-}) => {
+export const registerVolunteerService = async (data) => {
+  const { firstName, lastName, email, phoneNumber, password } = data;
+
+  // Check if email exists
   const existingUser = await findUserByEmail(email);
   assertOrThrow(
     !existingUser,
@@ -26,12 +23,14 @@ export const registerUserService = async ({
     "Email is already registered"
   );
 
+  // Create volunteer account
   const user = await createUser({
     firstName,
     lastName,
     email,
+    phoneNumber,
     password,
-    role,
+    role: "VOLUNTEER", // ← Hardcoded, secure
   });
 
   return {
@@ -42,6 +41,64 @@ export const registerUserService = async ({
   };
 };
 
+export const registerOrganizerService = async (data) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+
+    organizationName,
+    organizationDescription,
+    organizationType,
+    organizationPhone,
+    organizationEmail,
+    organizationLocation,
+    organizationLogo,
+  } = data;
+
+  // Check if email exists
+  const existingUser = await findUserByEmail(email);
+  assertOrThrow(
+    !existingUser,
+    HTTP_STATUS.BAD_REQUEST,
+    "Email is already registered"
+  );
+
+  // Validate required organization fields
+  assertOrThrow(
+    organizationName,
+    HTTP_STATUS.BAD_REQUEST,
+    "Organization name is required"
+  );
+
+  // Create organizer account
+  const user = await createUser({
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+    role: "ADMIN", // ← Hardcoded, secure
+
+    organizationName,
+    organizationDescription: organizationDescription || null,
+    organizationType: organizationType || null,
+    organizationPhone: organizationPhone || null,
+    organizationEmail: organizationEmail || null,
+    organizationLocation: organizationLocation || null,
+    organizationLogo: organizationLogo || null,
+  });
+
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    organizationName: user.organizationName,
+  };
+};
 export const loginUserService = async ({ email, password }) => {
   const user = await findUserByEmail(email);
   assertOrThrow(user, HTTP_STATUS.UNAUTHORIZED, "Invalid email or password");

@@ -17,7 +17,7 @@ export const errorHandler = (err, req, res, next) => {
       field: issue.path.join(".") || "unknown",
       message: issue.message,
     }));
-    return error(res, "Validation failed", 400, formatted);
+    return error(res, "Validation failed", HTTP_STATUS.BAD_REQUEST, formatted);
   }
 
   if (err.name === "ValidationError") {
@@ -25,7 +25,7 @@ export const errorHandler = (err, req, res, next) => {
       field: e.path,
       message: e.message,
     }));
-    return error(res, "Validation failed", 400, formatted);
+    return error(res, "Validation failed", HTTP_STATUS.BAD_REQUEST, formatted);
   }
 
   if (err.code === 11000) {
@@ -42,5 +42,5 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   console.error("UNEXPECTED ERROR:", err);
-  return error(res, "Internal Server Error", 500);
+  return error(res, "Internal Server Error", HTTP_STATUS.INTERNAL_SERVER_ERROR);
 };

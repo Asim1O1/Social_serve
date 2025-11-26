@@ -19,4 +19,5 @@ export const ENV = {
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN,
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
   NODE_ENV: process.env.NODE_ENV || "development",
+  APP_ORIGIN: process.env.APP_ORIGIN || "http://localhost:5173",
 };
