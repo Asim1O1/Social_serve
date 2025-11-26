@@ -3,6 +3,7 @@ import {
   getMeService,
   loginUserService,
   logoutUserService,
+  refreshTokenService,
   registerOrganizerService,
   registerVolunteerService,
   resetPasswordService,
