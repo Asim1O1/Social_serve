@@ -4,7 +4,7 @@ export const createUser = (data) => {
 };
 
 export const findUserByEmail = (email) => {
-  return User.findOne({ email }).lean();
+  return User.findOne({ email }).select("+password");
 };
 
 export const findUserById = (id) => {
