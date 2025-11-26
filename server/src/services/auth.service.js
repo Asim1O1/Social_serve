@@ -55,8 +55,9 @@ export const registerOrganizerService = async (data) => {
   const {
     firstName,
     lastName,
-
+    email,
     password,
+    phoneNumber,
     organizationName,
     organizationDescription,
     organizationType,
@@ -66,7 +67,7 @@ export const registerOrganizerService = async (data) => {
     organizationLogo,
   } = data;
 
-  const existingUser = await findUserByEmail(email);
+  const existingUser = await findUserByEmail(organizationEmail);
   assertOrThrow(
     !existingUser,
     HTTP_STATUS.BAD_REQUEST,
@@ -83,8 +84,8 @@ export const registerOrganizerService = async (data) => {
     firstName,
     lastName,
     email,
-    phoneNumber,
     password,
+    phoneNumber,
     role: "ADMIN",
     organizationName,
     organizationDescription: organizationDescription || null,
