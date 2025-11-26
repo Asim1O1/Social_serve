@@ -34,9 +34,6 @@ const baseUserFields = {
     ),
 };
 
-// ============================================
-// SCHEMA 1: Volunteer Registration
-// ============================================
 export const registerVolunteerSchema = z.object({
   ...baseUserFields,
 
@@ -53,37 +50,27 @@ export const registerVolunteerSchema = z.object({
     .default([]),
 });
 
-// ============================================
-// SCHEMA 2: Organizer Registration
-// ============================================
 export const registerOrganizerSchema = z.object({
   ...baseUserFields,
 
-  // Required organization fields
+  role: z.literal("ADMIN"),
+
   organizationName: z
     .string({ message: "Organization name is required" })
-    .min(2, "Organization name must be at least 2 characters")
-    .max(100, "Organization name must not exceed 100 characters")
+    .min(2)
+    .max(100)
     .trim(),
 
-  // Optional organization fields
-  organizationDescription: z
-    .string()
-    .max(500, "Description must not exceed 500 characters")
-    .trim()
-    .optional()
-    .nullable(),
+  organizationDescription: z.string().max(500).trim().optional().nullable(),
 
   organizationType: z
-    .enum(["NGO", "Charity", "Club", "Community", "Other"], {
-      errorMap: () => ({ message: "Invalid organization type" }),
-    })
+    .enum(["NGO", "Charity", "Club", "Community", "Other"])
     .optional()
     .nullable(),
 
   organizationPhone: z
     .string()
-    .regex(/^[+]?[\d\s()-]{7,20}$/, "Invalid phone number format")
+    .regex(/^[+]?[\d\s()-]{7,20}$/)
     .trim()
     .optional()
     .nullable(),
@@ -99,7 +86,12 @@ export const registerOrganizerSchema = z.object({
   organizationLocation: z
     .object({
       address: z.string().trim().optional().nullable(),
-      city: z.string().trim().optional().nullable(),
+      city: z
+        .string()
+        .trim()
+        .min(2, "City name must be at least 2 characters")
+        .optional()
+        .nullable(),
       state: z.string().trim().optional().nullable(),
       country: z.string().trim().optional().nullable(),
     })
@@ -108,16 +100,13 @@ export const registerOrganizerSchema = z.object({
 
   organizationLogo: z
     .object({
-      url: z.string().url("Invalid URL format").optional().nullable(),
+      url: z.string().url("Invalid URL").optional().nullable(),
       public_id: z.string().optional().nullable(),
     })
     .optional()
     .nullable(),
 });
 
-// ============================================
-// OTHER AUTH SCHEMAS
-// ============================================
 export const loginSchema = z.object({
   email: z
     .string({ message: "Email is required" })

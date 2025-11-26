@@ -114,12 +114,10 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Virtual full name
 userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// Hash password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(12);
@@ -127,7 +125,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
