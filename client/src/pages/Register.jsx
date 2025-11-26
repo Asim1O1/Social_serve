@@ -20,6 +20,7 @@ export default function Register() {
         organizationEmail: "",
         organizationLocation: "",
         organizationLogo: null,
+        role: "VOLUNTEER"
     });
 
     const [error, setError] = useState("");
@@ -27,13 +28,23 @@ export default function Register() {
     const [success, setSuccess] = useState("");
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
 
-        const { name, value, files } = e.target;
-        if (files) {
-            setForm((prev) => ({ ...prev, [name]: files[0] }));
-        } else {
-            setForm((prev) => ({ ...prev, [name]: value }));
+        if (name.startsWith("organizationLocation.")) {
+            const field = name.split(".")[1];
+
+            setForm((prev) => ({
+                ...prev,
+                organizationLocation: {
+                    ...prev.organizationLocation,
+                    [field]: value,
+                },
+            }));
+            return;
         }
+
+        // For normal fields
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -42,39 +53,14 @@ export default function Register() {
         setSuccess("");
         setLoading(true);
 
-        const formData = new FormData();
-
-        formData.append("firstName", form.firstName);
-        formData.append("lastName", form.lastName);
-        formData.append("email", form.email);
-        formData.append("phoneNumber", form.phoneNumber);
-        formData.append("password", form.password);
-
-        if (role === "ADMIN") {
-            formData.append("organizationName", form.organizationName);
-            formData.append("organizationDescription", form.organizationDescription);
-            formData.append("organizationType", form.organizationType);
-            formData.append("organizationPhone", form.organizationPhone);
-            formData.append("organizationEmail", form.organizationEmail);
-            formData.append("organizationLocation", form.organizationLocation);
-
-            if (form.organizationLogo) {
-                formData.append("organizationLogo", form.organizationLogo);
-            }
-        }
-
         try {
-
-            for (let pair of formData.entries()) {
-                console.log(pair[0], ":", pair[1]);
-            }
 
             await register(form);
 
             setSuccess("Registration successful! Redirecting...");
-            setTimeout(() => {
-                navigate('/login');
-            }, 1200);
+            // setTimeout(() => {
+            //     navigate('/login');
+            // }, 1200);
         } catch (err) {
             setError("Registration failed. Try again.");
         } finally {
@@ -106,9 +92,11 @@ export default function Register() {
                             {/* Organizer */}
                             <button
                                 type="button"
-                                onClick={() => setRole("ADMIN")}
+                                name="role"
+                                value={"ADMIN"}
+                                onClick={handleChange}
                                 className={`cursor-pointer flex-1 py-2 text-center rounded-full transition-all font-medium
-          ${role === "ADMIN" ? "bg-blue-600 text-white" : "text-gray-700"}
+          ${form.role === "ADMIN" ? "bg-blue-600 text-white" : "text-gray-700"}
         `}
                             >
                                 Organizer
@@ -117,9 +105,11 @@ export default function Register() {
                             {/* Volunteer */}
                             <button
                                 type="button"
-                                onClick={() => setRole("VOLUNTEER")}
+                                name="role"
+                                value={'VOLUNTEER'}
+                                onClick={handleChange}
                                 className={`cursor-pointer flex-1 py-2 text-center rounded-full transition-all font-medium
-          ${role === "VOLUNTEER" ? "bg-blue-600 text-white" : "text-gray-700"}
+          ${form.role === "VOLUNTEER" ? "bg-blue-600 text-white" : "text-gray-700"}
         `}
                             >
                                 Volunteer
@@ -180,7 +170,7 @@ export default function Register() {
                     />
 
                     {/* Organizer fields */}
-                    {role === "organizer" && (
+                    {form.role === "ADMIN" && (
                         <div className="space-y-4 border-t pt-4">
                             <input
                                 type="text"
@@ -199,15 +189,22 @@ export default function Register() {
                                 required
                                 className="w-full px-4 py-2 border rounded-lg"
                             />
-                            <input
-                                type="text"
-                                name="organizationType"
-                                placeholder="Organization Type"
-                                value={form.organizationType}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
+                            <div>
+
+                                <select
+                                    name="organizationType"
+                                    onChange={handleChange}
+                                    class="w-full border rounded-lg px-3 py-2 bg-white"
+                                >
+                                    <option value="">Select organization type</option>
+                                    <option value="NGO">NGO</option>
+                                    <option value="Charity">Charity</option>
+                                    <option value="Club">Club</option>
+                                    <option value="Community">Community</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
                             <input
                                 type="text"
                                 name="organizationPhone"
@@ -226,21 +223,51 @@ export default function Register() {
                                 required
                                 className="w-full px-4 py-2 border rounded-lg"
                             />
-                            <input
-                                type="text"
-                                name="organizationLocation"
-                                placeholder="Organization Location"
-                                value={form.organizationLocation}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <input
-                                type="file"
-                                name="organizationLogo"
-                                onChange={handleChange}
-                                className="w-full"
-                            />
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Address</label>
+                                    <input
+                                        type="text"
+                                        name="organizationLocation.address"
+                                        onChange={handleChange}
+                                        class="w-full border rounded-lg px-3 py-2"
+                                        placeholder="Enter address"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        name="organizationLocation.city"
+                                        onChange={handleChange}
+                                        class="w-full border rounded-lg px-3 py-2"
+                                        placeholder="Enter city"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">State</label>
+                                    <input
+                                        type="text"
+                                        name="organizationLocation.state"
+                                        onChange={handleChange}
+                                        class="w-full border rounded-lg px-3 py-2"
+                                        placeholder="Enter state"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Country</label>
+                                    <input
+                                        type="text"
+                                        name="organizationLocation.country"
+                                        onChange={handleChange}
+                                        class="w-full border rounded-lg px-3 py-2"
+                                        placeholder="Enter country"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     )}
 

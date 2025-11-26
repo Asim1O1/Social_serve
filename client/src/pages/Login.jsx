@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
+    const navigate = useNavigate()
     const { login } = useAuth();
 
     const [email, setEmail] = useState("");
@@ -12,11 +14,13 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-        setLoading(true);
 
         try {
-            await login(email, password);
-            navigate("/dashboard")
+            const status = await login(email, password);
+            if (status == 'success') {
+                navigate('/profile')
+                return;
+            }
         } catch (err) {
             setError("Invalid email or password");
         } finally {
@@ -25,7 +29,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center">
             <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
 
                 <h2 className="text-2xl font-bold mb-6 text-center">
@@ -39,7 +43,6 @@ export default function Login() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
                     {/* Email */}
                     <div>
                         <label className="block mb-1 font-medium">Email</label>
@@ -79,9 +82,9 @@ export default function Login() {
 
                 <p className="text-center text-sm mt-4 text-gray-600">
                     Don’t have an account?{" "}
-                    <a href="/register" className="text-accent hover:underline">
+                    <Link to="/register" className="text-accent hover:underline">
                         Register
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

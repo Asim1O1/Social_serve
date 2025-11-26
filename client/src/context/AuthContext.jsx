@@ -9,9 +9,10 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null)
 
     useEffect(() => {
+        const id = sessionStorage.getItem("id")
         const load = async () => {
             try {
-                const data = await api.get('/auth/me')
+                const data = await api.get('/auth/me', { user: { id } })
                 setUser(data.data)
             } catch (err) {
                 setError(err.message)
@@ -24,22 +25,35 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (formData) => {
         let data;
+        console.log(formData);
+
         if (formData.role == 'ADMIN') {
             data = await apiPublic.post('/auth/register/organizer', formData)
         } else {
             data = await apiPublic.post('/auth/register/volunteer', formData)
         }
+        return data;
     }
 
     const login = async (email, password) => {
-        const data = await api.post('/auth/lgoin', { email, password })
+        const data = await api.post('/auth/login', { email, password })
+        if (data.status == 'success') {
+            setUser(data.data)
+            sessionStorage.setItem('rt', data.data.refreshToken);
+            sessionStorage.setItem('id', data.data.id);
+            sessionStorage.setItem('at', data.data.accessToken)
+            return data.status;
+        }
     }
-    const logout = async (token) => {
-        const data = await api.post('/auth/logout', token)
+
+    const logout = () => {
+        setUser(null)
+        sessionStorage.clear()
+        return data;
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, register }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     )
