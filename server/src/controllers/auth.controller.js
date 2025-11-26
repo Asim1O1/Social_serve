@@ -3,15 +3,21 @@ import {
   getMeService,
   loginUserService,
   logoutUserService,
-  registerUserService,
+  registerOrganizerService,
+  registerVolunteerService,
   resetPasswordService,
 } from "../services/auth.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { success } from "../utils/response.js";
 
-export const registerUser = asyncHandler(async (req, res) => {
-  const data = await registerUserService(req.body);
-  return success(res, "User registered successfully", data);
+export const registerVolunteer = asyncHandler(async (req, res) => {
+  const data = await registerVolunteerService(req.body);
+  return success(res, "Volunteer registered successfully", data);
+});
+
+export const registerOrganizer = asyncHandler(async (req, res) => {
+  const data = await registerOrganizerService(req.body);
+  return success(res, "Organizer registered successfully", data);
 });
 
 export const loginUser = asyncHandler(async (req, res) => {

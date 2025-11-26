@@ -1,37 +1,18 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
-const imageSchema = new mongoose.Schema(
-  {
-    url: String,
-    public_id: String,
-  },
-  { _id: false }
-);
-
-const badgeSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    icon: String,
-    earnedAt: { type: Date, default: Date.now },
-  },
-  { _id: false }
-);
-
 const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: [true, "First name is required"],
+      required: true,
       trim: true,
-      maxlength: 50,
     },
 
     lastName: {
       type: String,
-      required: [true, "Last name is required"],
+      required: true,
       trim: true,
-      maxlength: 50,
     },
 
     email: {
@@ -40,14 +21,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      set: (v) => v.toLowerCase(),
       match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
-      index: true,
     },
 
     phoneNumber: {
       type: String,
-      required: [true, "Phone number is required"],
+      required: true,
       trim: true,
       match: [/^[+]?[0-9\s()-]{7,20}$/, "Invalid phone format"],
     },
@@ -63,39 +42,61 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["ADMIN", "VOLUNTEER"],
       default: "VOLUNTEER",
-      index: true,
     },
 
-    profilePic: imageSchema,
+    organizationName: {
+      type: String,
+      default: null,
+    },
+
+    organizationDescription: {
+      type: String,
+      default: null,
+    },
+
+    organizationType: {
+      type: String,
+      enum: ["NGO", "Charity", "Club", "Community", "Other"],
+      default: null,
+    },
+
+    organizationLogo: {
+      url: String,
+      public_id: String,
+    },
+    organizationPhone: String,
+    organizationEmail: String,
+    organizationLocation: {
+      address: String,
+      city: String,
+      state: String,
+      country: String,
+    },
+
+    profilePic: {
+      url: String,
+      public_id: String,
+    },
 
     skills: {
       type: [String],
       default: [],
       set: (arr) => [...new Set(arr)],
-      validate: {
-        validator: (arr) => arr.length <= 20,
-        message: "Cannot have more than 20 skills",
-      },
     },
 
     interests: {
       type: [String],
       default: [],
       set: (arr) => [...new Set(arr)],
-      validate: {
-        validator: (arr) => arr.length <= 20,
-        message: "Cannot have more than 20 interests",
-      },
     },
 
-    badges: {
-      type: [badgeSchema],
-      default: [],
-      validate: {
-        validator: (arr) => new Set(arr.map((b) => b.name)).size === arr.length,
-        message: "Duplicate badges not allowed",
+    badges: [
+      {
+        name: String,
+        icon: String,
+        earnedAt: { type: Date, default: Date.now },
       },
-    },
+    ],
 
     verificationToken: { type: String, select: false },
     verificationExpire: { type: Date, select: false },
@@ -105,6 +106,7 @@ const userSchema = new mongoose.Schema(
 
     lastLogin: Date,
   },
+
   {
     timestamps: true,
     toJSON: { virtuals: true },
@@ -112,20 +114,20 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.index({ firstName: "text", lastName: "text", email: "text" });
-
+// Virtual full name
 userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
+// Hash password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
+// Compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };

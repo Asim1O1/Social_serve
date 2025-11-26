@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
+const baseUserFields = {
   firstName: z
     .string({ message: "First name is required" })
     .min(2, "First name must be at least 2 characters")
@@ -20,10 +20,9 @@ export const registerSchema = z.object({
     .trim(),
 
   phoneNumber: z
-    .string()
-    .regex(/^[+]?[\d\s()-]+$/, "Invalid phone number format")
-    .optional()
-    .or(z.literal("")),
+    .string({ message: "Phone number is required" })
+    .regex(/^[+]?[\d\s()-]{7,20}$/, "Invalid phone number format")
+    .trim(),
 
   password: z
     .string({ message: "Password is required" })
@@ -33,13 +32,13 @@ export const registerSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     ),
+};
 
-  role: z
-    .enum(["ADMIN", "VOLUNTEER"], {
-      errorMap: () => ({ message: "Role must be either ADMIN or VOLUNTEER" }),
-    })
-    .optional()
-    .default("VOLUNTEER"),
+// ============================================
+// SCHEMA 1: Volunteer Registration
+// ============================================
+export const registerVolunteerSchema = z.object({
+  ...baseUserFields,
 
   skills: z
     .array(z.string().trim().min(1))
@@ -52,4 +51,81 @@ export const registerSchema = z.object({
     .max(20, "Cannot have more than 20 interests")
     .optional()
     .default([]),
+});
+
+// ============================================
+// SCHEMA 2: Organizer Registration
+// ============================================
+export const registerOrganizerSchema = z.object({
+  ...baseUserFields,
+
+  // Required organization fields
+  organizationName: z
+    .string({ message: "Organization name is required" })
+    .min(2, "Organization name must be at least 2 characters")
+    .max(100, "Organization name must not exceed 100 characters")
+    .trim(),
+
+  // Optional organization fields
+  organizationDescription: z
+    .string()
+    .max(500, "Description must not exceed 500 characters")
+    .trim()
+    .optional()
+    .nullable(),
+
+  organizationType: z
+    .enum(["NGO", "Charity", "Club", "Community", "Other"], {
+      errorMap: () => ({ message: "Invalid organization type" }),
+    })
+    .optional()
+    .nullable(),
+
+  organizationPhone: z
+    .string()
+    .regex(/^[+]?[\d\s()-]{7,20}$/, "Invalid phone number format")
+    .trim()
+    .optional()
+    .nullable(),
+
+  organizationEmail: z
+    .string()
+    .email("Invalid email format")
+    .toLowerCase()
+    .trim()
+    .optional()
+    .nullable(),
+
+  organizationLocation: z
+    .object({
+      address: z.string().trim().optional().nullable(),
+      city: z.string().trim().optional().nullable(),
+      state: z.string().trim().optional().nullable(),
+      country: z.string().trim().optional().nullable(),
+    })
+    .optional()
+    .nullable(),
+
+  organizationLogo: z
+    .object({
+      url: z.string().url("Invalid URL format").optional().nullable(),
+      public_id: z.string().optional().nullable(),
+    })
+    .optional()
+    .nullable(),
+});
+
+// ============================================
+// OTHER AUTH SCHEMAS
+// ============================================
+export const loginSchema = z.object({
+  email: z
+    .string({ message: "Email is required" })
+    .email("Invalid email format")
+    .toLowerCase()
+    .trim(),
+
+  password: z
+    .string({ message: "Password is required" })
+    .min(1, "Password is required"),
 });
