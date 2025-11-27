@@ -7,8 +7,8 @@ function Navbar() {
     const { user } = useAuth();
 
     return (
-        <nav className='z-10 fixed left-0 backdrop-blur-2xl top-0 w-full border-b border-border'>
-            <div className='container flex px-3 lg:px-0 mx-auto justify-between py-4 font-bold'>
+        <nav className='z-10 fixed left-0 backdrop-blur-2xl top-0 w-full shadow-sm border-b border-border'>
+            <div className='container flex justify-between px-3 lg:px-0 mx-auto py-4 font-bold'>
                 <Link to='/'>
                     <h1 className='flex items-center gap-1'>
                         <span><Blend className='text-accent' /></span>

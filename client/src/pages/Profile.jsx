@@ -26,7 +26,7 @@ function Profile() {
                 <div className='bg-accent/50 w-fit p-3 text-white rounded'><User /></div>
                 <div>
                     <span className='block'>{user?.email.split("@")[0]}</span>
-                    <span>{user?.role.toLowerCase()}</span>
+                    <span className='text-gray-400'>{user?.role =="VOLUNTEER"? user?.role.toLowerCase(): 'organizer'}</span>
                 </div>
                 <div className='ml-auto'>
                     <button className='cursor-pointer bg-accent text-white px-3 py-2 rounded font-semibold' onClick={logout}>Logout</button>
