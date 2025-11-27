@@ -29,7 +29,7 @@ function Profile() {
                     <span>{user?.role.toLowerCase()}</span>
                 </div>
                 <div className='ml-auto'>
-                    <button className='bg-accent text-white px-3 py-2 rounded font-semibold' onClick={logout}>Logout</button>
+                    <button className='cursor-pointer bg-accent text-white px-3 py-2 rounded font-semibold' onClick={logout}>Logout</button>
                 </div>
             </div>
         </div>

@@ -58,9 +58,11 @@ export default function Register() {
             await register(form);
 
             setSuccess("Registration successful! Redirecting...");
-            // setTimeout(() => {
-            //     navigate('/login');
-            // }, 1200);
+            setTimeout(() => {
+                setSuccess("")
+                navigate('/login');
+            }, 1000)
+
         } catch (err) {
             setError("Registration failed. Try again.");
         } finally {
@@ -76,9 +78,7 @@ export default function Register() {
                     Create an Account
                 </h2>
 
-                {error && (
-                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{error}</div>
-                )}
+
 
                 {success && (
                     <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">{success}</div>
@@ -275,7 +275,7 @@ export default function Register() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:bg-green-300"
+                        className="cursor-pointer w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:bg-green-300"
                     >
                         {loading ? "Registering..." : "Register"}
                     </button>
@@ -287,6 +287,9 @@ export default function Register() {
                         Login
                     </a>
                 </p>
+                {error && (
+                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{error}</div>
+                )}
             </div>
         </div>
     );
