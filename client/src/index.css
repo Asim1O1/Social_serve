@@ -17,14 +17,29 @@
 
 @theme {
   --color-primary: #ad46ff;
-  --color-secondary: #ddefe3;
+  --color-secondary: #e5f1ff;
   --color-accent: #51a2ff;
   --color-bg: #f5f7f6;
-  --color-text: #4a4a4a;
+  --color-text: #0a0a0a;
   --color-border: #ffcdf2;
 }
+body,
+nav {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
+.primary-btn {
+  @apply px-4 py-2 border-border border md:px-4 md:py-2 md:rounded-lg font-semibold text-sm transition-all bg-border cursor-pointer hover:bg-primary text-black hover:text-white duration-200 flex items-center gap-1;
+}
+
+.primary-btn:has(svg) {
+  @apply p-3;
+}
+
+.secondary-btn {
+  @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-border cursor-pointer hover:text-primary text-black duration-200 flex items-center gap-1;
+}
+.grid-container {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6;
 }

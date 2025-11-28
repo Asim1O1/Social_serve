@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Event from "./pages/Event";
+import Dashboard from "./pages/Dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +32,10 @@ export const router = createBrowserRouter([
         path: '/profile',
         element: <Profile />
       },
-
+      {
+        path: '/dashboard',
+        element: <Dashboard />
+      }
     ]
   }
 ]);
