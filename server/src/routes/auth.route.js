@@ -19,17 +19,20 @@ import {
 } from "../validations/auth.validation.js";
 
 import { requireAuth } from "../middleware/requireAuth.js";
+import { upload } from "../middleware/upload.js";
 
 const router = express.Router();
 
 router.post(
   "/register/volunteer",
+  upload.single("profilePic"),
   validate(registerVolunteerSchema),
   registerVolunteer
 );
 
 router.post(
   "/register/organizer",
+  upload.single("organizationLogo"),
   validate(registerOrganizerSchema),
   registerOrganizer
 );

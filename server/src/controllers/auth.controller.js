@@ -12,12 +12,12 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { success } from "../utils/response.js";
 
 export const registerVolunteer = asyncHandler(async (req, res) => {
-  const data = await registerVolunteerService(req.body);
+  const data = await registerVolunteerService(req.body, req.file);
   return success(res, "Volunteer registered successfully", data);
 });
 
 export const registerOrganizer = asyncHandler(async (req, res) => {
-  const data = await registerOrganizerService(req.body);
+  const data = await registerOrganizerService(req.body, req.file);
   return success(res, "Organizer registered successfully", data);
 });
 

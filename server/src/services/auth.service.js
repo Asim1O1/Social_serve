@@ -12,7 +12,7 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt.js";
 
-export const registerVolunteerService = async (data) => {
+export const registerVolunteerService = async (data, file) => {
   const {
     firstName,
     lastName,
@@ -21,15 +21,23 @@ export const registerVolunteerService = async (data) => {
     password,
     skills,
     interests,
-    profilePic,
   } = data;
 
   const existingUser = await findUserByEmail(email);
-  assertOrThrow(
-    !existingUser,
-    HTTP_STATUS.BAD_REQUEST,
-    "Email is already registered"
-  );
+  if (existingUser) {
+    throw new AppError("Email is already registered", HTTP_STATUS.BAD_REQUEST);
+  }
+
+  let profilePic = null;
+
+  if (file) {
+    const uploaded = await uploadToCloudinary(file.buffer, "profile_pics");
+
+    profilePic = {
+      url: uploaded.secure_url,
+      public_id: uploaded.public_id,
+    };
+  }
 
   const user = await createUser({
     firstName,
@@ -37,21 +45,22 @@ export const registerVolunteerService = async (data) => {
     email,
     phoneNumber,
     password,
-    role: "VOLUNTEER",
+    role: "volunteer",
     skills: skills || [],
     interests: interests || [],
-    profilePic: profilePic || null,
+    profilePic,
   });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
+    profilePic: user.profilePic?.url || null,
   };
 };
 
-export const registerOrganizerService = async (data) => {
+export const registerOrganizerService = async (data, file) => {
   const {
     firstName,
     lastName,
@@ -64,21 +73,33 @@ export const registerOrganizerService = async (data) => {
     organizationPhone,
     organizationEmail,
     organizationLocation,
-    organizationLogo,
   } = data;
 
   const existingUser = await findUserByEmail(organizationEmail);
-  assertOrThrow(
-    !existingUser,
-    HTTP_STATUS.BAD_REQUEST,
-    "Email is already registered"
-  );
+  if (existingUser) {
+    throw new AppError("Email is already registered", HTTP_STATUS.BAD_REQUEST);
+  }
 
-  assertOrThrow(
-    organizationName,
-    HTTP_STATUS.BAD_REQUEST,
-    "Organization name is required"
-  );
+  if (!organizationName) {
+    throw new AppError(
+      "Organization name is required",
+      HTTP_STATUS.BAD_REQUEST
+    );
+  }
+
+  let organizationLogo = null;
+
+  if (file) {
+    const uploaded = await uploadToCloudinary(
+      file.buffer,
+      "organization_logos"
+    );
+
+    organizationLogo = {
+      url: uploaded.secure_url,
+      public_id: uploaded.public_id,
+    };
+  }
 
   const user = await createUser({
     firstName,
@@ -87,21 +108,24 @@ export const registerOrganizerService = async (data) => {
     password,
     phoneNumber,
     role: "ADMIN",
+
     organizationName,
     organizationDescription: organizationDescription || null,
     organizationType: organizationType || null,
     organizationPhone: organizationPhone || null,
     organizationEmail: organizationEmail || null,
     organizationLocation: organizationLocation || null,
-    organizationLogo: organizationLogo || null,
+
+    organizationLogo,
   });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
     organizationName: user.organizationName,
+    organizationLogo: user.organizationLogo?.url || null,
   };
 };
 export const loginUserService = async ({ email, password }) => {
