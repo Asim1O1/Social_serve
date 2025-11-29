@@ -44,28 +44,24 @@ const userSchema = new mongoose.Schema(
       default: "VOLUNTEER",
     },
 
-    organizationName: {
-      type: String,
-      default: null,
-    },
-
-    organizationDescription: {
-      type: String,
-      default: null,
-    },
+    // ORGANIZATION FIELDS
+    organizationName: { type: String, default: null },
+    organizationDescription: { type: String, default: null },
 
     organizationType: {
       type: String,
-      enum: ["NGO", "Charity", "Club", "Community", "Other"],
+      enum: ["NGO", "Charity", "Club", "Community", "Other", null],
       default: null,
     },
 
     organizationLogo: {
-      url: String,
-      public_id: String,
+      url: { type: String, default: null },
+      public_id: { type: String, default: null },
     },
-    organizationPhone: String,
-    organizationEmail: String,
+
+    organizationPhone: { type: String, default: null },
+    organizationEmail: { type: String, default: null },
+
     organizationLocation: {
       address: String,
       city: String,
@@ -74,8 +70,8 @@ const userSchema = new mongoose.Schema(
     },
 
     profilePic: {
-      url: String,
-      public_id: String,
+      url: { type: String, default: null },
+      public_id: { type: String, default: null },
     },
 
     skills: {
@@ -118,13 +114,14 @@ userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
+// Hash password
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.methods.comparePassword = async function (enteredPassword) {
+userSchema.methods.comparePassword = function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 

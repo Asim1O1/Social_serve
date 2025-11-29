@@ -2,52 +2,40 @@ import { z } from "zod";
 
 const baseUserFields = {
   firstName: z
-    .string({ message: "First name is required" })
+    .string()
     .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must not exceed 50 characters")
+    .max(50)
     .trim(),
 
   lastName: z
-    .string({ message: "Last name is required" })
+    .string()
     .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must not exceed 50 characters")
+    .max(50)
     .trim(),
 
-  email: z
-    .string({ message: "Email is required" })
-    .email("Invalid email format")
-    .toLowerCase()
-    .trim(),
+  email: z.string().email("Invalid email format").toLowerCase().trim(),
 
   phoneNumber: z
-    .string({ message: "Phone number is required" })
+    .string()
     .regex(/^[+]?[\d\s()-]{7,20}$/, "Invalid phone number format")
     .trim(),
 
   password: z
-    .string({ message: "Password is required" })
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must not exceed 128 characters")
+    .string()
+    .min(8)
+    .max(128)
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      "Password must contain upper, lower, and a number"
     ),
 };
 
 export const registerVolunteerSchema = z.object({
   ...baseUserFields,
 
-  skills: z
-    .array(z.string().trim().min(1))
-    .max(20, "Cannot have more than 20 skills")
-    .optional()
-    .default([]),
+  skills: z.array(z.string().trim().min(1)).max(20).default([]),
 
-  interests: z
-    .array(z.string().trim().min(1))
-    .max(20, "Cannot have more than 20 interests")
-    .optional()
-    .default([]),
+  interests: z.array(z.string().trim().min(1)).max(20).default([]),
 });
 
 export const registerOrganizerSchema = z.object({
@@ -55,13 +43,9 @@ export const registerOrganizerSchema = z.object({
 
   role: z.literal("ADMIN"),
 
-  organizationName: z
-    .string({ message: "Organization name is required" })
-    .min(2)
-    .max(100)
-    .trim(),
+  organizationName: z.string().min(2).max(100).trim(),
 
-  organizationDescription: z.string().max(500).trim().optional().nullable(),
+  organizationDescription: z.string().max(500).optional().nullable(),
 
   organizationType: z
     .enum(["NGO", "Charity", "Club", "Community", "Other"])
@@ -71,50 +55,27 @@ export const registerOrganizerSchema = z.object({
   organizationPhone: z
     .string()
     .regex(/^[+]?[\d\s()-]{7,20}$/)
-    .trim()
     .optional()
     .nullable(),
 
   organizationEmail: z
     .string()
-    .email("Invalid email format")
+    .email("Invalid organization email")
     .toLowerCase()
-    .trim()
-    .optional()
-    .nullable(),
+    .trim(),
 
   organizationLocation: z
     .object({
-      address: z.string().trim().optional().nullable(),
-      city: z
-        .string()
-        .trim()
-        .min(2, "City name must be at least 2 characters")
-        .optional()
-        .nullable(),
-      state: z.string().trim().optional().nullable(),
-      country: z.string().trim().optional().nullable(),
-    })
-    .optional()
-    .nullable(),
-
-  organizationLogo: z
-    .object({
-      url: z.string().url("Invalid URL").optional().nullable(),
-      public_id: z.string().optional().nullable(),
+      address: z.string().optional().nullable(),
+      city: z.string().min(2).optional().nullable(),
+      state: z.string().optional().nullable(),
+      country: z.string().optional().nullable(),
     })
     .optional()
     .nullable(),
 });
 
 export const loginSchema = z.object({
-  email: z
-    .string({ message: "Email is required" })
-    .email("Invalid email format")
-    .toLowerCase()
-    .trim(),
-
-  password: z
-    .string({ message: "Password is required" })
-    .min(1, "Password is required"),
+  email: z.string().email().toLowerCase().trim(),
+  password: z.string().min(1),
 });

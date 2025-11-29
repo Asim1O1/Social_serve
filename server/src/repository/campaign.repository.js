@@ -5,11 +5,11 @@ export const createCampaign = (data) => {
 };
 
 export const getCampaigns = (filters = {}) => {
-  return Campaign.find(filters).sort({ createdAt: -1 });
+  return Campaign.find(filters).sort({ createdAt: -1 }).lean();
 };
 
 export const getCampaignById = (id) => {
-  return Campaign.findById(id);
+  return Campaign.findById(id).lean();
 };
 
 export const updateCampaign = (id, updateData) => {
@@ -24,14 +24,18 @@ export const deleteCampaign = (id) => {
 };
 
 export const updateCampaignStatus = (id, status) => {
-  return Campaign.findByIdAndUpdate(id, { status }, { new: true });
+  return Campaign.findByIdAndUpdate(
+    id,
+    { status },
+    { new: true, runValidators: true }
+  );
 };
 
 export const addCampaignAttachment = (id, attachment) => {
   return Campaign.findByIdAndUpdate(
     id,
     { $push: { attachments: attachment } },
-    { new: true }
+    { new: true, runValidators: true }
   );
 };
 
@@ -39,7 +43,7 @@ export const addCampaignVolunteer = (campaignId, volunteerRegId) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { volunteers: volunteerRegId } },
-    { new: true }
+    { new: true, runValidators: true }
   );
 };
 
@@ -47,6 +51,6 @@ export const addCampaignRating = (campaignId, ratingData) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { ratings: ratingData } },
-    { new: true }
+    { new: true, runValidators: true }
   );
 };

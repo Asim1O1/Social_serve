@@ -23,19 +23,20 @@ export const registerVolunteerService = async (data, file) => {
     interests,
   } = data;
 
-  const existingUser = await findUserByEmail(email);
-  if (existingUser) {
-    throw new AppError("Email is already registered", HTTP_STATUS.BAD_REQUEST);
-  }
+  const existing = await findUserByEmail(email);
+  assertOrThrow(
+    !existing,
+    HTTP_STATUS.BAD_REQUEST,
+    "Email is already registered"
+  );
 
   let profilePic = null;
 
   if (file) {
-    const uploaded = await uploadToCloudinary(file.buffer, "profile_pics");
-
+    const upload = await uploadToCloudinary(file.buffer, "profile_pics");
     profilePic = {
-      url: uploaded.secure_url,
-      public_id: uploaded.public_id,
+      url: upload.secure_url,
+      public_id: upload.public_id,
     };
   }
 
@@ -45,9 +46,9 @@ export const registerVolunteerService = async (data, file) => {
     email,
     phoneNumber,
     password,
-    role: "volunteer",
-    skills: skills || [],
-    interests: interests || [],
+    role: "VOLUNTEER",
+    skills,
+    interests,
     profilePic,
   });
 
@@ -75,29 +76,29 @@ export const registerOrganizerService = async (data, file) => {
     organizationLocation,
   } = data;
 
-  const existingUser = await findUserByEmail(organizationEmail);
-  if (existingUser) {
-    throw new AppError("Email is already registered", HTTP_STATUS.BAD_REQUEST);
-  }
+  const existingUser = await findUserByEmail(email);
+  assertOrThrow(
+    !existingUser,
+    HTTP_STATUS.BAD_REQUEST,
+    "User email is already registered"
+  );
 
-  if (!organizationName) {
-    throw new AppError(
-      "Organization name is required",
-      HTTP_STATUS.BAD_REQUEST
+  if (organizationEmail) {
+    const existingOrg = await findUserByEmail(organizationEmail);
+    assertOrThrow(
+      !existingOrg,
+      HTTP_STATUS.BAD_REQUEST,
+      "Organization email is already registered"
     );
   }
 
   let organizationLogo = null;
 
   if (file) {
-    const uploaded = await uploadToCloudinary(
-      file.buffer,
-      "organization_logos"
-    );
-
+    const upload = await uploadToCloudinary(file.buffer, "organization_logos");
     organizationLogo = {
-      url: uploaded.secure_url,
-      public_id: uploaded.public_id,
+      url: upload.secure_url,
+      public_id: upload.public_id,
     };
   }
 
@@ -108,12 +109,11 @@ export const registerOrganizerService = async (data, file) => {
     password,
     phoneNumber,
     role: "ADMIN",
-
     organizationName,
     organizationDescription: organizationDescription || null,
     organizationType: organizationType || null,
     organizationPhone: organizationPhone || null,
-    organizationEmail: organizationEmail || null,
+    organizationEmail,
     organizationLocation: organizationLocation || null,
 
     organizationLogo,
@@ -128,23 +128,20 @@ export const registerOrganizerService = async (data, file) => {
     organizationLogo: user.organizationLogo?.url || null,
   };
 };
+
 export const loginUserService = async ({ email, password }) => {
   const user = await findUserByEmail(email);
   assertOrThrow(user, HTTP_STATUS.UNAUTHORIZED, "Invalid email or password");
 
-  const isPasswordValid = await user.comparePassword(password);
-  assertOrThrow(
-    isPasswordValid,
-    HTTP_STATUS.UNAUTHORIZED,
-    "Invalid email or password"
-  );
+  const isValid = await user.comparePassword(password);
+  assertOrThrow(isValid, HTTP_STATUS.UNAUTHORIZED, "Invalid email or password");
 
   const accessToken = generateAccessToken({ id: user._id, role: user.role });
   const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
     accessToken,

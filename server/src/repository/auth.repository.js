@@ -1,14 +1,11 @@
 import User from "../models/user.model.js";
-export const createUser = (data) => {
-  return User.create(data);
-};
 
-export const findUserByEmail = (email) => {
-  return User.findOne({ email }).select("+password");
-};
+export const createUser = (data) => User.create(data);
 
-export const findUserById = (id) => {
-  return User.findById(id).lean();
-};
+export const findUserByEmail = (email) =>
+  User.findOne({ email }).select("+password");
+
+export const findUserById = (id) => User.findById(id).lean({ virtuals: true });
+
 export const findUserByResetToken = (hashedToken) =>
   User.findOne({ resetPasswordToken: hashedToken }).select("+password");

@@ -43,7 +43,7 @@ router.post("/refresh-token", refreshAccessToken);
 
 router.post("/forgot-password", forgotPassword);
 
-router.post("/reset-password/:token", resetPassword);
+router.post("/reset-password/:resetToken", resetPassword);
 
 router.post("/logout", requireAuth, logOutUser);
 
