@@ -59,13 +59,23 @@ export const getCampaignsService = async (filters = {}) => {
   const campaigns = await getCampaigns(filters);
 
   return campaigns.map(
-    ({ _id, title, location, date, category, status, createdAt }) => ({
+    ({
+      _id,
+      title,
+      location,
+      date,
+      category,
+      status,
+      createdBy,
+      createdAt,
+    }) => ({
       id: _id,
       title,
       location,
       date,
       category,
       status,
+      createdBy,
       createdAt,
     })
   );
