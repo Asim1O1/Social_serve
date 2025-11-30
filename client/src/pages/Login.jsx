@@ -5,7 +5,11 @@ import { Eye, EyeClosed } from "lucide-react";
 
 export default function Login() {
     const navigate = useNavigate()
-    const { login } = useAuth();
+    const { user, login } = useAuth();
+
+    if (user) {
+        navigate('/profile')
+    }
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -16,6 +20,7 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true)
 
         try {
             const status = await login(email, password);

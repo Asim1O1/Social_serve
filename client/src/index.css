@@ -18,7 +18,7 @@
 @theme {
   --color-primary: #ad46ff;
   --color-secondary: #e5f1ff;
-  --color-accent: #51a2ff;
+  --color-accent: #004d85;
   --color-bg: #f5f7f6;
   --color-text: #0a0a0a;
   --color-border: #ffcdf2;
@@ -30,7 +30,7 @@ nav {
 }
 
 .primary-btn {
-  @apply px-4 py-2 border-border border md:px-4 md:py-2 md:rounded-lg font-semibold text-sm transition-all bg-border cursor-pointer hover:bg-primary text-black hover:text-white duration-200 flex items-center gap-1;
+  @apply px-4 py-2 border-primary border md:px-4 md:py-2 md:rounded-lg font-semibold text-sm transition-all bg-primary cursor-pointer hover:bg-primary text-white duration-200 flex items-center gap-1;
 }
 
 .primary-btn:has(svg) {
@@ -38,7 +38,7 @@ nav {
 }
 
 .secondary-btn {
-  @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-border cursor-pointer hover:text-primary text-black duration-200 flex items-center gap-1;
+  @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-accent cursor-pointer text-black duration-200 flex items-center gap-1;
 }
 .grid-container {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6;
