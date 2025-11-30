@@ -59,7 +59,7 @@ export const getCampaignsService = async (filters = {}) => {
   const campaigns = await getCampaigns(filters);
 
   return campaigns.map(
-    ({ _id, title, location, date, category, status, createdAt }) => ({
+    ({ _id, title, location, date, category, status, createdAt, attachments }) => ({
       id: _id,
       title,
       location,
@@ -67,6 +67,7 @@ export const getCampaignsService = async (filters = {}) => {
       category,
       status,
       createdAt,
+      attachments
     })
   );
 };

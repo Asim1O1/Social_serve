@@ -3,12 +3,12 @@ import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 function CreateCampain() {
   const { user } = useAuth();
-
-
-
+  const [fileInputs, setFileInputs] = useState([0]); // first file field
 
   const {
     register,
@@ -23,18 +23,45 @@ function CreateCampain() {
       category: "",
       location: "",
       date: "",
-      createdBy: user?.id || sessionStorage.getItem('id'),
+      attachments: [],
+      createdBy: user?.id || sessionStorage.getItem("id"),
     },
   });
 
   const categories = ["Health", "Education", "Environment", "Social Work"];
 
+  const addFileInput = () => {
+    setFileInputs((prev) => [...prev, prev.length]); // add next file field
+  };
+
   const onSubmit = async (data) => {
+    const formData = new FormData();
+
+    // Append text fields
+    Object.keys(data).forEach((key) => {
+      if (key !== "files") {
+        formData.append(key, data[key]);
+      }
+    });
+
+    // Append file(s)
+    if (data.attachments && data.attachments.length > 0) {
+      Array.from(data.attachments).forEach((file) => {
+        formData.append("attachments", file);
+      });
+    }
+
+    // Debug
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
 
     try {
-      const res = await api.post("/campaign", data);
-      toast.success(res.message);
+      const res = await api.post("/campaign", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
+      toast.success("Campaign created successfully!");
       reset();
     } catch (err) {
       if (err.response?.data?.errors) {
@@ -42,7 +69,6 @@ function CreateCampain() {
           setError(e.field, { message: e.message });
         });
       }
-
       console.log("Error:", err);
     }
   };
@@ -61,7 +87,10 @@ function CreateCampain() {
             <label className="block font-medium mb-1">Title</label>
             <input
               {...register("title", { required: "Title is required" })}
-              className={"w-full border p-2 rounded " + (errors.title ? "border-red-500" : "border-border")}
+              className={
+                "w-full border p-2 rounded " +
+                (errors.title ? "border-red-500" : "border-border")
+              }
               placeholder="Enter title"
             />
             {errors.title && (
@@ -76,8 +105,10 @@ function CreateCampain() {
               {...register("description", {
                 required: "Description is required",
               })}
-              className={"w-full border p-2 rounded " + (errors.description ? "border-red-500" : "border-border")}
-
+              className={
+                "w-full border p-2 rounded " +
+                (errors.description ? "border-red-500" : "border-border")
+              }
               placeholder="Enter description"
             ></textarea>
             {errors.description && (
@@ -92,8 +123,10 @@ function CreateCampain() {
             <label className="block font-medium mb-1">Category</label>
             <select
               {...register("category", { required: "Category is required" })}
-              className={"w-full border p-2 rounded " + (errors.category ? "border-red-500" : "border-border")}
-
+              className={
+                "w-full border p-2 rounded " +
+                (errors.category ? "border-red-500" : "border-border")
+              }
             >
               <option value="">Select category</option>
               {categories.map((c) => (
@@ -112,11 +145,16 @@ function CreateCampain() {
             <label className="block font-medium mb-1">Location</label>
             <input
               {...register("location", { required: "Location is required" })}
-              className={"w-full border p-2 rounded " + (errors.location ? "border-red-500" : "border-border")}
+              className={
+                "w-full border p-2 rounded " +
+                (errors.location ? "border-red-500" : "border-border")
+              }
               placeholder="Enter location"
             />
             {errors.location && (
-              <p className="text-red-500 text-sm">{errors.location.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.location.message}
+              </p>
             )}
           </div>
 
@@ -126,24 +164,62 @@ function CreateCampain() {
             <input
               type="date"
               {...register("date", { required: "Date is required" })}
-              className={"w-full border p-2 rounded " + (errors.date ? "border-red-500" : "border-border")}
+              className={
+                "w-full border p-2 rounded " +
+                (errors.date ? "border-red-500" : "border-border")
+              }
             />
             {errors.date && (
               <p className="text-red-500 text-sm">{errors.date.message}</p>
             )}
           </div>
 
-          {/* Submit Button */}
-          {!isSubmitting && <button
-            type="submit"
-            disabled={isSubmitting}
-            className="primary-btn disabled:opacity-50"
-          >
-            Submit
-          </button>}
-          <div className="w-fit">
-            {isSubmitting && <Loading />}
+          {/* Multiple Files */}
+          <div>
+            <label className="block font-medium mb-1">Files</label>
+
+            {fileInputs.map((index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
+                <input
+                  type="file"
+                  {...register("attachments")}
+                  className={
+                    "w-full border p-2 rounded " +
+                    (errors.attachments ? "border-red-500" : "border-border")
+                  }
+                />
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addFileInput}
+              className="mt-2 flex items-center gap-1 text-primary"
+            >
+              <Plus /> Add More Files
+            </button>
+
+            {errors.files && (
+              <p className="text-red-500 text-sm">{errors.files.message}</p>
+            )}
           </div>
+
+          {/* Submit */}
+          {!isSubmitting && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="primary-btn disabled:opacity-50"
+            >
+              Submit
+            </button>
+          )}
+
+          {isSubmitting && (
+            <div className="w-fit">
+              <Loading />
+            </div>
+          )}
         </form>
       </div>
     </div>
