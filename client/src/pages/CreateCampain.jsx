@@ -1,10 +1,9 @@
-import { useAuth } from "../context/AuthContext";
-import { api } from "../axios/axios";
-import Loading from "../components/Loading";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { api } from "../axios/axios";
+import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
 
 function CreateCampain() {
   const { user } = useAuth();
@@ -37,9 +36,8 @@ function CreateCampain() {
   const onSubmit = async (data) => {
     const formData = new FormData();
 
-    // Append text fields
     Object.keys(data).forEach((key) => {
-      if (key !== "files") {
+      if (key !== "attachments") {
         formData.append(key, data[key]);
       }
     });
@@ -152,9 +150,7 @@ function CreateCampain() {
               placeholder="Enter location"
             />
             {errors.location && (
-              <p className="text-red-500 text-sm">
-                {errors.location.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.location.message}</p>
             )}
           </div>
 
@@ -178,30 +174,15 @@ function CreateCampain() {
           <div>
             <label className="block font-medium mb-1">Files</label>
 
-            {fileInputs.map((index) => (
-              <div key={index} className="flex items-center gap-2 mb-2">
-                <input
-                  type="file"
-                  {...register("attachments")}
-                  className={
-                    "w-full border p-2 rounded " +
-                    (errors.attachments ? "border-red-500" : "border-border")
-                  }
-                />
-              </div>
-            ))}
-
-            <button
-              type="button"
-              onClick={addFileInput}
-              className="mt-2 flex items-center gap-1 text-primary"
-            >
-              <Plus /> Add More Files
-            </button>
-
-            {errors.files && (
-              <p className="text-red-500 text-sm">{errors.files.message}</p>
-            )}
+            <input
+              type="file"
+              multiple
+              {...register("attachments")}
+              className={
+                "w-full border p-2 rounded " +
+                (errors.attachments ? "border-red-500" : "border-border")
+              }
+            />
           </div>
 
           {/* Submit */}
