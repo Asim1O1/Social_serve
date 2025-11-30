@@ -9,17 +9,15 @@ import {
   updateCampaign,
   updateCampaignStatus,
 } from "../controllers/campaign.controller.js";
-
 import { upload } from "../middleware/upload.js";
 import { validate } from "../middleware/validate.js";
-
 import {
+  addVolunteerSchema,
   createCampaignSchema,
   ratingSchema,
   updateCampaignSchema,
   updateStatusSchema,
-} from "../validations/campaign.schema.js";
-import { addVolunteerSchema } from "../validations/campaign.validation.js";
+} from "../validations/campaign.validation.js";
 
 const router = express.Router();
 router.post(

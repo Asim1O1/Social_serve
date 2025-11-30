@@ -11,7 +11,7 @@ import {
   getCampaigns,
   updateCampaign,
   updateCampaignStatus,
-} from "../repositories/campaign.repository.js";
+} from "../repository/campaign.repository.js";
 
 export const createCampaignService = async (data) => {
   const { title, description, category, location, date, createdBy, files } =
