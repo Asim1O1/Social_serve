@@ -36,7 +36,7 @@ export const createCampaignService = async (data) => {
     attachments = await Promise.all(uploadPromises);
   }
 
-  const campaign = await createCampaign({
+  const campaignData = {
     title,
     description,
     category,
@@ -44,7 +44,9 @@ export const createCampaignService = async (data) => {
     date,
     createdBy,
     attachments,
-  });
+  };
+
+  const campaign = await createCampaign(campaignData);
 
   return {
     id: campaign._id,
@@ -66,6 +68,7 @@ export const getCampaignsService = async (filters = {}) => {
       date,
       category,
       status,
+      createdBy,
       createdAt,
       attachments,
     }) => ({
@@ -110,9 +113,19 @@ export const getCampaignByIdService = async (id) => {
     location,
     date,
     status,
-    attachments,
+    attachments: attachments.map((att) => ({
+      url: att.url,
+      public_id: att.public_id,
+      type: att.type,
+      id: att._id,
+    })),
     volunteers,
-    ratings,
+    ratings: ratings.map((rating) => ({
+      volunteer: rating.volunteer,
+      rating: rating.rating,
+      comment: rating.comment,
+      createdAt: rating.createdAt,
+    })),
     createdBy,
     createdAt,
     updatedAt,

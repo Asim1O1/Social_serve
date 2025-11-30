@@ -1,7 +1,13 @@
 import Campaign from "../models/campaign.model.js";
 
-export const createCampaign = (data) => {
-  return Campaign.create(data);
+export const createCampaign = async (data) => {
+  try {
+    const campaign = new Campaign(data);
+    return await campaign.save();
+  } catch (error) {
+    console.error("MongoDB Save Error:", error);
+    throw error;
+  }
 };
 
 export const getCampaigns = (filters = {}) => {
