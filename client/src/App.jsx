@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router'
 import Navbar from './components/Navbar'
 
+
 function App() {
 
   return (
@@ -8,7 +9,7 @@ function App() {
       <header>
         <Navbar />
       </header>
-      <main className='mt-18 px-3 lg:px-0'>
+      <main className='container mx-auto pt-18 pb-4 px-3 lg:px-0'>
         <Outlet />
       </main>
     </>

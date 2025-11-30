@@ -1,10 +1,35 @@
-import { Building2, MapPin } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { MapPin, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useAuth } from '../context/AuthContext'
+import EventList from '../components/EventList'
+import Comment from '../components/Comment'
+import { api } from '../axios/axios'
+import Loading from '../components/Loading'
 
 function Home() {
     const navigate = useNavigate()
     const { user } = useAuth()
+    const [events, setEvents] = useState()
+    const [event, selectEvent] = useState(null)
+
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const res = await api.get('/campaign')
+                setEvents(res?.data)
+
+            } catch (error) {
+                console.log(error);
+
+            } finally {
+                setLoading(false)
+            }
+        }
+        load()
+    }, [])
 
     const handleRegister = async () => {
         if (!user) {
@@ -13,48 +38,101 @@ function Home() {
         }
         await registerEventVolunteer(user.id)
     }
+
+
     return (
-        <div className='h-screen space-y-3 container mx-auto'>
-            {events.map(event => (
-                <div key={event._id} className='cursor-pointer hover:scale-105 duration-100 border border-border hover:shadow-2xl rounded p-4'>
-                    <Link to={`/event/${event._id}`}>
-                        <h3 className='font-bold text-xl'>{event.name}</h3>
-                        <p className='flex gap-1 my-2 items-center text-gray-500'>
-                            <span><Building2 size={14} /></span>
-                            <span> {event.organizer}</span>
-                        </p>
-                        <p className='flex gap-1 items-center text-gray-500'><span><MapPin size={14} /></span>
-                            <span>{event.location}</span>
-                        </p>
-                    </Link>
-                    <div className='flex justify-end'>
-                        <button onClick={handleRegister} className='cursor-pointer bg-primary text-white rounded px-4 py-1'>Register</button>
-                    </div>
-                </div>
-            ))}
+
+        <div className='min-h-screen'>
+            <div className='mx-auto'>
+                <h1 className='text-5xl text-primary font-bold'>Discover Events</h1>
+                <p className='text-lg'>Explore what's happening around you.</p>
+            </div>
+
+            {loading && <div className='mt-8'><Loading /></div>}
+            {/* Main Content */}
+            <div className='grid-container mt-4'>
+                {events && events.map(event => (
+                    <EventList key={event.id} event={event} selectEvent={selectEvent} handleRegister={handleRegister} />
+                ))}
+
+                {/* Comment Box */}
+                <Comment event={event} selectEvent={selectEvent} />
+            </div>
         </div>
     )
 }
 
 export default Home
 
-const events = [
-    {
-        _id: 12345,
-        name: 'Concert',
-        location: 'Yak & Yeti Ground',
-        organizer: 'Biplav Group of Company'
-    },
-    {
-        _id: 45,
-        name: 'Concert',
-        location: 'Yak & Yeti Ground',
-        organizer: 'Biplav Group of Company'
-    },
-    {
-        _id: 75,
-        name: 'Concert',
-        location: 'Yak & Yeti Ground',
-        organizer: 'Biplav Group of Company'
-    },
-]
+// const events = [
+//     {
+//         _id: 12345,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company',
+//         time: '2025-Nov-12 12:00pm',
+//         comments: [
+//             { user: "biplav", comment: 'This was thrilling concert.' },
+//             { user: "biplav", comment: 'This was thrilling concert.' },
+//             { user: "biplav", comment: 'This was thrilling concert.' }
+//         ]
+//     },
+//     {
+//         _id: 45,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company',
+//         comments: [
+//             { user: 'jackson', comment: 'Yei ho para?' },
+//             { user: 'v10', comment: "Cylinder padkaidim kya ho?" }
+//         ]
+//     },
+//     {
+//         _id: 75,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 55,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 65,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 82,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 98,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 68,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 23,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+//     {
+//         _id: 18,
+//         name: 'Concert',
+//         location: 'Yak & Yeti Ground',
+//         organizer: 'Biplav Group of Company'
+//     },
+// ]

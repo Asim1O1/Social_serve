@@ -66,8 +66,8 @@ export const getCampaignsService = async (filters = {}) => {
       date,
       category,
       status,
-      createdBy,
       createdAt,
+      attachments,
     }) => ({
       id: _id,
       title,
@@ -77,6 +77,7 @@ export const getCampaignsService = async (filters = {}) => {
       status,
       createdBy,
       createdAt,
+      attachments,
     })
   );
 };
