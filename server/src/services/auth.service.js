@@ -12,7 +12,7 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt.js";
 
-export const registerVolunteerService = async (data) => {
+export const registerVolunteerService = async (data, file) => {
   const {
     firstName,
     lastName,
@@ -21,15 +21,24 @@ export const registerVolunteerService = async (data) => {
     password,
     skills,
     interests,
-    profilePic,
   } = data;
 
-  const existingUser = await findUserByEmail(email);
+  const existing = await findUserByEmail(email);
   assertOrThrow(
-    !existingUser,
+    !existing,
     HTTP_STATUS.BAD_REQUEST,
     "Email is already registered"
   );
+
+  let profilePic = null;
+
+  if (file) {
+    const upload = await uploadToCloudinary(file.buffer, "profile_pics");
+    profilePic = {
+      url: upload.secure_url,
+      public_id: upload.public_id,
+    };
+  }
 
   const user = await createUser({
     firstName,
@@ -38,20 +47,21 @@ export const registerVolunteerService = async (data) => {
     phoneNumber,
     password,
     role: "VOLUNTEER",
-    skills: skills || [],
-    interests: interests || [],
-    profilePic: profilePic || null,
+    skills,
+    interests,
+    profilePic,
   });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
+    profilePic: user.profilePic?.url || null,
   };
 };
 
-export const registerOrganizerService = async (data) => {
+export const registerOrganizerService = async (data, file) => {
   const {
     firstName,
     lastName,
@@ -64,21 +74,33 @@ export const registerOrganizerService = async (data) => {
     organizationPhone,
     organizationEmail,
     organizationLocation,
-    organizationLogo,
   } = data;
 
-  const existingUser = await findUserByEmail(organizationEmail);
+  const existingUser = await findUserByEmail(email);
   assertOrThrow(
     !existingUser,
     HTTP_STATUS.BAD_REQUEST,
-    "Email is already registered"
+    "User email is already registered"
   );
 
-  assertOrThrow(
-    organizationName,
-    HTTP_STATUS.BAD_REQUEST,
-    "Organization name is required"
-  );
+  if (organizationEmail) {
+    const existingOrg = await findUserByEmail(organizationEmail);
+    assertOrThrow(
+      !existingOrg,
+      HTTP_STATUS.BAD_REQUEST,
+      "Organization email is already registered"
+    );
+  }
+
+  let organizationLogo = null;
+
+  if (file) {
+    const upload = await uploadToCloudinary(file.buffer, "organization_logos");
+    organizationLogo = {
+      url: upload.secure_url,
+      public_id: upload.public_id,
+    };
+  }
 
   const user = await createUser({
     firstName,
@@ -91,36 +113,35 @@ export const registerOrganizerService = async (data) => {
     organizationDescription: organizationDescription || null,
     organizationType: organizationType || null,
     organizationPhone: organizationPhone || null,
-    organizationEmail: organizationEmail || null,
+    organizationEmail,
     organizationLocation: organizationLocation || null,
-    organizationLogo: organizationLogo || null,
+
+    organizationLogo,
   });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
     organizationName: user.organizationName,
+    organizationLogo: user.organizationLogo?.url || null,
   };
 };
+
 export const loginUserService = async ({ email, password }) => {
   const user = await findUserByEmail(email);
   assertOrThrow(user, HTTP_STATUS.UNAUTHORIZED, "Invalid email or password");
 
-  const isPasswordValid = await user.comparePassword(password);
-  assertOrThrow(
-    isPasswordValid,
-    HTTP_STATUS.UNAUTHORIZED,
-    "Invalid email or password"
-  );
+  const isValid = await user.comparePassword(password);
+  assertOrThrow(isValid, HTTP_STATUS.UNAUTHORIZED, "Invalid email or password");
 
   const accessToken = generateAccessToken({ id: user._id, role: user.role });
   const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
 
   return {
     id: user._id,
-    fullName: user.fullName,
+    fullName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     role: user.role,
     accessToken,
