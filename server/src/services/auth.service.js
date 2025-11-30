@@ -115,7 +115,6 @@ export const registerOrganizerService = async (data, file) => {
     organizationPhone: organizationPhone || null,
     organizationEmail,
     organizationLocation: organizationLocation || null,
-
     organizationLogo,
   });
 

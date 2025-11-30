@@ -3,7 +3,6 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
 
 import {
-  addCampaignAttachment,
   addCampaignRating,
   addCampaignVolunteer,
   createCampaign,
@@ -12,22 +11,46 @@ import {
   getCampaigns,
   updateCampaign,
   updateCampaignStatus,
-} from "../repositories/campaign.repository.js";
+} from "../repository/campaign.repository.js";
 
 export const createCampaignService = async (data) => {
+  const { title, description, category, location, date, createdBy, files } =
+    data;
+
+  let attachments = [];
+
+  if (files && files.length > 0) {
+    const uploadPromises = files.map(async (file) => {
+      const uploaded = await uploadToCloudinary(
+        file.buffer,
+        "campaign_attachments"
+      );
+
+      return {
+        url: uploaded.secure_url,
+        public_id: uploaded.public_id,
+        type: uploaded.resource_type,
+      };
+    });
+
+    attachments = await Promise.all(uploadPromises);
+  }
+
   const campaign = await createCampaign({
-    title: data.title,
-    description: data.description,
-    category: data.category,
-    location: data.location,
-    date: data.date,
-    createdBy: data.createdBy,
+    title,
+    description,
+    category,
+    location,
+    date,
+    createdBy,
+    attachments,
   });
 
   return {
     id: campaign._id,
     title: campaign.title,
     status: campaign.status,
+    attachments: campaign.attachments,
     createdAt: campaign.createdAt,
   };
 };
@@ -35,45 +58,98 @@ export const createCampaignService = async (data) => {
 export const getCampaignsService = async (filters = {}) => {
   const campaigns = await getCampaigns(filters);
 
-  return campaigns.map((c) => ({
-    id: c._id,
-    title: c.title,
-    category: c.category,
-    status: c.status,
-    createdAt: c.createdAt,
-  }));
+  return campaigns.map(
+    ({ _id, title, location, date, category, status, createdAt }) => ({
+      id: _id,
+      title,
+      location,
+      date,
+      category,
+      status,
+      createdAt,
+    })
+  );
 };
 
 export const getCampaignByIdService = async (id) => {
   const campaign = await getCampaignById(id);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
+  const {
+    _id,
+    title,
+    description,
+    category,
+    location,
+    date,
+    status,
+    attachments,
+    volunteers,
+    ratings,
+    createdBy,
+    createdAt,
+    updatedAt,
+  } = campaign;
+
   return {
-    id: campaign._id,
-    title: campaign.title,
-    description: campaign.description,
-    category: campaign.category,
-    location: campaign.location,
-    date: campaign.date,
-    status: campaign.status,
-    attachments: campaign.attachments,
-    volunteers: campaign.volunteers,
-    ratings: campaign.ratings,
-    createdBy: campaign.createdBy,
-    createdAt: campaign.createdAt,
-    updatedAt: campaign.updatedAt,
+    id: _id,
+    title,
+    description,
+    category,
+    location,
+    date,
+    status,
+    attachments,
+    volunteers,
+    ratings,
+    createdBy,
+    createdAt,
+    updatedAt,
   };
 };
 
-export const updateCampaignService = async (id, updateData) => {
-  const updated = await updateCampaign(id, updateData);
+export const updateCampaignService = async (id, data) => {
+  const { title, description, category, location, date, status, files } = data;
+
+  let newAttachments = [];
+
+  if (files && files.length > 0) {
+    const uploadPromises = files.map(async (file) => {
+      const uploaded = await uploadToCloudinary(
+        file.buffer,
+        "campaign_attachments"
+      );
+
+      return {
+        url: uploaded.secure_url,
+        public_id: uploaded.public_id,
+        type: uploaded.resource_type,
+      };
+    });
+
+    newAttachments = await Promise.all(uploadPromises);
+  }
+
+  const updated = await updateCampaign(id, {
+    title,
+    description,
+    category,
+    location,
+    date,
+    status,
+    ...(newAttachments.length > 0 && {
+      $push: { attachments: { $each: newAttachments } },
+    }),
+  });
+
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
+  const { _id, updatedAt } = updated;
+
   return {
-    id: updated._id,
-    title: updated.title,
-    status: updated.status,
-    updatedAt: updated.updatedAt,
+    id: _id,
+    updatedAt,
+    attachments: updated.attachments,
   };
 };
 
@@ -91,42 +167,14 @@ export const updateCampaignStatusService = async (id, status) => {
   const updated = await updateCampaignStatus(id, status);
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
+  const { _id, status: newStatus } = updated;
+
   return {
-    id: updated._id,
-    status: updated.status,
+    id: _id,
+    status: newStatus,
   };
 };
 
-/**
- * ADD ATTACHMENT TO CAMPAIGN
- */
-export const addCampaignAttachmentService = async (id, file) => {
-  assertOrThrow(file, HTTP_STATUS.BAD_REQUEST, "No file uploaded");
-
-  // Upload to Cloudinary
-  const uploaded = await uploadToCloudinary(
-    file.buffer,
-    "campaign_attachments"
-  );
-
-  const attachment = {
-    url: uploaded.secure_url,
-    public_id: uploaded.public_id,
-    type: uploaded.resource_type,
-  };
-
-  const updated = await addCampaignAttachment(id, attachment);
-  assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
-
-  return {
-    id: updated._id,
-    attachments: updated.attachments,
-  };
-};
-
-/**
- * ADD VOLUNTEER TO CAMPAIGN
- */
 export const addCampaignVolunteerService = async (
   campaignId,
   volunteerRegId
@@ -134,28 +182,31 @@ export const addCampaignVolunteerService = async (
   const updated = await addCampaignVolunteer(campaignId, volunteerRegId);
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
+  const { _id, volunteers } = updated;
+
   return {
-    id: updated._id,
-    volunteers: updated.volunteers,
+    id: _id,
+    volunteers,
   };
 };
 
-/**
- * ADD RATING TO CAMPAIGN
- */
 export const addCampaignRatingService = async (campaignId, data) => {
+  const { volunteer, rating, comment } = data;
+
   const ratingData = {
-    volunteer: data.volunteer,
-    rating: data.rating,
-    comment: data.comment || null,
+    volunteer,
+    rating,
+    comment: comment || null,
     createdAt: new Date(),
   };
 
   const updated = await addCampaignRating(campaignId, ratingData);
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
+  const { _id, ratings } = updated;
+
   return {
-    id: updated._id,
-    ratings: updated.ratings,
+    id: _id,
+    ratings,
   };
 };
