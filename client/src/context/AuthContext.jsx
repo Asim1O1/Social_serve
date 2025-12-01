@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (formData) => {
         let data;
-        console.log(formData);
 
         if (formData.role == 'ADMIN') {
             data = await apiPublic.post('/auth/register/organizer', formData)

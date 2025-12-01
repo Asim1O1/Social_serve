@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeClosed } from "lucide-react";
 
 export default function Login() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { user, login } = useAuth();
 
-    if (user) {
+    if (user && !location.state.from) {
         navigate('/profile')
     }
 
@@ -17,6 +18,7 @@ export default function Login() {
     const [viewpw, setViewpw] = useState(false)
     const [loading, setLoading] = useState(false);
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -24,9 +26,14 @@ export default function Login() {
 
         try {
             const status = await login(email, password);
+            console.log(location.state.from);
+
             if (status == 'success') {
-                navigate('/profile')
-                return;
+                if (location.state.from) {
+                    navigate(location.state.from, { replace: true })
+                } else {
+                    navigate('/profile', { replace: true })
+                }
             }
         } catch (err) {
             setError("Invalid email or password");

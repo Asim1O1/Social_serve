@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { api } from '../axios/axios'
 import Loading from '../components/Loading'
+import { Bookmark, MapPin, Timer } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router'
 
 function Campaign() {
+
+    const { user } = useAuth()
     const { id } = useParams()
     const [event, setEvent] = useState()
     const [loading, setLoading] = useState(true)
@@ -37,24 +42,13 @@ function Campaign() {
                     </h1>
 
                     <div className="flex flex-col gap-2 text-gray-700">
-                        <p><span className="font-semibold">Category:</span> {event.category}</p>
-                        <p><span className="font-semibold">Date:</span> {event.date}</p>
-                        <p><span className="font-semibold">Location:</span> {event.location}</p>
-                        <p><span className="font-semibold">Organized By:</span> {event.organizedBy}</p>
+                        <p className="font-semibold flex items-center gap-3"><Bookmark size={18} /><span>{event.category}</span></p>
+                        <p className="font-semibold flex items-center gap-3"><Timer size={18} /><span>{event?.date?.split('T')[0]}</span></p>
+                        <p className="font-semibold flex items-center gap-3"><MapPin size={18} /><span>{event.location}</span></p>
                     </div>
-                </div>
-
-                {/* Right: Event Banner */}
-                <div className="w-full md:w-72 h-48 rounded-2xl overflow-hidden shadow-md">
-                    <img
-                        src={event.banner || "/placeholder.jpg"}
-                        alt="Event Banner"
-                        className="w-full h-full object-cover"
-                    />
                 </div>
             </div>
 
-            {/* ================= Event Description Section ================= */}
             <div className="mt-10">
                 <h2 className="text-2xl font-semibold text-primary mb-3">About the Event</h2>
                 <p className="text-gray-700 leading-relaxed">
@@ -62,13 +56,12 @@ function Campaign() {
                 </p>
             </div>
 
-            {/* ================= Comment Section ================= */}
+
             <div className="mt-12">
                 <h2 className="text-2xl font-semibold text-primary mb-4">Comments</h2>
 
-                {/* Horizontal Scroll Comments */}
                 <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent">
-                    {event?.comments?.length ? (
+                    {(event?.comments?.length) ? (
                         event.comments.map((c, index) => (
                             <div
                                 key={index}
@@ -99,16 +92,18 @@ function Campaign() {
                 </div>
 
                 {/* Add Comment Input */}
-                <div className="mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm">
-                    <textarea
-                        placeholder="Write your comment..."
-                        className="w-full border border-border rounded-xl p-3 outline-none focus:border-primary transition-all"
-                        rows="3"
-                    ></textarea>
-
-                    <button className="mt-3 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-hover transition-all">
-                        Post Comment
-                    </button>
+                <div className={`relative mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm`}>
+                    <div className={`${!user ? 'blur-sm' : ""}`}>
+                        <textarea
+                            placeholder="Write your comment..."
+                            className="w-full border border-border rounded-xl p-3 outline-none focus:border-primary transition-all"
+                            rows="3"
+                        ></textarea>
+                        <button disabled={!user} className="mt-3 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-hover transition-all">
+                            Post Comment
+                        </button>
+                    </div>
+                    {!user && <Link state={{ from: location.pathname }} to='/login' className='absolute -translate-1/2 top-1/2 left-1/2 primary-btn w-fit'>Login to comment.</Link>}
                 </div>
             </div>
 
