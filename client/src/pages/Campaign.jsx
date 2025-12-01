@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { api } from '../axios/axios'
 import Loading from '../components/Loading'
 
-function Event() {
+function Campaign() {
     const { id } = useParams()
     const [event, setEvent] = useState()
     const [loading, setLoading] = useState(true)
@@ -116,4 +116,4 @@ function Event() {
     )
 }
 
-export default Event
+export default Campaign

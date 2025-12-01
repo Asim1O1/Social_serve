@@ -30,7 +30,7 @@ nav {
 }
 
 .primary-btn {
-  @apply px-4 py-2 border-primary border md:px-4 md:py-2 md:rounded-lg font-semibold text-sm transition-all bg-primary cursor-pointer hover:bg-primary text-white duration-200 flex items-center gap-1;
+  @apply px-4 py-2 border-primary border md:px-4 md:py-2  rounded-lg font-semibold text-sm transition-all bg-primary cursor-pointer hover:bg-primary text-white duration-200 flex items-center gap-1;
 }
 
 .primary-btn:has(svg) {
@@ -42,4 +42,22 @@ nav {
 }
 .grid-container {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
 }

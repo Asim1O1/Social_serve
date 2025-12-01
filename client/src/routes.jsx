@@ -4,8 +4,8 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Event from "./pages/Event";
-import CreateCampain from "./pages/CreateCampain";
+import Event from "./pages/Campaign";
+import CreateCampaign from "./pages/CreateCampaign";
 import ForgotPassword from "./pages/ForgotPassword";
 
 export const router = createBrowserRouter([
@@ -40,8 +40,12 @@ export const router = createBrowserRouter([
         element: <Profile />
       },
       {
-        path: '/create-campain',
-        element: <CreateCampain />
+        path: '/create-campaign',
+        element: <CreateCampaign />
+      },
+      {
+        path: '/create-campaign/:id',
+        element: <CreateCampaign />
       }
     ]
   }

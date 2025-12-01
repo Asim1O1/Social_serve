@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useEffect } from 'react';
 import Loading from '../components/Loading';
 import { Plus, User } from 'lucide-react';
-import EventList from '../components/EventList';
+import EventList from '../components/CampaignList';
 
 function Profile() {
     const navigate = useNavigate()
@@ -34,14 +34,14 @@ function Profile() {
             <div className='mt-8'>
                 <div className='flex items-center justify-between'>
                     <h1 className='font-bold text-2xl'>My Events</h1>
-                    {user?.role == "ADMIN" && <Link to="/create-campain" className='primary-btn rounded-full'>
+                    {user?.role == "ADMIN" && <Link to="/create-campaign" className='primary-btn rounded-full'>
                         <Plus className='inline-block md:hidden' size={16} />
                         <span className='md:inline hidden'>Create event</span>
                     </Link>}
                 </div>
                 <div className='grid-container mt-6'>
                     {events.map(event => (
-                        <EventList event={event} />
+                        <EventList key={event.id} event={event} />
                     ))}
                 </div>
             </div>
@@ -53,83 +53,31 @@ export default Profile;
 
 const events = [
     {
-        "id": "692c5abf51144f65854e9125",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
+        "id": "692c92fc7d1feca948818d21",
+        "title": "GVHJBKIOK",
+        "location": "HVBJUIJOXAPS",
+        "date": "2025-12-29T00:00:00.000Z",
         "category": "Health",
         "status": "DRAFT",
-        "createdAt": "2025-11-30T14:54:55.767Z"
+        "createdBy": "6927fc7ceba4980512d7b0ae",
+        "createdAt": "2025-11-30T18:54:52.201Z",
+        "attachments": [
+            {
+                "url": "https://res.cloudinary.com/dqkmdoskj/image/upload/v1764528891/campaign_attachments/ixuweekdhabrjpm365dh.png",
+                "public_id": "campaign_attachments/ixuweekdhabrjpm365dh",
+                "type": "image",
+                "_id": "692c92fc7d1feca948818d22"
+            }
+        ]
     },
     {
-        "id": "692c5a9d51144f65854e9123",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
+        "id": "692c8db0604dba51679b6211",
+        "title": "ASERTYUIOKNBVGYU",
+        "location": "rtiofvlkew",
+        "date": "2025-12-23T00:00:00.000Z",
         "category": "Health",
         "status": "DRAFT",
-        "createdAt": "2025-11-30T14:54:21.095Z"
-    },
-    {
-        "id": "692c5a6851144f65854e9121",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:53:28.891Z"
-    },
-    {
-        "id": "692c5a0b51144f65854e911f",
-        "title": "test",
-        "location": "test",
-        "date": "2030-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:51:55.553Z"
-    },
-    {
-        "id": "692c59c251144f65854e911d",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:50:42.532Z"
-    },
-    {
-        "id": "692c599d51144f65854e911b",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:50:05.246Z"
-    },
-    {
-        "id": "692c57cb51144f65854e9100",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:42:19.324Z"
-    },
-    {
-        "id": "692c57bd51144f65854e90fe",
-        "title": "test",
-        "location": "esrfs",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:42:05.686Z"
-    },
-    {
-        "id": "692c574051144f65854e90fc",
-        "title": "test",
-        "location": "test",
-        "date": "2026-12-12T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdAt": "2025-11-30T14:40:00.352Z"
+        "createdBy": "6927fc7ceba4980512d7b0ae",
+        "createdAt": "2025-11-30T18:32:16.563Z",
+        "attachments": []
     }]
