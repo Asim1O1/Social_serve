@@ -10,9 +10,10 @@ import CardFooter from "./CampaignCardFooter";
 import ActionsMenu from "./CampaignActionMenu";
 import ConfirmModal from "./ConfirmModal";
 
-function CampaignList({ event, selectEvent, handleRegister }) {
+function CampaignList({ campaign, choseCampaign, handleRegister }) {
     const { user } = useAuth();
     const location = useLocation();
+
 
     const [popup, setPopup] = useState(null);
     const popupRef = useRef(null);
@@ -39,8 +40,8 @@ function CampaignList({ event, selectEvent, handleRegister }) {
     const deleteEvent = async () => {
         try {
             setLoading(true);
-            await api.delete(`/campaign/${event.id}`);
-            toast.success("Event deleted!");
+            await api.delete(`/campaign/${campaign.id}`);
+            toast.success("campaign deleted!");
         } catch (err) {
             console.error(err);
             toast.error("Failed to delete!");
@@ -54,31 +55,31 @@ function CampaignList({ event, selectEvent, handleRegister }) {
         <div
             className="group p-5 bg-primary/10 space-y-4 relative rounded-xl overflow-hidden hover:border-purple-500 transition-all duration-300">
             <CardHeader
-                title={event?.title}
-                event={event}
+                title={campaign?.title}
+                campaign={campaign}
                 isAdmin={user?.role === "ADMIN"}
                 inProfile={location.pathname.includes("profile")}
                 popup={popup}
                 setPopup={setPopup}
                 popupRef={popupRef}
             />
-             <ActionsMenu
+            <ActionsMenu
                 popup={popup}
-                event={event}
+                campaign={campaign}
                 setOpenModal={setOpenModal}
                 popupRef={popupRef}
             />
 
-            <CardInfo event={event} />
-            <div className="rounded-full w-full h-0.25 bg-accent"></div>
+            <CardInfo campaign={campaign} />
+            <div className="rounded-full w-full h-[1px] bg-accent"></div>
             <CardFooter
-                event={event}
-                selectEvent={selectEvent}
+                campaign={campaign}
+                choseCampaign={choseCampaign}
                 handleRegister={handleRegister}
                 user={user}
                 location={location}
             />
-           
+
             <ConfirmModal
                 open={openModal}
                 onClose={() => setOpenModal(false)}

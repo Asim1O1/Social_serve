@@ -8,7 +8,7 @@ export default function Login() {
     const location = useLocation()
     const { user, login } = useAuth();
 
-    if (user && !location.state.from) {
+    if (user && !location?.state?.from) {
         navigate('/profile')
     }
 
@@ -26,7 +26,6 @@ export default function Login() {
 
         try {
             const status = await login(email, password);
-            console.log(location.state.from);
 
             if (status == 'success') {
                 if (location.state.from) {
@@ -36,7 +35,7 @@ export default function Login() {
                 }
             }
         } catch (err) {
-            setError("Invalid email or password");
+            toast.error("Invalid email or password");
         } finally {
             setLoading(false);
         }

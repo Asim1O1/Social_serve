@@ -2,7 +2,7 @@ import { Ellipsis } from "lucide-react";
 
 function CampaignCardHeader({
     title,
-    event,
+    campaign,
     isAdmin,
     inProfile,
     popup,
@@ -10,12 +10,13 @@ function CampaignCardHeader({
 }) {
     return (
         <div>
-            <h3 className="font-bold text-xl">{title}</h3>
+            <img className="w-full aspect-square object-cover rounded" src={campaign?.attachments[0]?.url || `https://placehold.co/60x60?text=${title}`} />
+            <h3 className="font-bold text-xl mt-3">{title}</h3>
 
             {isAdmin && inProfile && (
                 <button
                     onClick={() =>
-                        popup === event.id ? setPopup(null) : setPopup(event.id)
+                        popup === campaign.id ? setPopup(null) : setPopup(campaign.id)
                     }
                     className="absolute top-5 right-5 cursor-pointer ellipsis-btn" // add this class!
                 >

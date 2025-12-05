@@ -1,43 +1,11 @@
-import { MapPin, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
-import { useAuth } from '../context/AuthContext'
-import EventList from '../components/CampaignList'
+
 import Comment from '../components/Comment'
-import { api } from '../axios/axios'
 import Loading from '../components/Loading'
+import CampaignList from '../components/CampaignList'
+import { useCampaign } from '../context/CampaignContext'
 
 function Home() {
-    const navigate = useNavigate()
-    const { user } = useAuth()
-    const [events, setEvents] = useState()
-    const [event, selectEvent] = useState(null)
-
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const res = await api.get('/campaign')
-                setEvents(res?.data)
-
-            } catch (error) {
-                console.log(error);
-
-            } finally {
-                setLoading(false)
-            }
-        }
-        load()
-    }, [])
-
-    const handleRegister = async () => {
-        if (!user) {
-            navigate('/login')
-            return;
-        }
-        await registerEventVolunteer(user.id)
-    }
+    const { status, activeCampaign, campaigns, choseCampaign, handleRegister } = useCampaign()
 
 
     return (
@@ -48,15 +16,15 @@ function Home() {
                 <p className='text-lg'>Explore what's happening around you.</p>
             </div>
 
-            {loading && <div className='mt-8'><Loading /></div>}
+            {status == 'loading' && <div className='mt-8'><Loading /></div>}
             {/* Main Content */}
             <div className='grid-container mt-4'>
-                {events && events.map(event => (
-                    <EventList key={event.id} event={event} selectEvent={selectEvent} handleRegister={handleRegister} />
+                {campaigns && campaigns.map(event => (
+                    <CampaignList key={event.id} campaign={event} choseCampaign={choseCampaign} handleRegister={handleRegister} />
                 ))}
 
                 {/* Comment Box */}
-                <Comment event={event} selectEvent={selectEvent} />
+                <Comment activeCampaign={activeCampaign} choseCampaign={choseCampaign} />
             </div>
         </div>
     )

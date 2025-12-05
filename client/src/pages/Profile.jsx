@@ -3,11 +3,16 @@ import { useAuth } from '../context/AuthContext'
 import { useEffect } from 'react';
 import Loading from '../components/Loading';
 import { Plus, User } from 'lucide-react';
-import EventList from '../components/CampaignList';
+import Comment from '../components/Comment';
+import { useCampaign } from '../context/CampaignContext';
+import CampaignList from '../components/CampaignList';
+import { handleRegister } from '../utils/campaign';
 
 function Profile() {
     const navigate = useNavigate()
     const { user, loading, logout } = useAuth()
+    const { campaigns, status, choseCampaign, activeCampaign, handleRegister } = useCampaign()
+
 
     useEffect(() => {
         if (!loading && !user) {
@@ -15,11 +20,12 @@ function Profile() {
         }
     }, [loading, user]);
 
-    if (loading) {
+    if (loading || status == 'loading') {
         return (
             <Loading />
         )
     }
+
 
     return (
         <div>
@@ -39,10 +45,13 @@ function Profile() {
                         <span className='md:inline hidden'>Create event</span>
                     </Link>}
                 </div>
-                <div className='grid-container mt-6'>
-                    {events.map(event => (
-                        <EventList key={event.id} event={event} />
+                <div className='grid-container mt-4'>
+                    {campaigns && campaigns.map(campaign => (
+                        <CampaignList key={campaign?.id} campaign={campaign} handleRegister={handleRegister} choseCampaign={choseCampaign} />
                     ))}
+
+                    {/* Comment Box */}
+                    <Comment campaign={activeCampaign} choseCampaign={choseCampaign} />
                 </div>
             </div>
         </div>
@@ -50,34 +59,3 @@ function Profile() {
 }
 
 export default Profile;
-
-const events = [
-    {
-        "id": "692c92fc7d1feca948818d21",
-        "title": "GVHJBKIOK",
-        "location": "HVBJUIJOXAPS",
-        "date": "2025-12-29T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdBy": "6927fc7ceba4980512d7b0ae",
-        "createdAt": "2025-11-30T18:54:52.201Z",
-        "attachments": [
-            {
-                "url": "https://res.cloudinary.com/dqkmdoskj/image/upload/v1764528891/campaign_attachments/ixuweekdhabrjpm365dh.png",
-                "public_id": "campaign_attachments/ixuweekdhabrjpm365dh",
-                "type": "image",
-                "_id": "692c92fc7d1feca948818d22"
-            }
-        ]
-    },
-    {
-        "id": "692c8db0604dba51679b6211",
-        "title": "ASERTYUIOKNBVGYU",
-        "location": "rtiofvlkew",
-        "date": "2025-12-23T00:00:00.000Z",
-        "category": "Health",
-        "status": "DRAFT",
-        "createdBy": "6927fc7ceba4980512d7b0ae",
-        "createdAt": "2025-11-30T18:32:16.563Z",
-        "attachments": []
-    }]

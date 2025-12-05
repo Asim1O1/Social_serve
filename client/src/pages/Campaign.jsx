@@ -7,17 +7,17 @@ import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router'
 
 function Campaign() {
-
     const { user } = useAuth()
     const { id } = useParams()
-    const [event, setEvent] = useState()
+    // const [event, setEvent] = useState()
+    const [campaign, setCampaign] = useState(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await api.get(`/campaign/${id}`)
-                setEvent(res.data)
+                setCampaign(res.data)
             } catch (error) {
                 console.log(error)
             } finally {
@@ -38,31 +38,32 @@ function Campaign() {
                 {/* Left: Title & Info */}
                 <div className="flex-1">
                     <h1 className="text-primary text-4xl font-bold mb-2">
-                        {event.title}
+                        {campaign.title}
                     </h1>
 
                     <div className="flex flex-col gap-2 text-gray-700">
-                        <p className="font-semibold flex items-center gap-3"><Bookmark size={18} /><span>{event.category}</span></p>
-                        <p className="font-semibold flex items-center gap-3"><Timer size={18} /><span>{event?.date?.split('T')[0]}</span></p>
-                        <p className="font-semibold flex items-center gap-3"><MapPin size={18} /><span>{event.location}</span></p>
+                        <p className="font-semibold flex items-center gap-3"><Bookmark size={18} /><span>{campaign.category}</span></p>
+                        <p className="font-semibold flex items-center gap-3"><Timer size={18} /><span>{campaign?.date?.split('T')[0]}</span></p>
+                        <p className="font-semibold flex items-center gap-3"><MapPin size={18} /><span>{campaign.location}</span></p>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-10">
+            <div className="my-5">
                 <h2 className="text-2xl font-semibold text-primary mb-3">About the Event</h2>
                 <p className="text-gray-700 leading-relaxed">
-                    {event.description || "No description provided."}
+                    {campaign.description || "No description provided."}
                 </p>
             </div>
 
+            {campaign.attachments && <img className='h-120 aspect-square rounded' src={campaign.attachments[0]?.url} />}
 
-            <div className="mt-12">
+            <div className="my-5">
                 <h2 className="text-2xl font-semibold text-primary mb-4">Comments</h2>
 
                 <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent">
-                    {(event?.comments?.length) ? (
-                        event.comments.map((c, index) => (
+                    {(campaign?.comments?.length) ? (
+                        campaign.comments.map((c, index) => (
                             <div
                                 key={index}
                                 className="min-w-[280px] bg-white border border-border p-4 rounded-2xl shadow-sm hover:shadow-md transition-all"

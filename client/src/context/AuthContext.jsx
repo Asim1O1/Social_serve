@@ -40,9 +40,10 @@ export const AuthProvider = ({ children }) => {
             setUser(data.data)
             sessionStorage.setItem('rt', data.data.refreshToken);
             sessionStorage.setItem('id', data.data.id);
-            sessionStorage.setItem('at', data.data.accessToken)
+            sessionStorage.setItem('at', data.data.accessToken);
             return data.status;
         }
+        throw new Error(data);
     }
 
     const logout = () => {

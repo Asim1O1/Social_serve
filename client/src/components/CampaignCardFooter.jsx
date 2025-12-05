@@ -1,19 +1,19 @@
 import { Link } from "react-router";
 import { MessageSquareText } from "lucide-react";
 
-function EventCardFooter({ event, selectEvent, handleRegister, user, location }) {
+function EventCardFooter({ campaign, choseCampaign, handleRegister, user, location }) {
     return (
         <div className="flex gap-2 items-center justify-between pt-2">
 
             <button
-                onClick={() => selectEvent(event)}
+                onClick={() => choseCampaign(campaign)}
                 className="flex gap-1 items-center text-gray-600 hover:text-primary text-sm"
             >
                 <MessageSquareText size={16} />
-                <span>{event?.comments?.length || 0}</span>
+                <span>{campaign?.comments?.length || 0}</span>
             </button>
 
-            <Link to={`/event/${event.id}`} className="ml-auto primary-btn">
+            <Link to={`/campaign/${campaign.id}`} className="ml-auto primary-btn">
                 View
             </Link>
 
