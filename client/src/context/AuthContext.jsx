@@ -43,13 +43,13 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.setItem('at', data.data.accessToken);
             return data.status;
         }
-        throw new Error(data);
+        return new Error(data);
     }
 
     const logout = () => {
         setUser(null)
         sessionStorage.clear()
-        return data;
+        return null;
     }
 
     return (

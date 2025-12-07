@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
+import { FilePlay, Image } from "lucide-react";
 
 function CreateCampaign() {
   const navigate = useNavigate()
@@ -93,15 +94,15 @@ function CreateCampaign() {
   };
 
   return (
-    <div>
-      <h1 className="text-5xl text-primary font-bold">
+    <div className="max-w-xl mx-auto">
+      <h1 className="text-center text-5xl text-primary font-bold">
         {id ? "Edit Campaign" : "Create Campaign"}
       </h1>
 
       <div className="mt-10">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 p-4 bg-white rounded-lg shadow"
+          className="space-y-6 p-4 bg-white rounded-lg shadow"
         >
           {/* Title */}
           <div>
@@ -192,44 +193,19 @@ function CreateCampaign() {
           </div>
 
           {/* Attachments */}
-          <div>
+          <div className="relative w-full">
             <label className="block font-medium mb-1">Attachments</label>
-
-            {/* Show existing attachments */}
-            {existingFiles.length > 0 && (
-              <div className="flex gap-2 flex-wrap mb-2">
-                {existingFiles.map((file, index) => (
-                  <div key={index} className="border p-2 rounded">
-                    {file.type?.startsWith("image") ? (
-                      <img
-                        src={file.url}
-                        alt={`attachment-${index}`}
-                        className="w-24 h-24 object-cover rounded"
-                      />
-                    ) : (
-                      <a
-                        href={file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline"
-                      >
-                        {file.url.split("/").pop()}
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
 
             <input
               type="file"
               multiple
-              {...register("attachments")}
+              {...register("attachments", { required: 'Attachment is required.' })}
               className={
                 "w-full border p-2 rounded " +
                 (errors.attachments ? "border-red-500" : "border-border")
               }
             />
+            <Image className="absolute top-1/2 right-1" />
           </div>
 
           {/* Submit */}
@@ -237,7 +213,7 @@ function CreateCampaign() {
             {!isSubmitting ? (
               <button
                 type="submit"
-                className="primary-btn disabled:opacity-50"
+                className="w-full primary-btn disabled:opacity-50"
                 disabled={isSubmitting}
               >
                 {id ? "Update" : "Create"} Campaign

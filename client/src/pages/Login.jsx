@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from 'react-router'
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeClosed } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Login() {
     const navigate = useNavigate()
     const location = useLocation()
     const { user, login } = useAuth();
 
-    if (user && !location?.state?.from) {
-        navigate('/profile')
-    }
+    const from = location.state?.from || "/profile";
+
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,12 +28,9 @@ export default function Login() {
             const status = await login(email, password);
 
             if (status == 'success') {
-                if (location.state.from) {
-                    navigate(location.state.from, { replace: true })
-                } else {
-                    navigate('/profile', { replace: true })
-                }
+                navigate(from, { replace: true });
             }
+
         } catch (err) {
             toast.error("Invalid email or password");
         } finally {
