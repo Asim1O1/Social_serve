@@ -16,7 +16,6 @@ export const createCampaign = asyncHandler(async (req, res) => {
     ...req.body,
     files: req.files || [],
   });
-
   return success(res, "Campaign created successfully", data);
 });
 
@@ -35,7 +34,6 @@ export const updateCampaign = asyncHandler(async (req, res) => {
     ...req.body,
     files: req.files || [],
   });
-
   return success(res, "Campaign updated successfully", data);
 });
 

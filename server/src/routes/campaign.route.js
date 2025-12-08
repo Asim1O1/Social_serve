@@ -27,28 +27,22 @@ router.post(
   validate(createCampaignSchema),
   createCampaign
 );
-
 router.get("/", getAllCampaigns);
-
 router.get("/:id", getCampaignById);
-
 router.put(
   "/:id",
   upload.array("attachments"),
   validate(updateCampaignSchema),
   updateCampaign
 );
-
 router.delete("/:id", deleteCampaign);
 
 router.patch("/:id/status", validate(updateStatusSchema), updateCampaignStatus);
-
 router.post(
   "/:id/volunteer",
   validate(addVolunteerSchema),
   addCampaignVolunteer
 );
-
 router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
 
 export default router;
