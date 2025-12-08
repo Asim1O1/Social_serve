@@ -51,3 +51,24 @@ export const addCampaignRating = (campaignId, ratingData) => {
     { new: true, runValidators: true }
   );
 };
+export const getCampaigns = async (filters = {}) => {
+  const { category, status, createdBy, location, search } = filters;
+  const query = {};
+  if (category) query.category = category;
+  if (status) query.status = status;
+  if (createdBy) query.createdBy = createdBy;
+  if (location) query.location = { $regex: location, $options: "i" };
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  return Campaign.find(query)
+    .select(
+      "title location date category status createdBy createdAt attachments"
+    )
+    .sort("-createdAt")
+    .lean();
+};

@@ -216,7 +216,6 @@ export const resetPasswordService = async (token, newPassword) => {
   );
 
   user.password = newPassword;
-
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
 

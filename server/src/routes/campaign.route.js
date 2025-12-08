@@ -2,10 +2,12 @@ import express from "express";
 import {
   addCampaignRating,
   addCampaignVolunteer,
+  applyForCampaign,
   createCampaign,
   deleteCampaign,
   getAllCampaigns,
   getCampaignById,
+  getCampaignVolunteerRequests,
   updateCampaign,
   updateCampaignStatus,
 } from "../controllers/campaign.controller.js";
@@ -44,5 +46,7 @@ router.post(
   addCampaignVolunteer
 );
 router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
+router.post("/:id/apply", applyForCampaign);
 
+router.get("/:id/volunteers", getCampaignVolunteerRequests);
 export default router;
