@@ -187,6 +187,62 @@ export const deleteCampaignService = async (id) => {
   };
 };
 
+export const applyForCampaignService = async (campaignId, userId) => {
+  const campaign = await getCampaignById(campaignId);
+  assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
+
+  assertOrThrow(
+    campaign.createdBy.toString() !== userId.toString(),
+    HTTP_STATUS.BAD_REQUEST,
+    "Organizers cannot apply as volunteers"
+  );
+
+  const alreadyApplied = campaign.volunteers?.some(
+    (vol) => vol.volunteer.toString() === userId.toString()
+  );
+
+  assertOrThrow(
+    !alreadyApplied,
+    HTTP_STATUS.BAD_REQUEST,
+    "You have already applied as a volunteer"
+  );
+
+  const updated = await addCampaignVolunteer(campaignId, {
+    volunteer: userId,
+    status: "pending",
+    appliedAt: new Date(),
+  });
+
+  return {
+    message: "Volunteer request submitted successfully",
+    volunteers: updated.volunteers,
+  };
+};
+export const getCampaignVolunteerRequestsService = async (
+  campaignId,
+  organizerId
+) => {
+  const campaign = await getCampaignById(campaignId);
+  assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
+
+  assertOrThrow(
+    campaign.createdBy.toString() === organizerId.toString(),
+    HTTP_STATUS.FORBIDDEN,
+    "You are not authorized to view volunteer requests for this campaign"
+  );
+
+  return {
+    id: campaign._id,
+    title: campaign.title,
+    volunteerRequests: campaign.volunteers.map((v) => ({
+      id: v._id,
+      volunteer: v.volunteer,
+      status: v.status,
+      appliedAt: v.appliedAt,
+    })),
+  };
+};
+
 export const updateCampaignStatusService = async (id, status) => {
   const updated = await updateCampaignStatus(id, status);
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
