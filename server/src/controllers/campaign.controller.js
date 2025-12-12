@@ -1,6 +1,5 @@
 import {
   addCampaignRatingService,
-  addCampaignVolunteerService,
   applyForCampaignService,
   createCampaignService,
   deleteCampaignService,
@@ -50,12 +49,6 @@ export const updateCampaignStatus = asyncHandler(async (req, res) => {
   return success(res, "Campaign status updated successfully", data);
 });
 
-export const addCampaignVolunteer = asyncHandler(async (req, res) => {
-  const { volunteerRegId } = req.body;
-  const data = await addCampaignVolunteerService(req.params.id, volunteerRegId);
-  return success(res, "Volunteer added to campaign", data);
-});
-
 export const addCampaignRating = asyncHandler(async (req, res) => {
   const data = await addCampaignRatingService(req.params.id, req.body);
   return success(res, "Rating submitted successfully", data);
@@ -77,4 +70,19 @@ export const getCampaignVolunteerRequests = asyncHandler(async (req, res) => {
   );
 
   return success(res, "Volunteer requests fetched successfully", data);
+});
+
+export const respondToVolunteerRequest = asyncHandler(async (req, res) => {
+  const organizerId = req.user.id;
+  const { status } = req.body;
+  const { id: campaignId, volunteerId } = req.params;
+
+  const data = await respondToVolunteerRequestService(
+    campaignId,
+    volunteerId,
+    organizerId,
+    status
+  );
+
+  return success(res, `Volunteer request ${status}`, data);
 });

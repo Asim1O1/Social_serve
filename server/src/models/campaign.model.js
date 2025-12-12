@@ -54,8 +54,23 @@ const campaignSchema = new mongoose.Schema(
 
     volunteers: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "VolunteerRegistration",
+        volunteer: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ["pending", "accepted", "rejected"],
+          default: "pending",
+        },
+        appliedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        respondedAt: {
+          type: Date,
+        },
       },
     ],
 
