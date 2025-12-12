@@ -132,6 +132,56 @@ export const getCampaignByIdService = async (id) => {
   };
 };
 
+export const respondToVolunteerRequestService = async (
+  campaignId,
+  volunteerId,
+  organizerId,
+  status
+) => {
+  assertOrThrow(
+    ["accepted", "rejected"].includes(status),
+    HTTP_STATUS.BAD_REQUEST,
+    "Invalid status"
+  );
+
+  const campaign = await getCampaignById(campaignId);
+  assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
+
+  assertOrThrow(
+    campaign.createdBy.toString() === organizerId.toString(),
+    HTTP_STATUS.FORBIDDEN,
+    "You are not authorized to manage volunteers for this campaign"
+  );
+
+  const volunteerRequest = campaign.volunteers.find(
+    (v) => v.volunteer.toString() === volunteerId
+  );
+
+  assertOrThrow(
+    volunteerRequest,
+    HTTP_STATUS.NOT_FOUND,
+    "Volunteer request not found"
+  );
+
+  assertOrThrow(
+    volunteerRequest.status === "pending",
+    HTTP_STATUS.BAD_REQUEST,
+    "Volunteer request already processed"
+  );
+
+  volunteerRequest.status = status;
+  volunteerRequest.respondedAt = new Date();
+
+  await campaign.save();
+
+  return {
+    campaignId,
+    volunteerId,
+    status,
+    respondedAt: volunteerRequest.respondedAt,
+  };
+};
+
 export const updateCampaignService = async (id, data) => {
   const { title, description, category, location, date, status, files } = data;
 
@@ -198,7 +248,7 @@ export const applyForCampaignService = async (campaignId, userId) => {
   );
 
   const alreadyApplied = campaign.volunteers?.some(
-    (vol) => vol.volunteer.toString() === userId.toString()
+    (v) => v.volunteer.toString() === userId.toString()
   );
 
   assertOrThrow(
@@ -209,8 +259,6 @@ export const applyForCampaignService = async (campaignId, userId) => {
 
   const updated = await addCampaignVolunteer(campaignId, {
     volunteer: userId,
-    status: "pending",
-    appliedAt: new Date(),
   });
 
   return {
@@ -218,6 +266,7 @@ export const applyForCampaignService = async (campaignId, userId) => {
     volunteers: updated.volunteers,
   };
 };
+
 export const getCampaignVolunteerRequestsService = async (
   campaignId,
   organizerId
@@ -231,13 +280,16 @@ export const getCampaignVolunteerRequestsService = async (
     "You are not authorized to view volunteer requests for this campaign"
   );
 
+  const pendingRequests = campaign.volunteers.filter(
+    (v) => v.status === "pending"
+  );
+
   return {
     id: campaign._id,
     title: campaign.title,
-    volunteerRequests: campaign.volunteers.map((v) => ({
+    volunteerRequests: pendingRequests.map((v) => ({
       id: v._id,
       volunteer: v.volunteer,
-      status: v.status,
       appliedAt: v.appliedAt,
     })),
   };
@@ -252,21 +304,6 @@ export const updateCampaignStatusService = async (id, status) => {
   return {
     id: _id,
     status: newStatus,
-  };
-};
-
-export const addCampaignVolunteerService = async (
-  campaignId,
-  volunteerRegId
-) => {
-  const updated = await addCampaignVolunteer(campaignId, volunteerRegId);
-  assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
-
-  const { _id, volunteers } = updated;
-
-  return {
-    id: _id,
-    volunteers,
   };
 };
 

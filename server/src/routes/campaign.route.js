@@ -1,20 +1,20 @@
 import express from "express";
 import {
   addCampaignRating,
-  addCampaignVolunteer,
   applyForCampaign,
   createCampaign,
   deleteCampaign,
   getAllCampaigns,
   getCampaignById,
   getCampaignVolunteerRequests,
+  respondToVolunteerRequest,
   updateCampaign,
   updateCampaignStatus,
 } from "../controllers/campaign.controller.js";
+import { requireRole } from "../middleware/requireRole.js";
 import { upload } from "../middleware/upload.js";
 import { validate } from "../middleware/validate.js";
 import {
-  addVolunteerSchema,
   createCampaignSchema,
   ratingSchema,
   updateCampaignSchema,
@@ -40,13 +40,19 @@ router.put(
 router.delete("/:id", deleteCampaign);
 
 router.patch("/:id/status", validate(updateStatusSchema), updateCampaignStatus);
-router.post(
-  "/:id/volunteer",
-  validate(addVolunteerSchema),
-  addCampaignVolunteer
-);
+
 router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
 router.post("/:id/apply", applyForCampaign);
 
-router.get("/:id/volunteers", getCampaignVolunteerRequests);
+router.get(
+  "/:id/volunteers",
+  requireRole("ADMIN"),
+  getCampaignVolunteerRequests
+);
+router.patch(
+  "/campaigns/:id/volunteer-requests/:volunteerId",
+  requireRole("ADMIN"),
+  respondToVolunteerRequest
+);
+
 export default router;
