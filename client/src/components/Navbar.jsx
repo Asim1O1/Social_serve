@@ -23,7 +23,7 @@ function Navbar() {
                         </Link>
                     </li>
                     <li className='flex'>
-                        {user ? <Link to="/profile" className={`flex gap-1 items-center '  ${location.pathname == '/profile' ? " text-accent" : ""}`}>
+                        {user ? <Link to="/dashboard" className={`flex gap-1 items-center '  ${location.pathname == '/profile' ? " text-accent" : ""}`}>
                             <span><User /></span>
                             <span className='hidden md:block'>Profile</span>
                         </Link> : <Link to='login' className={`flex gap-1 items-center '  ${location.pathname == '/login' ? " text-accent" : ""}`}>

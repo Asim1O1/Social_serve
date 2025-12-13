@@ -1,106 +1,37 @@
 
 import Comment from '../components/Comment'
 import Loading from '../components/Loading'
-import CampaignList from '../components/CampaignList'
 import { useCampaign } from '../context/CampaignContext'
+import HeroSection from '../components/HeroSection'
+import CampaignCard from '../components/CampaignCard'
 
 function Home() {
     const { status, activeCampaign, campaigns, choseCampaign, handleRegister } = useCampaign()
 
-
     return (
+        <div>
+            <HeroSection />
+            <div className='container mx-auto'>
+                <div>
+                    <h1 className='text-5xl text-primary font-bold'>Latest Campaign</h1>
+                    <p className='text-lg text-gray-500'>Explore what's happening around you.</p>
+                </div>
 
-        <div className='min-h-screen'>
-            <div className='mx-auto'>
-                <h1 className='text-5xl text-primary font-bold'>Discover Events</h1>
-                <p className='text-lg'>Explore what's happening around you.</p>
-            </div>
+                {(status == "success" && !campaigns) && <p className='mt-8'>No campaign found.</p>}
 
-            {status == 'loading' && <div className='mt-8'><Loading /></div>}
-            {/* Main Content */}
-            <div className='grid-container mt-4'>
-                {campaigns && campaigns.map(event => (
-                    <CampaignList key={event.id} campaign={event} choseCampaign={choseCampaign} handleRegister={handleRegister} />
-                ))}
+                {status == 'loading' && <div className='mt-8'><Loading /></div>}
+                {/* Main Content */}
+                <div className='grid-container mt-6'>
+                    {campaigns && campaigns?.map(event => (
+                        <CampaignCard key={event.id} campaign={event} choseCampaign={choseCampaign} handleRegister={handleRegister} />
+                    ))}
 
-                {/* Comment Box */}
-                <Comment activeCampaign={activeCampaign} choseCampaign={choseCampaign} />
+                    {/* Comment Box */}
+                    <Comment activeCampaign={activeCampaign} choseCampaign={choseCampaign} />
+                </div>
             </div>
         </div>
     )
 }
 
 export default Home
-
-// const events = [
-//     {
-//         _id: 12345,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company',
-//         time: '2025-Nov-12 12:00pm',
-//         comments: [
-//             { user: "biplav", comment: 'This was thrilling concert.' },
-//             { user: "biplav", comment: 'This was thrilling concert.' },
-//             { user: "biplav", comment: 'This was thrilling concert.' }
-//         ]
-//     },
-//     {
-//         _id: 45,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company',
-//         comments: [
-//             { user: 'jackson', comment: 'Yei ho para?' },
-//             { user: 'v10', comment: "Cylinder padkaidim kya ho?" }
-//         ]
-//     },
-//     {
-//         _id: 75,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 55,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 65,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 82,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 98,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 68,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 23,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-//     {
-//         _id: 18,
-//         name: 'Concert',
-//         location: 'Yak & Yeti Ground',
-//         organizer: 'Biplav Group of Company'
-//     },
-// ]

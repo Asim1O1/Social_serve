@@ -9,7 +9,7 @@ export default function Login() {
     const location = useLocation()
     const { user, login } = useAuth();
 
-    const from = location.state?.from || "/profile";
+    const from = location.state?.from || "/dashboard";
 
 
     const [email, setEmail] = useState("");

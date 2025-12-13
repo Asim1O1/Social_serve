@@ -1,12 +1,14 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
+import Profile from "./pages//Dashboard/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Campaign from "./pages/Campaign";
-import CreateCampaign from "./pages/CreateCampaign";
+import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import ForgotPassword from "./pages/ForgotPassword";
+import Client from "./layout/Client";
+import Dashboard from "./layout/Dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -14,38 +16,53 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        index: true,
-        element: <Home />
-      },
-      {
-        path: '/login',
-        element: <Login />
-      },
-      {
-        path: '/register',
-        element: <Register />
-      },
-      {
-        path: '/forgotpassword',
-        element: <ForgotPassword />
+        path: '/',
+        element: <Client />,
+        children: [
+          {
+            index: true,
+            element: <Home />
+          },
+          {
+            path: '/login',
+            element: <Login />
+          },
+          {
+            path: '/register',
+            element: <Register />
+          },
+          {
+            path: '/forgotpassword',
+            element: <ForgotPassword />
+          },
+          {
+            path: '/campaign/:id',
+            element: <Campaign />
+          },
+        ]
       },
 
       {
-        path: '/campaign/:id',
-        element: <Campaign />
-
-      },
-      {
-        path: '/profile',
-        element: <Profile />
-      },
-      {
-        path: '/create-campaign',
-        element: <CreateCampaign />
-      },
-      {
-        path: '/create-campaign/:id',
-        element: <CreateCampaign />
+        path: '/dashboard',
+        element: <Dashboard />,
+        children: [
+          {
+            index: true,
+            element: <Profile />
+          },
+          {
+            path: 'create-campaign',
+            element: <CreateCampaign />
+          },
+          {
+            path: 'create-campaign/:id',
+            element: <CreateCampaign />
+          },
+          {
+            path: 'campaign/:id',
+            element: <Campaign />
+          },
+        ]
       }
     ]
   }

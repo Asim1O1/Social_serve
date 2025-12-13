@@ -10,7 +10,7 @@ import CardFooter from "./CampaignCardFooter";
 import ActionsMenu from "./CampaignActionMenu";
 import ConfirmModal from "./ConfirmModal";
 
-function CampaignList({ campaign, choseCampaign, handleRegister }) {
+function CampaignCard({ campaign, choseCampaign, handleRegister }) {
     const { user } = useAuth();
     const location = useLocation();
 
@@ -54,24 +54,26 @@ function CampaignList({ campaign, choseCampaign, handleRegister }) {
     return (
         <div
             className="group p-5 bg-primary/10 space-y-4 relative rounded-xl overflow-hidden hover:border-purple-500 transition-all duration-300">
-            <CardHeader
-                title={campaign?.title}
-                campaign={campaign}
-                isAdmin={user?.role === "ADMIN"}
-                inProfile={location.pathname.includes("profile")}
-                popup={popup}
-                setPopup={setPopup}
-                popupRef={popupRef}
-            />
+
             <ActionsMenu
                 popup={popup}
                 campaign={campaign}
                 setOpenModal={setOpenModal}
                 popupRef={popupRef}
             />
-
+            <h3 className="font-bold text-xl">{campaign.title}</h3>
+            <CardHeader
+                title={campaign.title}
+                campaign={campaign}
+                isAdmin={user?.role === "ADMIN"}
+                inProfile={location.pathname.includes("dashboard")}
+                popup={popup}
+                setPopup={setPopup}
+                popupRef={popupRef}
+            />
             <CardInfo campaign={campaign} />
-            <div className="rounded-full w-full h-[1px] bg-accent"></div>
+
+            <hr className="h-px bg-primary border-none" />
             <CardFooter
                 campaign={campaign}
                 choseCampaign={choseCampaign}
@@ -79,6 +81,7 @@ function CampaignList({ campaign, choseCampaign, handleRegister }) {
                 user={user}
                 location={location}
             />
+
 
             <ConfirmModal
                 open={openModal}
@@ -91,4 +94,4 @@ function CampaignList({ campaign, choseCampaign, handleRegister }) {
     );
 }
 
-export default CampaignList;
+export default CampaignCard;

@@ -1,17 +1,18 @@
 import { MapPin, MessageSquare, User, X } from 'lucide-react'
 
-function Comment({ campaign, choseCampaign }) {
+function Comment({ activeCampaign, choseCampaign }) {
+
     return (
         <>
-            {campaign && <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50'>
-                <div className=' bg-white rounded-xl max-w-2xl w-full max-h-96 overflow-hidden border border-slate-700 shadow-2xl'>
+            {activeCampaign && <div className='fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50'>
+                <div className=' bg-white rounded-xl max-w-2xl w-full max-h-96 overflow-hidden border border-white shadow-2xl'>
                     {/* Header */}
                     <div className='flex border-b border-border items-center justify-between px-3 py-2'>
                         <div>
-                            <h2 className='text-2xl font-bold text-primary'>{campaign.name}</h2>
+                            <h2 className='text-2xl font-bold text-primary'>{activeCampaign.name}</h2>
                             <p className='flex items-center gap-1 text-gray-400 text-sm mt-1'>
                                 <span className='text-primary'><MapPin size={12} /></span>
-                                <span>{campaign.location}</span>
+                                <span>{activeCampaign.location}</span>
                             </p>
                         </div>
                         <button
@@ -22,8 +23,8 @@ function Comment({ campaign, choseCampaign }) {
                         </button>
                     </div>
                     <div className='px-3 overflow-y-auto max-h-72'>
-                        {campaign.comments && campaign.comments.length > 0 ? (
-                            campaign.comments.map(comment => (
+                        {activeCampaign.comments && activeCampaign.comments.length > 0 ? (
+                            activeCampaign.comments.map(comment => (
                                 <div key={comment.id} className='border-b border-border'>
                                     <div className='flex items-center gap-1 py-2'>
                                         <div className='bg-linear-to-br from-primary to-secondary rounded-full p-2 '>

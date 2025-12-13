@@ -20,6 +20,7 @@ import {
   updateCampaignSchema,
   updateStatusSchema,
 } from "../validations/campaign.validation.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
@@ -45,12 +46,13 @@ router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
 router.post("/:id/apply", applyForCampaign);
 
 router.get(
-  "/:id/volunteers",
+  "/:id/volunteers",requireAuth,
   requireRole("ADMIN"),
   getCampaignVolunteerRequests
 );
 router.patch(
-  "/campaigns/:id/volunteer-requests/:volunteerId",
+  "/:id/volunteer-requests/:volunteerId",
+  requireAuth,
   requireRole("ADMIN"),
   respondToVolunteerRequest
 );

@@ -6,7 +6,7 @@ export const createCampaign = async (data) => {
 };
 
 export const getCampaignById = (id) => {
-  return Campaign.findById(id).lean();
+  return Campaign.findById(id);
 };
 
 export const updateCampaign = (id, updateData) => {

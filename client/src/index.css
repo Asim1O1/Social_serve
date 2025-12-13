@@ -32,13 +32,16 @@ nav {
 .primary-btn {
   @apply px-4 py-2 border-primary border md:px-4 md:py-2  rounded-lg font-semibold text-sm justify-center transition-all bg-primary cursor-pointer hover:bg-primary text-white duration-200 flex items-center gap-1;
 }
+.tab-btn{
+  @apply bg-secondary text-left py-3 px-2;
+}
 
 .primary-btn:has(svg) {
   @apply p-3;
 }
 
 .secondary-btn {
-  @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-accent cursor-pointer text-black duration-200 flex items-center gap-1;
+  @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-border hover:bg-border cursor-pointer text-black duration-200 flex items-center gap-1;
 }
 .grid-container {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6;

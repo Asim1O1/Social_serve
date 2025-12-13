@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const login = async (email, password) => {
-        const data = await api.post('/auth/login', { email, password })
+        const data = await apiPublic.post('/auth/login', { email, password })
         if (data.status == 'success') {
             setUser(data.data)
             sessionStorage.setItem('rt', data.data.refreshToken);

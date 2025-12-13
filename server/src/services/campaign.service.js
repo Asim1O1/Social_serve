@@ -238,6 +238,7 @@ export const deleteCampaignService = async (id) => {
 };
 
 export const applyForCampaignService = async (campaignId, userId) => {
+  console.log("here")
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
