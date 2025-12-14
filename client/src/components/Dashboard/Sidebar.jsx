@@ -9,12 +9,12 @@ function Sidebar() {
 
     if (user?.role == 'ADMIN') {
         return (
-            <div className='space-y-1 w-12 md:w-1/8 border-r border-secondary flex flex-col'>
-                <Link to='/dashboard' className={`tab-btn ${location.pathname == "/dashboard" ? "border-l-6 border-accent font-semibold" : ""}`}>
+            <div className='space-y-px w-12 md:w-1/8 border-r border-secondary flex flex-col'>
+                <Link to='/dashboard' className={`tab-btn ${location.pathname == "/dashboard" ? "border-l-6 border-secondary font-semibold" : ""}`}>
                     <PartyPopper size={20} />
                     <span className='hidden md:inline'>My Events</span>
                 </Link>
-                <Link to='create-campaign' className={`tab-btn ${location.pathname == "/dashboard/create-campaign" ? "border-l-6 border-accent font-semibold" : ""}`}>
+                <Link to='create-campaign' className={`tab-btn ${location.pathname == "/dashboard/create-campaign" ? "border-l-6 border-secondary font-semibold" : ""}`}>
                     <Megaphone size={20} />
                     <span className='hidden md:inline'>Create Event</span></Link>
                 <button className='tab-btn'>

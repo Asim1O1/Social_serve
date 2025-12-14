@@ -1,23 +1,22 @@
 import { createBrowserRouter } from "react-router";
-import App from "./App";
 import Home from "./pages/Home";
-import Profile from "./pages//Dashboard/Profile";
+import Profile from "./pages/Dashboard/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Campaign from "./pages/Campaign";
 import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import ForgotPassword from "./pages/ForgotPassword";
+
 import Client from "./layout/Client";
 import Dashboard from "./layout/Dashboard";
+import RootLayout from "./layout/Root";
 import { protectedLoader } from "./utils/authLoader";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    element: <RootLayout />,
     children: [
       {
-        path: '/',
         element: <Client />,
         children: [
           {
@@ -25,25 +24,25 @@ export const router = createBrowserRouter([
             element: <Home />
           },
           {
-            path: '/login',
+            path: "login",
             element: <Login />
           },
           {
-            path: '/register',
+            path: "register",
             element: <Register />
           },
           {
-            path: '/forgotpassword',
+            path: "forgotpassword",
             element: <ForgotPassword />
           },
           {
-            path: '/campaign/:id',
+            path: "campaign/:id",
             element: <Campaign />
-          },
+          }
         ]
       },
       {
-        path: '/dashboard',
+        path: "dashboard",
         element: <Dashboard />,
         loader: protectedLoader,
         children: [
@@ -52,17 +51,17 @@ export const router = createBrowserRouter([
             element: <Profile />
           },
           {
-            path: 'create-campaign',
+            path: "create-campaign",
             element: <CreateCampaign />
           },
           {
-            path: 'create-campaign/:id',
+            path: "create-campaign/:id",
             element: <CreateCampaign />
           },
           {
-            path: 'campaign/:id',
+            path: "campaign/:id",
             element: <Campaign />
-          },
+          }
         ]
       }
     ]

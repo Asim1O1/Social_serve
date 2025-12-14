@@ -138,11 +138,11 @@ function CreateCampaign() {
       <h1 className="text-5xl font-bold text-primary mb-10">
         {id ? "Edit Campaign" : "Create Campaign"}
       </h1>
-      <div className="flex gap-6 max-w-7xl w-5xl">
+      <div className="flex items-start flex-wrap md:flex-nowrap gap-10 md:gap-6 max-w-7xl w-5xl">
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="max-w-5xl space-y-6 rounded-lg bg-white p-6 shadow"
+          className="w-full md:min-w-xl space-y-6 rounded-lg bg-white p-6 shadow"
         >
           {/* Title */}
           <div>
@@ -269,16 +269,16 @@ function CreateCampaign() {
         </form>
         {/* Preview */}
         {(previewUrl || existingFiles?.length > 0) && (
-          <div className=" relative w-fit rounded">
+          <div className="bg-linear-to-br from-primary to-accent p-6 relative max-w-xl rounded">
             <button
               type="button"
-              className="absolute -top-3 -right-3 bg-white border rounded-full p-1"
+              className="absolute top-0 right-0 text-white"
               onClick={() => {
                 resetField("attachments")
                 setExistingFiles([])
               }}
             >
-              <X size={14} />
+              <X size={24} />
             </button>
 
             {previewUrl && (
