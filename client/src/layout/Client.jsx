@@ -7,7 +7,7 @@ function Client() {
     return (
         <>
             <Navbar />
-            <main className='mx-auto py-14 px-3 lg:px-0'>
+            <main className='mx-auto py-24 px-3 lg:px-0'>
                 <Outlet />
             </main>
             <Footer />

@@ -17,7 +17,6 @@ export const CampaignProvider = ({ children }) => {
             try {
                 const res = await apiPublic.get('/campaign')
                 setCampaigns(res?.data)
-
                 setStatus('success')
 
             } catch (error) {
@@ -30,8 +29,6 @@ export const CampaignProvider = ({ children }) => {
         }
         load()
     }, [])
-
-
 
     const handleRegister = async (campaignId) => {
         try {

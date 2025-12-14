@@ -1,8 +1,8 @@
 export default function HeroSection() {
     return (
-        <section className="min-h-screen bg-bg grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] items-center container mx-auto overflow-hidden py-16 gap-12">
+        <section className="min-h-[90vh] grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] items-center container mx-auto overflow-hidden gap-12">
             {/* Content */}
-            <div className="pointer-events-none min-h-screen  left-0 w-full absolute  bg-linear-to-b from-primary/10 via-accent/10 to-transparent" />
+            <div className="pointer-events-none min-h-screen  left-0 w-full top-0 absolute  bg-linear-to-b from-primary/10 via-accent/10 to-transparent" />
 
             <div className="max-w-xl">
                 <span className="inline-flex items-center rounded-full bg-secondary text-accent px-4 py-1 text-sm font-medium mb-5">
@@ -20,7 +20,7 @@ export default function HeroSection() {
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-4">
-                    <button className="rounded-xl bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-[color-mix(in_srgb,var(--color-primary)_35%,transparent)] transition hover:-translate-y-0.5">
+                    <button className="rounded-xl bg-linear-to-br from-primary to-accent px-6 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-0.5">
                         Join Campaign
                     </button>
 

@@ -8,7 +8,7 @@ import CampaignCard from '../../components/CampaignCard';
 
 function Profile() {
     const navigate = useNavigate()
-    const { user, loading, logout } = useAuth()
+    const { user, loading } = useAuth()
     const { campaigns, status, choseCampaign, activeCampaign, handleRegister } = useCampaign()
 
 
@@ -27,7 +27,7 @@ function Profile() {
     return (
         <>
             <div className='flex-1 flex items-center justify-between'>
-                <h1 className='font-bold text-2xl'>My Events</h1>
+                <h1 className='font-bold text-primary mb-10 text-5xl'>My Events</h1>
             </div>
             <div className='grid-container mt-4'>
                 {campaigns && campaigns.map(campaign => (

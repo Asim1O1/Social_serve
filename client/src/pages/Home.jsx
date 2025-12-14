@@ -3,14 +3,17 @@ import Comment from '../components/Comment'
 import Loading from '../components/Loading'
 import { useCampaign } from '../context/CampaignContext'
 import HeroSection from '../components/HeroSection'
+import CampaignFeatures from '../components/Features'
 import CampaignCard from '../components/CampaignCard'
 
 function Home() {
     const { status, activeCampaign, campaigns, choseCampaign, handleRegister } = useCampaign()
 
+
     return (
         <div>
             <HeroSection />
+            <CampaignFeatures />
             <div className='container mx-auto'>
                 <div>
                     <h1 className='text-5xl text-primary font-bold'>Latest Campaign</h1>

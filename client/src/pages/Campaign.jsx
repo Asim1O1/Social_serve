@@ -83,7 +83,7 @@ function Campaign() {
     if (!campaign) return null
 
     return (
-        <div className="max-w-6xl mx-auto pt-12">
+        <div className="max-w-6xl mx-auto">
             {campaign.attachments && (
                 <img
                     className="h-120 w-full object-cover mb-10 rounded"
