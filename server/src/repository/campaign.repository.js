@@ -72,3 +72,10 @@ export const getCampaigns = async (filters = {}) => {
     .sort("-createdAt")
     .lean();
 };
+
+export const getCampaignWithVolunteerRequests = (id) => {
+  return Campaign.findById(id).populate({
+    path: "volunteers.volunteer",
+    select: "firstName lastName email profilePic",
+  });
+};

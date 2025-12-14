@@ -1,6 +1,6 @@
 import { HTTP_STATUS } from "../constants/http.js";
 import assertOrThrow from "../utils/assertOrThrow.js";
-import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 import {
   addCampaignRating,
@@ -9,6 +9,7 @@ import {
   deleteCampaign,
   getCampaignById,
   getCampaigns,
+  getCampaignWithVolunteerRequests,
   updateCampaign,
   updateCampaignStatus,
 } from "../repository/campaign.repository.js";
@@ -185,44 +186,41 @@ export const respondToVolunteerRequestService = async (
 export const updateCampaignService = async (id, data) => {
   const { title, description, category, location, date, status, files } = data;
 
-  let newAttachments = [];
-
-  if (files && files.length > 0) {
-    const uploadPromises = files.map(async (file) => {
-      const uploaded = await uploadToCloudinary(
-        file.buffer,
-        "campaign_attachments"
-      );
-
-      return {
-        url: uploaded.secure_url,
-        public_id: uploaded.public_id,
-        type: uploaded.resource_type,
-      };
-    });
-
-    newAttachments = await Promise.all(uploadPromises);
-  }
-
-  const updated = await updateCampaign(id, {
+  let updateData = {
     title,
     description,
     category,
     location,
     date,
     status,
-    ...(newAttachments.length > 0 && {
-      $push: { attachments: { $each: newAttachments } },
-    }),
-  });
+  };
+
+  if (files && files.length > 0) {
+    const newAttachments = await Promise.all(
+      files.map(async (file) => {
+        const uploaded = await uploadToCloudinary(
+          file.buffer,
+          "campaign_attachments"
+        );
+
+        return {
+          url: uploaded.secure_url,
+          public_id: uploaded.public_id,
+          type: uploaded.resource_type,
+        };
+      })
+    );
+
+    updateData.attachments = newAttachments;
+  }
+
+  const updated = await updateCampaign(id, updateData);
 
   assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
-  const { _id, updatedAt } = updated;
-
   return {
-    id: _id,
-    updatedAt,
+    id: updated._id,
+    updatedAt: updated.updatedAt,
     attachments: updated.attachments,
   };
 };
@@ -238,7 +236,7 @@ export const deleteCampaignService = async (id) => {
 };
 
 export const applyForCampaignService = async (campaignId, userId) => {
-  console.log("here")
+  console.log("here");
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
@@ -272,7 +270,7 @@ export const getCampaignVolunteerRequestsService = async (
   campaignId,
   organizerId
 ) => {
-  const campaign = await getCampaignById(campaignId);
+  const campaign = await getCampaignWithVolunteerRequests(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   assertOrThrow(
