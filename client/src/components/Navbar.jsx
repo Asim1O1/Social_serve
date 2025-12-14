@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '../context/AuthContext'
-import { Blend, House, LogIn, User } from 'lucide-react'
+import { Blend, House, LayoutGrid, LogIn } from 'lucide-react'
 
 function Navbar() {
     const location = useLocation()
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
 
     return (
         <nav className='z-10 fixed left-0 backdrop-blur-2xl top-0 w-full shadow-sm border-b border-border'>
@@ -23,10 +23,12 @@ function Navbar() {
                         </Link>
                     </li>
                     <li className='flex'>
-                        {user ? <Link to="/dashboard" className={`flex gap-1 items-center '  ${location.pathname == '/profile' ? " text-accent" : ""}`}>
-                            <span><User /></span>
-                            <span className='hidden md:block'>Profile</span>
-                        </Link> : <Link to='login' className={`flex gap-1 items-center '  ${location.pathname == '/login' ? " text-accent" : ""}`}>
+                        {(!loading && user) && <Link to="/dashboard" className={`flex gap-1 items-center '  ${location.pathname == '/profile' ? " text-accent" : ""}`}>
+                            <span><LayoutGrid /></span>
+                            <span className='hidden md:block'>Dashboard</span>
+                        </Link>}
+
+                        {(!loading && !user) && < Link to='login' className={`flex gap-1 items-center '  ${location.pathname == '/login' ? " text-accent" : ""}`}>
                             <span><LogIn /></span>
                             <span className='hidden md:block'>Login</span>
                         </Link>}

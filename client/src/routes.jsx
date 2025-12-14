@@ -9,6 +9,7 @@ import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import ForgotPassword from "./pages/ForgotPassword";
 import Client from "./layout/Client";
 import Dashboard from "./layout/Dashboard";
+import { protectedLoader } from "./utils/authLoader";
 
 export const router = createBrowserRouter([
   {
@@ -41,10 +42,10 @@ export const router = createBrowserRouter([
           },
         ]
       },
-
       {
         path: '/dashboard',
         element: <Dashboard />,
+        loader: protectedLoader,
         children: [
           {
             index: true,

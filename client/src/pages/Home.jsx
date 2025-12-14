@@ -5,6 +5,7 @@ import { useCampaign } from '../context/CampaignContext'
 import HeroSection from '../components/HeroSection'
 import CampaignFeatures from '../components/Features'
 import CampaignCard from '../components/CampaignCard'
+import CategoryTabs from '../components/CategotyTab'
 
 function Home() {
     const { status, activeCampaign, campaigns, choseCampaign, handleRegister } = useCampaign()
@@ -14,6 +15,7 @@ function Home() {
         <div>
             <HeroSection />
             <CampaignFeatures />
+            <CategoryTabs onChange={(category) => console.log(category)} />
             <div className='container mx-auto'>
                 <div>
                     <h1 className='text-5xl text-primary font-bold'>Latest Campaign</h1>

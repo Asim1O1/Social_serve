@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { useNavigate, useParams } from "react-router"
+import { useParams } from "react-router"
 import { toast } from "react-toastify"
 import { api } from "../../axios/axios"
 import Loading from "../../components/Loading"
 import { useAuth } from "../../context/AuthContext"
 import { Upload, X } from "lucide-react"
+import { useCampaign } from "../../context/CampaignContext"
 
 function CreateCampaign() {
-  const navigate = useNavigate()
   const { user } = useAuth()
+  const { fetchCampaigns } = useCampaign()
   const { id } = useParams()
 
   const [existingFiles, setExistingFiles] = useState([])
@@ -35,24 +36,23 @@ function CreateCampaign() {
     },
   })
 
-  const file = watch("attachments")?.[0]
 
-  /* ---------------- Preview for new file ---------------- */
-  useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null)
-      return
-    }
-
-    const url = URL.createObjectURL(file)
-    setPreviewUrl(url)
-
-    return () => URL.revokeObjectURL(url)
-  }, [file])
 
   /* ---------------- Fetch campaign when editing ---------------- */
   useEffect(() => {
-    if (!id) return
+    if (!id) {
+      setExistingFiles(null)
+      reset({
+        title: "",
+        description: "",
+        category: "",
+        location: "",
+        date: "",
+        attachments: [],
+        createdBy: user?.id,
+      })
+      return;
+    }
 
     const fetchCampaign = async () => {
       try {
@@ -75,6 +75,23 @@ function CreateCampaign() {
 
     fetchCampaign()
   }, [id, reset])
+
+
+  const file = watch("attachments")?.[0]
+
+
+  /* ---------------- Preview for new file ---------------- */
+  useEffect(() => {
+
+    if (!file) {
+      setPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(file)
+    setPreviewUrl(url)
+
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   /* ---------------- Submit ---------------- */
   const onSubmit = async (data) => {
@@ -99,14 +116,17 @@ function CreateCampaign() {
       })
 
       toast.success(id ? "Campaign updated" : "Campaign created")
+      fetchCampaigns()
       // navigate("/dashboard")
     } catch (err) {
-      if (err.response?.data?.errors) {
-        err.response.data.errors.forEach((e) =>
+      console.log(err);
+
+      if (err.errors) {
+        err.errors.forEach((e) => {
           setError(e.field, { message: e.message })
-        )
+          toast.error(e.message)
+        })
       } else {
-        toast.error("Something went wrong")
       }
     }
   }
@@ -128,18 +148,34 @@ function CreateCampaign() {
           <div>
             <label className="font-medium">Title</label>
             <input
-              {...register("title", { required: "Title is required" })}
+              {...register("title", {
+                required: "Title is required", minLength: {
+                  value: 3,
+                  message: "Description must be at least 3 characters",
+                },
+              })}
               className={`w-full border p-2 rounded ${errors.title ? "border-red-500" : "border-border"}`}
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm">{errors.title.message}</p>
+            )}
           </div>
 
           {/* Description */}
           <div>
             <label className="font-medium">Description</label>
             <textarea
-              {...register("description", { required: "Description is required" })}
+              {...register("description", {
+                required: "Description is required", minLength: {
+                  value: 10,
+                  message: "Description must be at least 10 characters",
+                },
+              })}
               className={`w-full border p-2 rounded ${errors.description ? "border-red-500" : "border-border"}`}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.description.message}</p>
+            )}
           </div>
 
           {/* Category */}
@@ -154,6 +190,9 @@ function CreateCampaign() {
                 <option key={c}>{c}</option>
               ))}
             </select>
+            {errors.category && (
+              <p className="text-red-500 text-sm">{errors.category.message}</p>
+            )}
           </div>
 
           {/* Location & Date */}
@@ -164,6 +203,9 @@ function CreateCampaign() {
                 {...register("location", { required: "Location is required" })}
                 className={`w-full border p-2 rounded ${errors.location ? "border-red-500" : "border-border"}`}
               />
+              {errors.location && (
+                <p className="text-red-500 text-sm">{errors.location.message}</p>
+              )}
             </div>
 
             <div className="flex-1">
@@ -173,6 +215,9 @@ function CreateCampaign() {
                 {...register("date", { required: "Date is required" })}
                 className={`w-full border p-2 rounded ${errors.date ? "border-red-500" : "border-border"}`}
               />
+              {errors.date && (
+                <p className="text-red-500 text-sm">{errors.date.message}</p>
+              )}
             </div>
           </div>
 
@@ -197,8 +242,8 @@ function CreateCampaign() {
 
               <span className="text-sm text-neutral-600 truncate">
                 {file?.name ||
-                  (id && existingFiles?.[0]?.url
-                    ? existingFiles[0].name || existingFiles[0].url.split("/").pop()
+                  (id && existingFiles?.[existingFiles.length - 1]?.url
+                    ? existingFiles[existingFiles.length - 1].name || existingFiles[existingFiles.length - 1].url.split("/").pop()
                     : "Upload attachment")}
               </span>
             </div>
@@ -240,7 +285,7 @@ function CreateCampaign() {
               <img src={previewUrl} className="max-h-64 rounded" />
             )}
 
-            {!previewUrl && existingFiles?.[0]?.url && (
+            {!previewUrl && existingFiles?.[existingFiles.length - 1]?.url && (
               <img src={existingFiles[0].url} className="max-h-64 rounded" />
             )}
           </div>

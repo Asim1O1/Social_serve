@@ -12,23 +12,24 @@ export const CampaignProvider = ({ children }) => {
     const { user } = useAuth()
 
     useEffect(() => {
-        setStatus('loading')
-        const load = async () => {
-            try {
-                const res = await apiPublic.get('/campaign')
-                setCampaigns(res?.data)
-                setStatus('success')
-
-            } catch (error) {
-                toast.error(error.message);
-                setStatus('error')
-
-            } finally {
-                setStatus(null)
-            }
-        }
-        load()
+        fetchCampaigns()
     }, [])
+
+    const fetchCampaigns = async () => {
+        setStatus('loading')
+        try {
+            const res = await apiPublic.get('/campaign')
+            setCampaigns(res?.data)
+            setStatus('success')
+
+        } catch (error) {
+            toast.error(error.message);
+            setStatus('error')
+
+        } finally {
+            setStatus(null)
+        }
+    }
 
     const handleRegister = async (campaignId) => {
         try {
@@ -43,7 +44,7 @@ export const CampaignProvider = ({ children }) => {
     }
 
     return (
-        <CampainContext.Provider value={{ campaigns, activeCampaign, choseCampaign, status, handleRegister }}>
+        <CampainContext.Provider value={{ campaigns, activeCampaign, choseCampaign, status, handleRegister, fetchCampaigns }}>
             {children}
         </CampainContext.Provider>
     )
