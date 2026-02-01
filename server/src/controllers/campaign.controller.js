@@ -56,13 +56,7 @@ export const addCampaignRating = asyncHandler(async (req, res) => {
 });
 
 export const applyForCampaign = asyncHandler(async (req, res) => {
- // console.log("here!")
-  console.log("the request is", req)
- // console.log("the user is", req?.user);
-  //console.log("the id inn params is", req.params);
   const userId = req.body.user.id;
-  
-
   const campaignId = req.params.id;
   const data = await applyForCampaignService(campaignId, userId);
   return success(res, "Volunteer request submitted successfully", data);
