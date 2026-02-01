@@ -53,7 +53,7 @@ function CampaignCard({ campaign, choseCampaign, handleRegister }) {
 
     return (
         <div
-            className="group p-5 bg-primary/10 space-y-4 relative rounded-xl overflow-hidden hover:border-purple-500 transition-all duration-300">
+            className="hover:shadow-lg text-accent shadow-sm group hover:scale-101 p-4 bg-primary/10 space-y-4 relative rounded-xl overflow-hidden transition-all duration-300">
             <ActionsMenu
                 popup={popup}
                 campaign={campaign}

@@ -1,4 +1,5 @@
 import CampaignCard from "../components/CampaignCard";
+import CategoryTabs from "../components/CategotyTab";
 import CampaignFeatures from "../components/Features";
 import HeroSection from "../components/HeroSection";
 import Loading from "../components/Loading";
@@ -47,6 +48,7 @@ function Home() {
     <div>
       <HeroSection />
       <CampaignFeatures />
+      <CategoryTabs onChange={(category) => console.log(category)} />
       <div className="container mx-auto">
         <div>
           <h1 className="text-5xl text-primary font-bold">Latest Campaign</h1>

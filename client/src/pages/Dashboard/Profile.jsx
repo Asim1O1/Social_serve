@@ -29,7 +29,7 @@ function Profile() {
             <div className='flex-1 flex items-center justify-between'>
                 <h1 className='font-bold text-primary mb-10 text-5xl'>My Events</h1>
             </div>
-            <div className='grid-container mt-4'>
+            <div className='grid-container'>
                 {campaigns && campaigns.map(campaign => (
                     <CampaignCard key={campaign?.id} campaign={campaign} handleRegister={handleRegister} choseCampaign={choseCampaign} />
                 ))}
