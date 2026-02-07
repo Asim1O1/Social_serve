@@ -1,54 +1,56 @@
+import { useState } from "react";
+import { Megaphone } from "lucide-react";
 import CampaignCard from "../components/CampaignCard";
-import CategoryTabs from "../components/CategotyTab";
+import CategoryTabs from "../components/CategoryTab";
 import CampaignFeatures from "../components/Features";
 import HeroSection from "../components/HeroSection";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
 
-function Home() {
-  const fakeCampaigns = [
-    {
-      id: 1,
-      title: "Free Health Checkup Camp",
-      description:
-        "Get free basic health checkups including BP, sugar, and BMI.",
-      location: "Kathmandu",
-      date: "2025-01-05",
-      image: "https://images.unsplash.com/photo-1580281657521-7f2a4f6f8b9b",
-      organizer: "City Hospital",
-      volunteersNeeded: 20,
-    },
-    {
-      id: 2,
-      title: "Blood Donation Campaign",
-      description: "Donate blood and save lives. Open for all healthy adults.",
-      location: "Lalitpur",
-      date: "2025-01-12",
-      image: "https://images.unsplash.com/photo-1582719478185-2f1b7b9b8f6b",
-      organizer: "Red Cross Nepal",
-      volunteersNeeded: 30,
-    },
-    {
-      id: 3,
-      title: "Mental Health Awareness Program",
-      description:
-        "Awareness session on stress, anxiety, and mental wellbeing.",
-      location: "Bhaktapur",
-      date: "2025-01-20",
-      image: "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb",
-      organizer: "MindCare Nepal",
-      volunteersNeeded: 15,
-    },
-  ];
+function NoCampaignsFound({ isCategoryFilter }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 shadow-inner">
+        <Megaphone className="w-12 h-12 text-primary/70" strokeWidth={1.5} />
+      </div>
+      <h2 className="text-2xl font-bold text-accent mb-2">
+        No campaigns found
+      </h2>
+      <p className="text-accent/70 max-w-sm mx-auto">
+        {isCategoryFilter
+          ? "There are no campaigns in this category yet. Try another category or browse all."
+          : "There are no campaigns right now. Check back later or create one from your dashboard."}
+      </p>
+    </div>
+  );
+}
 
-  const { status, activeCampaign, campaigns, choseCampaign, handleRegister } =
-    useCampaign();
+function Home() {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
+
+  const campaignList = Array.isArray(campaigns) ? campaigns : campaigns?.data ?? [];
+  const filteredCampaigns =
+    selectedCategory == null
+      ? campaignList
+      : campaignList.filter(
+          (c) => c.category?.toLowerCase() === selectedCategory?.toLowerCase()
+        );
+
+  const isLoading = status === "loading";
+  const hasNoCampaignsToShow = filteredCampaigns.length === 0;
+  const showEmptyState = !isLoading && hasNoCampaignsToShow;
+  const isCategoryFilter = campaignList.length > 0 && hasNoCampaignsToShow;
 
   return (
     <div>
       <HeroSection />
       <CampaignFeatures />
-      <CategoryTabs onChange={(category) => console.log(category)} />
+      <CategoryTabs
+        activeTab={selectedCategory}
+        onChange={setSelectedCategory}
+      />
       <div className="container mx-auto">
         <div>
           <h1 className="text-5xl text-primary font-bold">Latest Campaign</h1>
@@ -57,26 +59,30 @@ function Home() {
           </p>
         </div>
 
-        {status == "success" && !campaigns && (
-          <p className="mt-8">No campaign found.</p>
-        )}
-
-        {status == "loading" && (
+        {isLoading && (
           <div className="mt-8">
             <Loading />
           </div>
         )}
-        {/* Main Content */}
-        <div className="grid-container mt-6">
-          {fakeCampaigns.map((event) => (
-            <CampaignCard
-              key={event.id}
-              campaign={event}
-              choseCampaign={choseCampaign}
-              handleRegister={handleRegister}
-            />
-          ))}
-        </div>
+
+        {showEmptyState && (
+          <div className="mt-8 rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
+            <NoCampaignsFound isCategoryFilter={isCategoryFilter} />
+          </div>
+        )}
+
+        {!isLoading && filteredCampaigns.length > 0 && (
+          <div className="grid-container mt-6">
+            {filteredCampaigns.map((event) => (
+              <CampaignCard
+                key={event.id}
+                campaign={event}
+                choseCampaign={choseCampaign}
+                handleRegister={handleRegister}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

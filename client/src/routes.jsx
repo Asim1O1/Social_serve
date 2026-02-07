@@ -5,6 +5,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Campaign from "./pages/Campaign";
 import CreateCampaign from "./pages/Dashboard/CreateCampaign";
+import VolunteerAccepted from "./pages/Dashboard/VolunteerAccpeted";
+import VolunteerRejected from "./pages/Dashboard/VolunteerRejected";
+import VolunteerRequests from "./pages/Dashboard/VolunteerRequests";
 import ForgotPassword from "./pages/ForgotPassword";
 
 import Client from "./layout/Client";
@@ -60,8 +63,16 @@ export const router = createBrowserRouter([
             element: <CreateCampaign />
           },
           {
-            path: "campaign/:id",
-            element: <Campaign />
+            path: "volunteer-requests",
+            element: <VolunteerRequests />
+          },
+          {
+            path: "accepted",
+            element: <VolunteerAccepted />
+          },
+          {
+            path: "rejected",
+            element: <VolunteerRejected />
           }
         ]
       }

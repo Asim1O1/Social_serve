@@ -42,6 +42,9 @@ nav {
 .primary-btn:has(svg) {
   @apply p-3;
 }
+.secondary-btn:has(svg) {
+  @apply p-3;
+}
 
 .secondary-btn {
   @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all border border-border hover:bg-border cursor-pointer text-black duration-200 flex items-center gap-1;
