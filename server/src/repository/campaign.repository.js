@@ -24,7 +24,7 @@ export const updateCampaignStatus = (id, status) => {
   return Campaign.findByIdAndUpdate(
     id,
     { status },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 };
 
@@ -32,7 +32,7 @@ export const addCampaignAttachment = (id, attachment) => {
   return Campaign.findByIdAndUpdate(
     id,
     { $push: { attachments: attachment } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 };
 
@@ -40,7 +40,7 @@ export const addCampaignVolunteer = (campaignId, volunteerRegId) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { volunteers: volunteerRegId } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 };
 
@@ -48,7 +48,7 @@ export const addCampaignRating = (campaignId, ratingData) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { ratings: ratingData } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 };
 export const getCampaigns = async (filters = {}) => {
@@ -67,7 +67,7 @@ export const getCampaigns = async (filters = {}) => {
 
   return Campaign.find(query)
     .select(
-      "title location date category status createdBy createdAt attachments"
+      "title location date category status createdBy createdAt attachments volunteers",
     )
     .sort("-createdAt")
     .lean();
