@@ -11,7 +11,7 @@ function CampaignCardHeader({
   return (
     <div className="-mx-5">
       <img
-        className="w-full aspect-square object-cover"
+        className="w-full aspect-4/3 object-cover"
         src={
           campaign?.attachments?.[0]?.url ||
           `https://placehold.co/60x60?text=${title}`
