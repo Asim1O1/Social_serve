@@ -7,7 +7,7 @@ function Navbar() {
     const { user, loading } = useAuth();
 
     return (
-        <nav className='z-10 fixed left-0 backdrop-blur-2xl top-0 w-full shadow-sm border-b border-border'>
+        <nav className='z-10 sticky left-0 backdrop-blur-2xl top-0 w-full shadow-sm border-b border-border'>
             <div className='container flex justify-between px-3 lg:px-0 mx-auto py-4 font-bold'>
                 <Link to='/'>
                     <h1 className='flex items-center gap-1'>

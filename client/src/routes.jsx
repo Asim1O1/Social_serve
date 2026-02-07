@@ -11,6 +11,7 @@ import Client from "./layout/Client";
 import Dashboard from "./layout/Dashboard";
 import RootLayout from "./layout/Root";
 import { protectedLoader } from "./utils/authLoader";
+import NotFound from "./pages/Notfound";
 
 export const router = createBrowserRouter([
   {
@@ -65,5 +66,9 @@ export const router = createBrowserRouter([
         ]
       }
     ]
+  },
+  {
+    path: '*',
+    element: <NotFound />
   }
 ]);

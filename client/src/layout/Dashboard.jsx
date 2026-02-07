@@ -36,7 +36,7 @@ function Dashboard() {
                 <div className='fixed z-10 bg-bg top-0 w-full flex p-4 rounded border-b shadow-sm border-secondary items-center gap-2'>
                     <div>
                         <Link to='/'>
-                            <h1 className='flex items-center gap-1'>
+                            <h1 className='flex font-semibold items-center gap-1'>
                                 <span><Blend className='text-accent' /></span>
                                 <span className='hidden md:block'>Social</span>
                             </h1>
@@ -44,7 +44,7 @@ function Dashboard() {
                     </div>
                     <div ref={profileRef} className="ml-auto relative">
                         <button onClick={() => openProfile(!profilePop)} className='bg-linear-to-br from-accent to-primary w-fit ml-auto p-3 text-white rounded-full cursor-pointer'><User /></button>
-                        <div className={`font-semibold text-accent shadow-lg user-btn bg-linear-to-br from-accent to-primary w-32 h-fit absolute top-14 flex flex-col gap-1 right-0 rounded-lg duration-150 origin-top-right overflow-hidden p-1 ${profilePop ? "scale-102" : "scale-0"}`}>
+                        <div className={`font-semibold text-accent shadow-lg user-btn bg-white w-32 h-fit absolute top-14 flex flex-col gap-1 right-0 rounded-lg duration-150 origin-top-right overflow-hidden p-1 ${profilePop ? "scale-102" : "scale-0"}`}>
                             <button className='flex  gap-1 items-center justify-center px-3 py-2 rounded bg-secondary'>
                                 <User />
                                 <span>Profile</span>
