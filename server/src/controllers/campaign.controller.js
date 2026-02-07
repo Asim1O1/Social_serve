@@ -22,12 +22,14 @@ export const createCampaign = asyncHandler(async (req, res) => {
 });
 
 export const getAllCampaigns = asyncHandler(async (req, res) => {
-  const data = await getCampaignsService(req.query);
+  const userId = req.user?.id;
+  const data = await getCampaignsService(req.query, userId);
   return success(res, "Campaigns fetched successfully", data);
 });
 
 export const getCampaignById = asyncHandler(async (req, res) => {
-  const data = await getCampaignByIdService(req.params.id);
+  const userId = req.user?.id;
+  const data = await getCampaignByIdService(req.params.id, userId);
   return success(res, "Campaign fetched successfully", data);
 });
 
@@ -56,13 +58,7 @@ export const addCampaignRating = asyncHandler(async (req, res) => {
 });
 
 export const applyForCampaign = asyncHandler(async (req, res) => {
- // console.log("here!")
-  console.log("the request is", req)
- // console.log("the user is", req?.user);
-  //console.log("the id inn params is", req.params);
   const userId = req.body.user.id;
-  
-
   const campaignId = req.params.id;
   const data = await applyForCampaignService(campaignId, userId);
   return success(res, "Volunteer request submitted successfully", data);
@@ -73,7 +69,7 @@ export const getCampaignVolunteerRequests = asyncHandler(async (req, res) => {
   const campaignId = req.params.id;
   const data = await getCampaignVolunteerRequestsService(
     campaignId,
-    organizerId
+    organizerId,
   );
 
   return success(res, "Volunteer requests fetched successfully", data);
@@ -88,7 +84,7 @@ export const respondToVolunteerRequest = asyncHandler(async (req, res) => {
     campaignId,
     volunteerId,
     organizerId,
-    status
+    status,
   );
 
   return success(res, `Volunteer request ${status}`, data);

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { api, apiPublic } from "../axios/axios";
+import { api } from "../axios/axios";
 import { useAuth } from "./AuthContext";
 
 const CampainContext = createContext(null)
@@ -18,7 +18,7 @@ export const CampaignProvider = ({ children }) => {
     const fetchCampaigns = async () => {
         setStatus('loading')
         try {
-            const res = await apiPublic.get('/campaign')
+            const res = await api.get('/campaign')
             setCampaigns(res?.data)
             setStatus('success')
 
