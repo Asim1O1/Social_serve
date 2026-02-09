@@ -10,10 +10,16 @@ import VolunteerProfile from "./VolunteerProfile";
 function Profile() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { campaigns, status, choseCampaign, activeCampaign, handleRegister } =
-    useCampaign({ user: user?.id });
+  const {
+    campaigns,
+    fetchCampaigns,
+    activeCampaign,
+    choseCampaign,
+    handleRegister,
+  } = useCampaign();
 
   useEffect(() => {
+    fetchCampaigns({ user: user?.id });
     if (!loading && !user) {
       navigate("/");
     }

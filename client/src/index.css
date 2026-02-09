@@ -23,13 +23,12 @@
   --color-text: #0a0a0a;
   --color-border: #ffcdf2;
 }
-body,
-nav {
+body {
   background-color: var(--color-bg);
   color: var(--color-text);
 }
 .container {
-  @apply px-3 max-w-7xl mx-auto;  
+  @apply px-3 max-w-7xl mx-auto;
 }
 
 .primary-btn {

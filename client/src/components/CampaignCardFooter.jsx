@@ -4,6 +4,22 @@ import { useCampaign } from "../context/CampaignContext";
 
 function EventCardFooter({ campaign, choseCampaign, user, location }) {
   const { handleRegister } = useCampaign();
+
+  const renderButton = () => {
+    const loc =
+      !location.pathname.includes("profile") &&
+      !location.pathname.includes("dashboard");
+    const role = user?.role == "VOLUNTEER";
+    const myStatus = campaign?.myVolunteerStatus;
+    if (loc && role) {
+      return myStatus == "pending"
+        ? "Pending"
+        : myStatus == "accepted"
+        ? "Accepted"
+        : "Register";
+    }
+    return;
+  };
   return (
     <div className="flex gap-2 items-center justify-between pt-2">
       <button
@@ -18,17 +34,16 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
         View
       </Link>
 
-      {user?.role === "VOLUNTEER" &&
-        !location.pathname.includes("profile") &&
-        !location.pathname.includes("dashboard") && (
-          <button
-            title="Register"
-            onClick={() => handleRegister(campaign?.id)}
-            className="secondary-btn"
-          >
-            Register
-          </button>
-        )}
+      {renderButton() && (
+        <button
+          title={renderButton()}
+          disabled={renderButton() == "Pending" || renderButton() == "Accepted"}
+          onClick={() => handleRegister(campaign?.id)}
+          className="secondary-btn disabled:cursor-not-allowed!"
+        >
+          {renderButton()}
+        </button>
+      )}
     </div>
   );
 }

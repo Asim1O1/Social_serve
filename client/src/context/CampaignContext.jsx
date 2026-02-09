@@ -11,11 +11,17 @@ export const CampaignProvider = ({ children }) => {
   const [status, setStatus] = useState(); // error || loading || success
   const { user } = useAuth();
 
-  const fetchCampaigns = async (user) => {
+  useEffect(() => {
+    fetchCampaigns({ user: null });
+  }, []);
+
+  const fetchCampaigns = async ({ user = null }) => {
     setStatus("loading");
     try {
-      const res = await api.get("/campaign", { params: { createdBy: user } });
-      setCampaigns(res?.data.campaigns);
+      const res = await api.get("/campaign", {
+        params: user ? { createdBy: user } : {},
+      });
+      setCampaigns(res?.data?.campaigns);
       setStatus("success");
     } catch (error) {
       toast.error(error.message);
@@ -50,28 +56,4 @@ export const CampaignProvider = ({ children }) => {
   );
 };
 
-export const useCampaign = (props = {}) => {
-  const { user = null } = props;
-  const context = useContext(CampaignContext);
-
-  if (!context) {
-    throw new Error("useCampaign must be used within CampaignProvider");
-  }
-
-  const { campaigns, activeCampaign, fetchCampaigns, ...rest } = context;
-
-  useEffect(() => {
-    if (user) {
-      fetchCampaigns(user);
-    } else {
-      fetchCampaigns();
-    }
-  }, [user]);
-
-  return {
-    ...rest,
-    campaigns,
-    activeCampaign,
-    fetchCampaigns,
-  };
-};
+export const useCampaign = () => useContext(CampaignContext);

@@ -1,13 +1,6 @@
 import { Info } from "lucide-react";
 
-function CampaignCardHeader({
-  title,
-  campaign,
-  isAdmin,
-  inProfile,
-  popup,
-  setPopup,
-}) {
+function CampaignCardHeader({ title, campaign }) {
   return (
     <div className="-mx-5">
       <img
@@ -18,17 +11,6 @@ function CampaignCardHeader({
           `https://placehold.co/60x60?text=${title}`
         }
       />
-
-      {isAdmin && inProfile && (
-        <button
-          onClick={() =>
-            popup === campaign.id ? setPopup(null) : setPopup(campaign.id)
-          }
-          className="absolute top-5 right-5 cursor-pointer ellipsis-btn" // add this class!
-        >
-          <Info />
-        </button>
-      )}
     </div>
   );
 }

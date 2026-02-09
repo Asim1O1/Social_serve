@@ -16,7 +16,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-10 w-full border-b border-primary/10 bg-white/80 backdrop-blur-md shadow-sm">
+    <nav className="sticky top-0 z-10 w-full bg-black/5 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-6">
         <Link
           to="/"
