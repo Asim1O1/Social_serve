@@ -49,7 +49,11 @@ export const addCampaignAttachment = (id, attachment) => {
 export const addCampaignVolunteer = (campaignId, volunteerRegId) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
-    { $push: { volunteers: volunteerRegId } },
+    {
+      $addToSet: {
+        volunteers: volunteerRegId,
+      },
+    },
     { new: true, runValidators: true },
   );
 };

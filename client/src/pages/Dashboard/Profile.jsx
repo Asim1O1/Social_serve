@@ -11,7 +11,7 @@ function Profile() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { campaigns, status, choseCampaign, activeCampaign, handleRegister } =
-    useCampaign();
+    useCampaign({ user: user?.id });
 
   useEffect(() => {
     if (!loading && !user) {

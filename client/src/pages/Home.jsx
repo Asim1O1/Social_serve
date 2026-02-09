@@ -9,6 +9,7 @@ import { useCampaign } from "../context/CampaignContext";
 import HowItWorks from "../components/HowItWorks";
 import WhyWorkWithUs from "../components/WhyWorkWithUs";
 import { Link } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 function NoCampaignsFound({ isCategoryFilter }) {
   return (
@@ -30,11 +31,8 @@ function NoCampaignsFound({ isCategoryFilter }) {
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const { user } = useAuth();
 
-  const { status, campaigns, choseCampaign, handleRegister } = useCampaign({
-    user: user?.id,
-  });
+  const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
 
   const campaignList = Array.isArray(campaigns)
     ? campaigns
