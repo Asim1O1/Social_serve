@@ -63,8 +63,6 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
   if (role === "ADMIN") {
     queryFilters.createdBy = userId;
-  } else {
-    queryFilters.status = "PUBLISHED";
   }
 
   const result = await getCampaigns(queryFilters, {
