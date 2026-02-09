@@ -75,7 +75,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
     if (userId) {
       const myVolunteer = campaign.volunteers.find(
-        (v) => v.volunteer?.toString() === userId.toString(),
+        (v) => v.volunteer?._id.toString() === userId.toString(),
       );
       myVolunteerStatus = myVolunteer?.status ?? null;
     }
@@ -140,16 +140,17 @@ export const respondToVolunteerRequestService = async (
   );
 
   const campaign = await getCampaignById(campaignId);
+
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   assertOrThrow(
-    campaign.createdBy.toString() === organizerId.toString(),
+    campaign.createdBy._id.equals(organizerId),
     HTTP_STATUS.FORBIDDEN,
     "You are not authorized to manage volunteers for this campaign",
   );
 
-  const volunteerRequest = campaign.volunteers.find(
-    (v) => v.volunteer.toString() === volunteerId,
+  const volunteerRequest = campaign.volunteers.find(({ volunteer }) =>
+    volunteer._id.equals(volunteerId),
   );
 
   assertOrThrow(
@@ -230,7 +231,6 @@ export const deleteCampaignService = async (id) => {
 };
 
 export const applyForCampaignService = async (campaignId, userId) => {
-  console.log("here");
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
@@ -240,8 +240,14 @@ export const applyForCampaignService = async (campaignId, userId) => {
     "Organizers cannot apply as volunteers",
   );
 
-  const alreadyApplied = campaign.volunteers?.some(
-    (v) => v.volunteer.toString() === userId.toString(),
+  const alreadyApplied = campaign.volunteers.some(
+    (v) => v.volunteer._id.toString() === userId.toString(),
+  );
+
+  assertOrThrow(
+    !alreadyApplied,
+    HTTP_STATUS.BAD_REQUEST,
+    "You have already applied as a volunteer",
   );
 
   assertOrThrow(
