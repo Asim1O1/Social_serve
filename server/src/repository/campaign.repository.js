@@ -1,5 +1,5 @@
 import Campaign from "../models/campaign.model.js";
-
+import paginate from "../utils/paginate.js";
 export const createCampaign = async (data) => {
   const campaign = new Campaign(data);
   return await campaign.save();
