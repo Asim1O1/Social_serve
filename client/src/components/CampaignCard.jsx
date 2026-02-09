@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import CardHeader from "./CampaignCardHeader";
 import CardInfo from "./CampaignCardInfo";
 import CardFooter from "./CampaignCardFooter";
+import CampaignCardRating from "./CampaignCardRating";
 import ActionsMenu from "./CampaignActionMenu";
 import ConfirmModal from "./ConfirmModal";
 
@@ -41,7 +42,7 @@ function CampaignCard({ campaign, choseCampaign, handleRegister }) {
         try {
             setLoading(true);
             await api.delete(`/campaign/${campaign.id}`);
-            toast.success("campaign deleted!");
+            toast.success("Campaign deleted!");
         } catch (err) {
             console.error(err);
             toast.error("Failed to delete!");
@@ -71,6 +72,12 @@ function CampaignCard({ campaign, choseCampaign, handleRegister }) {
                 popupRef={popupRef}
             />
             <CardInfo campaign={campaign} />
+
+            <CampaignCardRating
+                campaignId={campaign.id}
+                user={user}
+                myRating={campaign.ratings?.find((r) => r.volunteer?.id === user?.id || r.volunteer === user?.id)?.rating}
+            />
 
             <hr className="h-px bg-primary border-none" />
             <CardFooter

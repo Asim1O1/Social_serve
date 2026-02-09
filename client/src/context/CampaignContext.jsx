@@ -3,51 +3,55 @@ import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import { useAuth } from "./AuthContext";
 
-const CampainContext = createContext(null)
+const CampainContext = createContext(null);
 
 export const CampaignProvider = ({ children }) => {
-    const [campaigns, setCampaigns] = useState(null)
-    const [activeCampaign, choseCampaign] = useState(null)
-    const [status, setStatus] = useState() // error || loading || success
-    const { user } = useAuth()
+  const [campaigns, setCampaigns] = useState(null);
+  const [activeCampaign, choseCampaign] = useState(null);
+  const [status, setStatus] = useState(); // error || loading || success
+  const { user } = useAuth();
 
-    useEffect(() => {
-        fetchCampaigns()
-    }, [])
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
 
-    const fetchCampaigns = async () => {
-        setStatus('loading')
-        try {
-            const res = await api.get('/campaign')
-            setCampaigns(res?.data)
-            setStatus('success')
-
-        } catch (error) {
-            toast.error(error.message);
-            setStatus('error')
-
-        } finally {
-            setStatus(null)
-        }
+  const fetchCampaigns = async () => {
+    setStatus("loading");
+    try {
+      const res = await api.get("/campaign");
+      setCampaigns(res?.data.campaigns);
+      setStatus("success");
+    } catch (error) {
+      toast.error(error.message);
+      setStatus("error");
+    } finally {
+      setStatus(null);
     }
+  };
 
-    const handleRegister = async (campaignId) => {
-        try {
-            const res = await api.post(`/campaign/${campaignId}/apply`,
-                { user }
-            )
-            toast.success(res.message)
-        } catch (error) {
-            toast.error(error?.message)
-        }
-
+  const handleRegister = async (campaignId) => {
+    try {
+      const res = await api.post(`/campaign/${campaignId}/apply`, { user });
+      toast.success(res.message);
+    } catch (error) {
+      toast.error(error?.message);
     }
+  };
 
-    return (
-        <CampainContext.Provider value={{ campaigns, activeCampaign, choseCampaign, status, handleRegister, fetchCampaigns }}>
-            {children}
-        </CampainContext.Provider>
-    )
-}
+  return (
+    <CampainContext.Provider
+      value={{
+        campaigns,
+        activeCampaign,
+        choseCampaign,
+        status,
+        handleRegister,
+        fetchCampaigns,
+      }}
+    >
+      {children}
+    </CampainContext.Provider>
+  );
+};
 
-export const useCampaign = () => useContext(CampainContext)
+export const useCampaign = () => useContext(CampainContext);

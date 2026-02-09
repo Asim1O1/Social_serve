@@ -52,12 +52,29 @@ export const AuthProvider = ({ children }) => {
         return null;
     }
 
+    const refreshUser = async () => {
+        try {
+            const data = await api.get("/auth/me");
+            if (data?.data) setUser(data.data);
+        } catch (_) {}
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, logout, register }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, register, refreshUser }}>
             {children}
         </AuthContext.Provider>
     )
 }
 
-export const useAuth = () => useContext(AuthContext)
+const defaultAuth = {
+    user: null,
+    loading: true,
+    error: null,
+    login: async () => {},
+    logout: () => {},
+    register: async () => {},
+    refreshUser: async () => {},
+};
+
+export const useAuth = () => useContext(AuthContext) ?? defaultAuth;
 

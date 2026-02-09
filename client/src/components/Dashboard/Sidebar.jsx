@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   Megaphone,
   PartyPopper,
+  UserCircle,
+  UserCheck,
   UsersRound,
   XCircle,
 } from "lucide-react";
@@ -47,6 +49,20 @@ function Sidebar() {
             <UsersRound size={20} className="shrink-0" />
             <span className="hidden md:inline">Volunteer Requests</span>
           </NavLink>
+          <NavLink
+            to="/dashboard/accepted"
+            className={({ isActive }) => navLinkClass(isActive)}
+          >
+            <UserCheck size={20} className="shrink-0" />
+            <span className="hidden md:inline">Accepted Volunteers</span>
+          </NavLink>
+          <NavLink
+            to="/dashboard/profile"
+            className={({ isActive }) => navLinkClass(isActive)}
+          >
+            <UserCircle size={20} className="shrink-0" />
+            <span className="hidden md:inline">Profile</span>
+          </NavLink>
         </nav>
       </div>
     );
@@ -64,8 +80,8 @@ function Sidebar() {
             end
             className={({ isActive }) => navLinkClass(isActive)}
           >
-            <PartyPopper size={20} className="shrink-0" />
-            <span className="hidden md:inline">My Events</span>
+            <UserCircle size={20} className="shrink-0" />
+            <span className="hidden md:inline">Profile</span>
           </NavLink>
           <NavLink
             to="accepted"

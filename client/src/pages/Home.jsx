@@ -6,6 +6,8 @@ import CampaignFeatures from "../components/Features";
 import HeroSection from "../components/HeroSection";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
+import HowItWorks from "../components/HowItWorks";
+import WhyWorkWithUs from "../components/WhyWorkWithUs";
 
 function NoCampaignsFound({ isCategoryFilter }) {
   return (
@@ -30,7 +32,9 @@ function Home() {
 
   const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
 
-  const campaignList = Array.isArray(campaigns) ? campaigns : campaigns?.data ?? [];
+  const campaignList = Array.isArray(campaigns)
+    ? campaigns
+    : campaigns?.data ?? [];
   const filteredCampaigns =
     selectedCategory == null
       ? campaignList
@@ -47,6 +51,8 @@ function Home() {
     <div>
       <HeroSection />
       <CampaignFeatures />
+      <HowItWorks />
+      <WhyWorkWithUs />
       <CategoryTabs
         activeTab={selectedCategory}
         onChange={setSelectedCategory}
