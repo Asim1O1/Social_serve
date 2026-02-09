@@ -30,8 +30,11 @@ function NoCampaignsFound({ isCategoryFilter }) {
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const { user } = useAuth();
 
-  const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
+  const { status, campaigns, choseCampaign, handleRegister } = useCampaign({
+    user: user?.id,
+  });
 
   const campaignList = Array.isArray(campaigns)
     ? campaigns

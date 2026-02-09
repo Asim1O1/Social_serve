@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import { useAuth } from "./AuthContext";
 
-const CampainContext = createContext(null);
+const CampaignContext = createContext(null);
 
 export const CampaignProvider = ({ children }) => {
   const [campaigns, setCampaigns] = useState(null);
@@ -18,7 +18,7 @@ export const CampaignProvider = ({ children }) => {
   const fetchCampaigns = async () => {
     setStatus("loading");
     try {
-      const res = await api.get("/campaign");
+      const res = await api.get("/campaign", { params: { createdBy: user } });
       setCampaigns(res?.data.campaigns);
       setStatus("success");
     } catch (error) {
@@ -39,7 +39,7 @@ export const CampaignProvider = ({ children }) => {
   };
 
   return (
-    <CampainContext.Provider
+    <CampaignContext.Provider
       value={{
         campaigns,
         activeCampaign,
@@ -50,8 +50,41 @@ export const CampaignProvider = ({ children }) => {
       }}
     >
       {children}
-    </CampainContext.Provider>
+    </CampaignContext.Provider>
   );
 };
 
-export const useCampaign = () => useContext(CampainContext);
+export const useCampaign = (initialProps = {}) => {
+  const context = useContext(CampaignContext);
+
+  if (!context) {
+    throw new Error("useCampaign must be used within CampaignProvider");
+  }
+
+  const { campaigns, activeCampaign, choseCampaign, ...rest } = context;
+
+  const hasInitialized = useRef(false);
+
+  const { user: initialUser } = initialProps;
+
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    if (!initialUser) return;
+
+    if (campaigns) {
+      const found = campaigns.find((c) => c.createdBy === initialUser);
+
+      if (found) {
+        choseCampaign(found);
+        hasInitialized.current = true;
+      }
+    }
+  }, [campaigns, initialUser, choseCampaign]);
+
+  return {
+    ...rest,
+    campaigns,
+    activeCampaign,
+    choseCampaign,
+  };
+};
