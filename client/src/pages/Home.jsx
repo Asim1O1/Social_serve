@@ -8,6 +8,7 @@ import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
 import HowItWorks from "../components/HowItWorks";
 import WhyWorkWithUs from "../components/WhyWorkWithUs";
+import { Link } from "react-router";
 
 function NoCampaignsFound({ isCategoryFilter }) {
   return (
@@ -58,11 +59,19 @@ function Home() {
         onChange={setSelectedCategory}
       />
       <div className="container mx-auto">
-        <div>
-          <h1 className="text-5xl text-primary font-bold">Latest Campaign</h1>
-          <p className="text-lg text-gray-500">
-            Explore what's happening around you.
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-5xl text-primary font-bold">Latest Campaign</h1>
+            <p className="text-lg text-gray-500">
+              Explore what's happening around you.
+            </p>
+          </div>
+          <Link
+            to="/campaign"
+            className="font-semibold text-primary bg-primary/5 rounded-lg hover:bg-primary hover:text-white duration-150 px-6 py-3"
+          >
+            View all
+          </Link>
         </div>
 
         {isLoading && (
@@ -79,7 +88,7 @@ function Home() {
 
         {!isLoading && filteredCampaigns.length > 0 && (
           <div className="grid-container mt-6">
-            {filteredCampaigns.map((event) => (
+            {filteredCampaigns.slice(0, 4).map((event) => (
               <CampaignCard
                 key={event.id}
                 campaign={event}

@@ -24,7 +24,7 @@ export const createCampaignService = async (data) => {
     const uploadPromises = files.map(async (file) => {
       const uploaded = await uploadToCloudinary(
         file.buffer,
-        "campaign_attachments",
+        "campaign_attachments"
       );
 
       return {
@@ -77,7 +77,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
     if (userId) {
       const myVolunteer = campaign.volunteers.find(
-        (v) => v.volunteer?.toString() === userId.toString(),
+        (v) => v.volunteer?.toString() === userId.toString()
       );
       myVolunteerStatus = myVolunteer?.status ?? null;
     }
@@ -108,7 +108,7 @@ export const getCampaignByIdService = async (id, userId) => {
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   const myVolunteer = campaign.volunteers.find(
-    (v) => v.volunteer?._id.toString() === userId?.toString(),
+    (v) => v.volunteer?._id.toString() === userId?.toString()
   );
 
   return {
@@ -133,37 +133,37 @@ export const respondToVolunteerRequestService = async (
   campaignId,
   volunteerId,
   organizerId,
-  status,
+  status
 ) => {
   assertOrThrow(
     ["accepted", "rejected"].includes(status),
     HTTP_STATUS.BAD_REQUEST,
-    "Invalid status",
+    "Invalid status"
   );
 
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   assertOrThrow(
-    campaign.createdBy.toString() === organizerId.toString(),
+    campaign.createdBy._id.toString() == organizerId.toString(),
     HTTP_STATUS.FORBIDDEN,
-    "You are not authorized to manage volunteers for this campaign",
+    "You are not authorized to manage volunteers for this campaign"
   );
 
   const volunteerRequest = campaign.volunteers.find(
-    (v) => v.volunteer.toString() === volunteerId,
+    (v) => v.volunteer._id.toString() === volunteerId
   );
 
   assertOrThrow(
     volunteerRequest,
     HTTP_STATUS.NOT_FOUND,
-    "Volunteer request not found",
+    "Volunteer request not found"
   );
 
   assertOrThrow(
     volunteerRequest.status === "pending",
     HTTP_STATUS.BAD_REQUEST,
-    "Volunteer request already processed",
+    "Volunteer request already processed"
   );
 
   volunteerRequest.status = status;
@@ -196,7 +196,7 @@ export const updateCampaignService = async (id, data) => {
       files.map(async (file) => {
         const uploaded = await uploadToCloudinary(
           file.buffer,
-          "campaign_attachments",
+          "campaign_attachments"
         );
 
         return {
@@ -204,7 +204,7 @@ export const updateCampaignService = async (id, data) => {
           public_id: uploaded.public_id,
           type: uploaded.resource_type,
         };
-      }),
+      })
     );
 
     updateData.attachments = newAttachments;
@@ -239,17 +239,17 @@ export const applyForCampaignService = async (campaignId, userId) => {
   assertOrThrow(
     campaign.createdBy.toString() !== userId.toString(),
     HTTP_STATUS.BAD_REQUEST,
-    "Organizers cannot apply as volunteers",
+    "Organizers cannot apply as volunteers"
   );
 
   const alreadyApplied = campaign.volunteers?.some(
-    (v) => v.volunteer.toString() === userId.toString(),
+    (v) => v.volunteer.toString() === userId.toString()
   );
 
   assertOrThrow(
     !alreadyApplied,
     HTTP_STATUS.BAD_REQUEST,
-    "You have already applied as a volunteer",
+    "You have already applied as a volunteer"
   );
 
   const updated = await addCampaignVolunteer(campaignId, {
@@ -264,7 +264,7 @@ export const applyForCampaignService = async (campaignId, userId) => {
 
 export const getCampaignVolunteerRequestsService = async (
   campaignId,
-  organizerId,
+  organizerId
 ) => {
   const campaign = await getCampaignWithVolunteerRequests(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
@@ -272,11 +272,11 @@ export const getCampaignVolunteerRequestsService = async (
   assertOrThrow(
     campaign.createdBy.toString() === organizerId.toString(),
     HTTP_STATUS.FORBIDDEN,
-    "You are not authorized to view volunteer requests for this campaign",
+    "You are not authorized to view volunteer requests for this campaign"
   );
 
   const pendingRequests = campaign.volunteers.filter(
-    (v) => v.status === "pending",
+    (v) => v.status === "pending"
   );
 
   return {

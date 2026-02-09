@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Dashboard/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Campaign from "./pages/Campaign";
+import CampaignDetails from "./pages/CampaignDetails";
 import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import VolunteerAccepted from "./pages/Dashboard/VolunteerAccepted";
 import VolunteerRejected from "./pages/Dashboard/VolunteerRejected";
@@ -18,6 +18,7 @@ import RootLayout from "./layout/Root";
 import { protectedLoader } from "./utils/authLoader";
 import NotFound from "./pages/Notfound";
 import VolunteerDetails from "./pages/Dashboard/VolunteerDetails";
+import Campaign from "./pages/Campaign";
 
 export const router = createBrowserRouter([
   {
@@ -43,8 +44,12 @@ export const router = createBrowserRouter([
             element: <ForgotPassword />,
           },
           {
-            path: "campaign/:id",
+            path: "campaign",
             element: <Campaign />,
+          },
+          {
+            path: "campaign/:id",
+            element: <CampaignDetails />,
           },
         ],
       },

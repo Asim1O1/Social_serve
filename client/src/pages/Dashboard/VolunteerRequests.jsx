@@ -27,13 +27,15 @@ function VolunteerRequests() {
       const res = await api.get("/campaign", {
         params: { createdBy: user.id },
       });
-      const campaigns = res?.data ?? res ?? [];
+      const campaigns = res?.data.campaigns ?? res ?? [];
       const list = Array.isArray(campaigns) ? campaigns : [];
+      // console.log(campaigns);
 
       const withRequests = await Promise.all(
         list.map(async (campaign) => {
           try {
             const volRes = await api.get(`/campaign/${campaign.id}/volunteers`);
+            // console.log(volRes);
             const volData = volRes?.data ?? volRes;
             return {
               ...campaign,
@@ -53,6 +55,8 @@ function VolunteerRequests() {
       setLoading(false);
     }
   };
+
+  // console.log(campaignsWithRequests);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -78,7 +82,7 @@ function VolunteerRequests() {
             ? {
                 ...c,
                 volunteerRequests: c.volunteerRequests.filter(
-                  (r) => volunteerId(r) !== volunteerIdParam
+                  (r) => r.volunteer._id !== volunteerIdParam
                 ),
               }
             : c
@@ -89,20 +93,6 @@ function VolunteerRequests() {
     } finally {
       setRespondingId(null);
     }
-  };
-
-  const volunteerName = (v) => {
-    if (!v) return "Unknown";
-    const u = v.volunteer ?? v;
-    if (typeof u === "string") return u;
-    const first = u.firstName ?? "";
-    const last = u.lastName ?? "";
-    return [first, last].filter(Boolean).join(" ") || u.email || "Volunteer";
-  };
-
-  const volunteerId = (v) => {
-    const u = v.volunteer ?? v;
-    return typeof u === "object" && u !== null ? u._id ?? u.id : u;
   };
 
   if (authLoading || loading) {
@@ -137,10 +127,10 @@ function VolunteerRequests() {
         ) : (
           <div className="space-y-8">
             {campaignsWithRequests.map(
-              (campaign) =>
+              (campaign, index) =>
                 campaign.volunteerRequests?.length > 0 && (
                   <section
-                    key={campaign.id}
+                    key={index}
                     className="rounded-xl border border-primary/20 bg-white/50 shadow-sm overflow-hidden"
                   >
                     <div className="p-4 md:p-5 border-b border-primary/10 bg-primary/5">
@@ -163,60 +153,62 @@ function VolunteerRequests() {
                       </div>
                     </div>
                     <ul className="divide-y divide-primary/10">
-                      {campaign.volunteerRequests.map((request) => (
-                        <li
-                          key={request.id}
-                          className="p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-primary/5 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                              <User size={20} className="text-primary" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-accent truncate">
-                                {volunteerName(request)}
-                              </p>
-                              {request.volunteer?.email && (
-                                <p className="text-sm text-accent/70 truncate">
-                                  {request.volunteer.email}
-                                </p>
-                              )}
-                              <p className="text-xs text-accent/60 mt-0.5">
-                                Applied {request.appliedAt.split("T")[0]}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              onClick={() =>
-                                handleRespond(
-                                  campaign.id,
-                                  volunteerId(request),
-                                  "accepted"
-                                )
-                              }
-                              disabled={respondingId === volunteerId(request)}
-                              className="primary-btn"
+                      {campaign.volunteers.map((request, index) => (
+                        <>
+                          {request.status == "pending" && (
+                            <li
+                              key={index}
+                              className="p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-primary/5 transition-colors"
                             >
-                              <CheckCircle2 size={18} />
-                              Accept
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleRespond(
-                                  campaign.id,
-                                  volunteerId(request),
-                                  "rejected"
-                                )
-                              }
-                              disabled={respondingId === volunteerId(request)}
-                              className="secondary-btn"
-                            >
-                              <XCircle size={18} />
-                              Reject
-                            </button>
-                          </div>
-                        </li>
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                                  <User size={20} className="text-primary" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-accent truncate">
+                                    {request.volunteer.firstName}
+                                  </p>
+                                  {request.volunteer?.email && (
+                                    <p className="text-sm text-accent/70 truncate">
+                                      {request.volunteer.email}
+                                    </p>
+                                  )}
+                                  <p className="text-xs text-accent/60 mt-0.5">
+                                    Applied {request.appliedAt.split("T")[0]}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  onClick={() =>
+                                    handleRespond(
+                                      campaign.id,
+                                      request.volunteer._id,
+                                      "accepted"
+                                    )
+                                  }
+                                  className="primary-btn"
+                                >
+                                  <CheckCircle2 size={18} />
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleRespond(
+                                      campaign.id,
+                                      request.volunteer._id,
+                                      "rejected"
+                                    )
+                                  }
+                                  className="secondary-btn"
+                                >
+                                  <XCircle size={18} />
+                                  Reject
+                                </button>
+                              </div>
+                            </li>
+                          )}
+                        </>
                       ))}
                     </ul>
                   </section>

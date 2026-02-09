@@ -11,6 +11,7 @@ function CampaignCardHeader({
   return (
     <div className="-mx-5">
       <img
+        loading="lazy"
         className="w-full aspect-4/3 object-cover"
         src={
           campaign?.attachments?.[0]?.url ||
