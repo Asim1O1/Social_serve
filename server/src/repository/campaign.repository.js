@@ -1,4 +1,5 @@
 import Campaign from "../models/campaign.model.js";
+import { paginate } from "../utils/paginate.js";
 
 export const createCampaign = async (data) => {
   const campaign = new Campaign(data);
@@ -33,7 +34,7 @@ export const updateCampaignStatus = (id, status) => {
   return Campaign.findByIdAndUpdate(
     id,
     { status },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   );
 };
 
@@ -41,7 +42,7 @@ export const addCampaignAttachment = (id, attachment) => {
   return Campaign.findByIdAndUpdate(
     id,
     { $push: { attachments: attachment } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   );
 };
 
@@ -49,7 +50,7 @@ export const addCampaignVolunteer = (campaignId, volunteerRegId) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { volunteers: volunteerRegId } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   );
 };
 
@@ -57,7 +58,7 @@ export const addCampaignRating = (campaignId, ratingData) => {
   return Campaign.findByIdAndUpdate(
     campaignId,
     { $push: { ratings: ratingData } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   );
 };
 export const getCampaigns = async (filters = {}, options = {}) => {

@@ -17,6 +17,7 @@ import Dashboard from "./layout/Dashboard";
 import RootLayout from "./layout/Root";
 import { protectedLoader } from "./utils/authLoader";
 import NotFound from "./pages/Notfound";
+import VolunteerDetails from "./pages/Dashboard/VolunteerDetails";
 
 export const router = createBrowserRouter([
   {
@@ -80,6 +81,7 @@ export const router = createBrowserRouter([
           {
             path: "accepted",
             element: <VolunteerAccepted />,
+            children: [{ path: ":id", element: <VolunteerDetails /> }],
           },
           {
             path: "rejected",
