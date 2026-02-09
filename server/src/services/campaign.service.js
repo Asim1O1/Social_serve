@@ -58,8 +58,14 @@ export const createCampaignService = async (data) => {
   };
 };
 
-export const getCampaignsService = async (filters = {}, userId) => {
+export const getCampaignsService = async (filters = {}, userId, role) => {
   const { page = 1, limit = 10, ...queryFilters } = filters;
+
+  if (role === "ADMIN") {
+    queryFilters.createdBy = userId;
+  } else {
+    queryFilters.status = "PUBLISHED";
+  }
 
   const result = await getCampaigns(queryFilters, {
     page: Number(page),
@@ -67,9 +73,14 @@ export const getCampaignsService = async (filters = {}, userId) => {
   });
 
   const campaigns = result.data.map((campaign) => {
-    const myVolunteer = campaign.volunteers.find(
-      (v) => v.volunteer?._id.toString() === userId?.toString(),
-    );
+    let myVolunteerStatus = null;
+
+    if (userId) {
+      const myVolunteer = campaign.volunteers.find(
+        (v) => v.volunteer?.toString() === userId.toString(),
+      );
+      myVolunteerStatus = myVolunteer?.status ?? null;
+    }
 
     return {
       id: campaign._id,
@@ -82,7 +93,7 @@ export const getCampaignsService = async (filters = {}, userId) => {
       createdAt: campaign.createdAt,
       attachments: campaign.attachments,
       volunteers: campaign.volunteers,
-      myVolunteerStatus: myVolunteer ? myVolunteer.status : null,
+      myVolunteerStatus,
     };
   });
 

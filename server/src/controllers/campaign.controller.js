@@ -23,7 +23,10 @@ export const createCampaign = asyncHandler(async (req, res) => {
 
 export const getAllCampaigns = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
-  const data = await getCampaignsService(req.query, userId);
+  const role = req.user?.role;
+
+  const data = await getCampaignsService(req.query, userId, role);
+
   return success(res, "Campaigns fetched successfully", data);
 });
 
