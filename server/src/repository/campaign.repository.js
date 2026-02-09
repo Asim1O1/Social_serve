@@ -60,7 +60,7 @@ export const addCampaignRating = (campaignId, ratingData) => {
     { new: true, runValidators: true },
   );
 };
-export const getCampaigns = async (filters = {}) => {
+export const getCampaigns = async (filters = {}, options = {}) => {
   const { category, status, createdBy, location, search } = filters;
   const query = {};
 
@@ -75,17 +75,21 @@ export const getCampaigns = async (filters = {}) => {
     ];
   }
 
-  return Campaign.find(query)
-    .select(
+  return paginate({
+    model: Campaign,
+    query,
+    page: options.page,
+    limit: options.limit,
+    select:
       "title location date category status createdBy createdAt attachments volunteers",
-    )
-    .populate("createdBy", "firstName lastName")
-    .populate({
-      path: "volunteers.volunteer",
-      select: "firstName lastName email profilePic",
-    })
-    .sort("-createdAt")
-    .lean();
+    populate: [
+      { path: "createdBy", select: "firstName lastName" },
+      {
+        path: "volunteers.volunteer",
+        select: "firstName lastName email profilePic",
+      },
+    ],
+  });
 };
 
 export const getCampaignWithVolunteerRequests = (id) => {
