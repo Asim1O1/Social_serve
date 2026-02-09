@@ -5,9 +5,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Campaign from "./pages/Campaign";
 import CreateCampaign from "./pages/Dashboard/CreateCampaign";
-import VolunteerAccepted from "./pages/Dashboard/VolunteerAccpeted";
+import VolunteerAccepted from "./pages/Dashboard/VolunteerAccepted";
 import VolunteerRejected from "./pages/Dashboard/VolunteerRejected";
 import VolunteerRequests from "./pages/Dashboard/VolunteerRequests";
+import VolunteerProfile from "./pages/Dashboard/VolunteerProfile";
+import VolunteerProfileView from "./pages/Dashboard/VolunteerProfileView";
 import ForgotPassword from "./pages/ForgotPassword";
 
 import Client from "./layout/Client";
@@ -25,25 +27,25 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Home />
+            element: <Home />,
           },
           {
             path: "login",
-            element: <Login />
+            element: <Login />,
           },
           {
             path: "register",
-            element: <Register />
+            element: <Register />,
           },
           {
             path: "forgotpassword",
-            element: <ForgotPassword />
+            element: <ForgotPassword />,
           },
           {
             path: "campaign/:id",
-            element: <Campaign />
-          }
-        ]
+            element: <Campaign />,
+          },
+        ],
       },
       {
         path: "dashboard",
@@ -52,34 +54,43 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Profile />
+            element: <Profile />,
           },
           {
             path: "create-campaign",
-            element: <CreateCampaign />
+            element: <CreateCampaign />,
           },
           {
             path: "create-campaign/:id",
-            element: <CreateCampaign />
+            element: <CreateCampaign />,
           },
           {
             path: "volunteer-requests",
-            element: <VolunteerRequests />
+            element: <VolunteerRequests />,
+          },
+
+          {
+            path: "volunteers/:userId",
+            element: <VolunteerProfileView />,
+          },
+          {
+            path: "profile",
+            element: <VolunteerProfile />,
           },
           {
             path: "accepted",
-            element: <VolunteerAccepted />
+            element: <VolunteerAccepted />,
           },
           {
             path: "rejected",
-            element: <VolunteerRejected />
-          }
-        ]
-      }
-    ]
+            element: <VolunteerRejected />,
+          },
+        ],
+      },
+    ],
   },
   {
-    path: '*',
-    element: <NotFound />
-  }
+    path: "*",
+    element: <NotFound />,
+  },
 ]);

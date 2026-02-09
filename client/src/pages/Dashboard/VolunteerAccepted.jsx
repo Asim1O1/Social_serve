@@ -5,6 +5,7 @@ import CampaignCard from "../../components/CampaignCard";
 import { useCampaign } from "../../context/CampaignContext";
 import { useAuth } from "../../context/AuthContext";
 import { CheckCircle2 } from "lucide-react";
+import CampaignVolunteers from "./CampaignVolunteers";
 
 function VolunteerAccepted() {
   const navigate = useNavigate();
@@ -26,6 +27,10 @@ function VolunteerAccepted() {
 
   if (loading || status === "loading") {
     return <Loading />;
+  }
+
+  if (user?.role === "ADMIN") {
+    return <CampaignVolunteers />;
   }
 
   return (
