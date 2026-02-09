@@ -6,7 +6,16 @@ export const createCampaign = async (data) => {
 };
 
 export const getCampaignById = (id) => {
-  return Campaign.findById(id);
+  return Campaign.findById(id)
+    .populate("createdBy", "firstName lastName email")
+    .populate({
+      path: "volunteers.volunteer",
+      select: "firstName lastName email profilePic skills",
+    })
+    .populate({
+      path: "ratings.volunteer",
+      select: "firstName lastName",
+    });
 };
 
 export const updateCampaign = (id, updateData) => {
@@ -51,9 +60,10 @@ export const addCampaignRating = (campaignId, ratingData) => {
     { new: true, runValidators: true },
   );
 };
-export const getCampaigns = async (filters = {}) => {
+export const getCampaigns = async (filters = {}, options = {}) => {
   const { category, status, createdBy, location, search } = filters;
   const query = {};
+
   if (category) query.category = category;
   if (status) query.status = status;
   if (createdBy) query.createdBy = createdBy;
@@ -65,12 +75,21 @@ export const getCampaigns = async (filters = {}) => {
     ];
   }
 
-  return Campaign.find(query)
-    .select(
+  return paginate({
+    model: Campaign,
+    query,
+    page: options.page,
+    limit: options.limit,
+    select:
       "title location date category status createdBy createdAt attachments volunteers",
-    )
-    .sort("-createdAt")
-    .lean();
+    populate: [
+      { path: "createdBy", select: "firstName lastName" },
+      {
+        path: "volunteers.volunteer",
+        select: "firstName lastName email profilePic",
+      },
+    ],
+  });
 };
 
 export const getCampaignWithVolunteerRequests = (id) => {

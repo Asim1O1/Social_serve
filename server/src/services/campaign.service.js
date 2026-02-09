@@ -59,11 +59,16 @@ export const createCampaignService = async (data) => {
 };
 
 export const getCampaignsService = async (filters = {}, userId) => {
-  const campaigns = await getCampaigns(filters);
+  const { page = 1, limit = 10, ...queryFilters } = filters;
 
-  return campaigns.map((campaign) => {
+  const result = await getCampaigns(queryFilters, {
+    page: Number(page),
+    limit: Number(limit),
+  });
+
+  const campaigns = result.data.map((campaign) => {
     const myVolunteer = campaign.volunteers.find(
-      (v) => v.volunteer.toString() === userId?.toString(),
+      (v) => v.volunteer?._id.toString() === userId?.toString(),
     );
 
     return {
@@ -80,6 +85,11 @@ export const getCampaignsService = async (filters = {}, userId) => {
       myVolunteerStatus: myVolunteer ? myVolunteer.status : null,
     };
   });
+
+  return {
+    campaigns,
+    pagination: result.pagination,
+  };
 };
 
 export const getCampaignByIdService = async (id, userId) => {
@@ -87,7 +97,7 @@ export const getCampaignByIdService = async (id, userId) => {
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   const myVolunteer = campaign.volunteers.find(
-    (v) => v.volunteer.toString() === userId?.toString(),
+    (v) => v.volunteer?._id.toString() === userId?.toString(),
   );
 
   return {
