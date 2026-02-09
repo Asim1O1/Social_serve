@@ -63,7 +63,7 @@ export const getCampaignsService = async (filters = {}, userId) => {
 
   return campaigns.map((campaign) => {
     const myVolunteer = campaign.volunteers.find(
-      (v) => v.volunteer.toString() === userId?.toString(),
+      (v) => v.volunteer?._id.toString() === userId?.toString(),
     );
 
     return {
@@ -87,7 +87,7 @@ export const getCampaignByIdService = async (id, userId) => {
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   const myVolunteer = campaign.volunteers.find(
-    (v) => v.volunteer.toString() === userId?.toString(),
+    (v) => v.volunteer?._id.toString() === userId?.toString(),
   );
 
   return {
