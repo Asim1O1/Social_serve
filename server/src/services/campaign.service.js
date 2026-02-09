@@ -75,11 +75,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
     if (userId) {
       const myVolunteer = campaign.volunteers.find(
-<<<<<<< HEAD
-        (v) => v.volunteer?.toString() === userId.toString()
-=======
         (v) => v.volunteer?._id.toString() === userId.toString(),
->>>>>>> 3587a4f997f5424175cb955ff8d47c1b00faac4a
       );
       myVolunteerStatus = myVolunteer?.status ?? null;
     }
@@ -148,22 +144,13 @@ export const respondToVolunteerRequestService = async (
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   assertOrThrow(
-<<<<<<< HEAD
-    campaign.createdBy._id.toString() == organizerId.toString(),
-=======
     campaign.createdBy._id.equals(organizerId),
->>>>>>> 3587a4f997f5424175cb955ff8d47c1b00faac4a
     HTTP_STATUS.FORBIDDEN,
     "You are not authorized to manage volunteers for this campaign"
   );
 
-<<<<<<< HEAD
-  const volunteerRequest = campaign.volunteers.find(
-    (v) => v.volunteer._id.toString() === volunteerId
-=======
   const volunteerRequest = campaign.volunteers.find(({ volunteer }) =>
     volunteer._id.equals(volunteerId),
->>>>>>> 3587a4f997f5424175cb955ff8d47c1b00faac4a
   );
 
   assertOrThrow(
@@ -253,10 +240,6 @@ export const applyForCampaignService = async (campaignId, userId) => {
     "Organizers cannot apply as volunteers"
   );
 
-<<<<<<< HEAD
-  const alreadyApplied = campaign.volunteers?.some(
-    (v) => v.volunteer.toString() === userId.toString()
-=======
   const alreadyApplied = campaign.volunteers.some(
     (v) => v.volunteer._id.toString() === userId.toString(),
   );
@@ -265,7 +248,6 @@ export const applyForCampaignService = async (campaignId, userId) => {
     !alreadyApplied,
     HTTP_STATUS.BAD_REQUEST,
     "You have already applied as a volunteer",
->>>>>>> 3587a4f997f5424175cb955ff8d47c1b00faac4a
   );
 
   assertOrThrow(
