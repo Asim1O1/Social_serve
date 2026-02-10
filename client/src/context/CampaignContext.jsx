@@ -12,7 +12,11 @@ export const CampaignProvider = ({ children }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchCampaigns({ user: null });
+    if (user?.role !== 'ADMIN') {
+      fetchCampaigns({ user: user?.id })
+      return
+    }
+    fetchCampaigns({ user: null })
   }, []);
 
   const fetchCampaigns = async ({ user = null }) => {

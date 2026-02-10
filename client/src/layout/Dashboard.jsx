@@ -44,7 +44,7 @@ function Dashboard() {
               to="/"
               className="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-90"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-accent to-primary">
                 <Blend className="h-5 w-5 text-white" />
               </span>
               <span className="text-xl font-bold tracking-tight text-accent">
@@ -55,7 +55,7 @@ function Dashboard() {
           <div ref={profileRef} className="ml-auto relative">
             <button
               onClick={() => openProfile(!profilePop)}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-primary text-white flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+              className="w-10 h-10 rounded-full bg-linear-to-br from-accent to-primary text-white flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
               aria-expanded={profilePop}
               aria-haspopup="true"
             >
@@ -69,7 +69,7 @@ function Dashboard() {
                   : "opacity-0 scale-95 pointer-events-none invisible"
               }`}
             >
-              <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 border-b border-primary/10">
+              <div className="p-4 bg-linear-to-br from-primary/10 to-accent/10 border-b border-primary/10">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                     <User size={22} className="text-primary" />
