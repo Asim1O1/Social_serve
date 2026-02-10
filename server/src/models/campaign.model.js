@@ -24,14 +24,25 @@ const campaignSchema = new mongoose.Schema(
       required: true,
     },
 
-    date: {
+    startDate: {
       type: Date,
       required: true,
     },
 
+    endDate: {
+      type: Date,
+      required: true,
+      validate: {
+        validator(value) {
+          return value >= this.startDate;
+        },
+        message: "endDate must be >= startDate",
+      },
+    },
+
     status: {
       type: String,
-      enum: ["DRAFT", "PUBLISHED", "ONGOING", "COMPLETED"],
+      enum: ["DRAFT", "PUBLISHED"],
       default: "DRAFT",
     },
 
@@ -93,7 +104,7 @@ const campaignSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Campaign", campaignSchema);

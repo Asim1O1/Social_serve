@@ -6,9 +6,9 @@ import {
   getCampaignByIdService,
   getCampaignsService,
   getCampaignVolunteerRequestsService,
+  publishCampaignService,
   respondToVolunteerRequestService,
   updateCampaignService,
-  updateCampaignStatusService,
 } from "../services/campaign.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { success } from "../utils/response.js";
@@ -49,10 +49,9 @@ export const deleteCampaign = asyncHandler(async (req, res) => {
   return success(res, "Campaign deleted successfully", data);
 });
 
-export const updateCampaignStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
-  const data = await updateCampaignStatusService(req.params.id, status);
-  return success(res, "Campaign status updated successfully", data);
+export const publishCampaign = asyncHandler(async (req, res) => {
+  const data = await publishCampaignService(req.params.id, req.user.id);
+  return success(res, "Campaign published successfully", data);
 });
 
 export const addCampaignRating = asyncHandler(async (req, res) => {
@@ -61,7 +60,7 @@ export const addCampaignRating = asyncHandler(async (req, res) => {
 });
 
 export const applyForCampaign = asyncHandler(async (req, res) => {
-  const userId = req.body.user.id;
+  const userId = req.user.id;
   const campaignId = req.params.id;
   const data = await applyForCampaignService(campaignId, userId);
   return success(res, "Volunteer request submitted successfully", data);

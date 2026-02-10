@@ -9,7 +9,6 @@ import {
   getCampaignVolunteerRequests,
   respondToVolunteerRequest,
   updateCampaign,
-  updateCampaignStatus,
 } from "../controllers/campaign.controller.js";
 import { optionalAuth } from "../middleware/optionalAuth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
@@ -20,7 +19,6 @@ import {
   createCampaignSchema,
   ratingSchema,
   updateCampaignSchema,
-  updateStatusSchema,
 } from "../validations/campaign.validation.js";
 
 const router = express.Router();
@@ -41,7 +39,7 @@ router.put(
 );
 router.delete("/:id", deleteCampaign);
 
-router.patch("/:id/status", validate(updateStatusSchema), updateCampaignStatus);
+router.patch("/:id/publish", requireAuth, publishCampaign);
 
 router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
 router.post("/:id/apply", applyForCampaign);
