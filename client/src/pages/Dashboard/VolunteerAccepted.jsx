@@ -10,7 +10,11 @@ import CampaignVolunteers from "./CampaignVolunteers";
 function VolunteerAccepted() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { campaigns, status, choseCampaign, handleRegister } = useCampaign();
+  const { campaigns, fetchCampaigns, status, choseCampaign, handleRegister } = useCampaign();
+
+  useEffect(() => {
+    fetchCampaigns()
+  }, [])
 
   const campaignList = Array.isArray(campaigns)
     ? campaigns

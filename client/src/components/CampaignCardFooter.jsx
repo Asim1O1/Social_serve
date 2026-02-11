@@ -8,7 +8,7 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
 
   const renderButton = () => {
     const loc =
-      !location.pathname.includes("profile") &&
+      !location.pathname.includes("profile") ||
       !location.pathname.includes("dashboard");
     const role = user?.role == "VOLUNTEER";
     const myStatus = campaign?.myVolunteerStatus;

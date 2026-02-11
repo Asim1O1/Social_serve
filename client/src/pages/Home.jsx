@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Megaphone } from "lucide-react";
+import { ChevronRight, Megaphone } from "lucide-react";
 import CampaignCard from "../components/CampaignCard";
 import CategoryTabs from "../components/CategoryTab";
 import CampaignFeatures from "../components/Features";
@@ -50,9 +50,9 @@ function Home() {
           </div>
           <Link
             to="/campaign"
-            className="font-semibold text-primary bg-primary/5 rounded-lg hover:bg-primary hover:text-white duration-150 px-6 py-3"
+            className="flex gap-1 items-center font-semibold text-primary bg-primary/5 rounded-lg hover:bg-primary hover:text-white duration-150 px-6 py-3"
           >
-            View all
+            View all <ChevronRight />
           </Link>
         </div>
 

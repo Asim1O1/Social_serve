@@ -12,14 +12,14 @@ function Profile() {
   const { user, loading } = useAuth();
   const {
     campaigns,
-    fetchCampaigns,
+    status,
     activeCampaign,
     choseCampaign,
     handleRegister,
   } = useCampaign();
 
+
   useEffect(() => {
-    fetchCampaigns({ user: user?.id });
     if (!loading && !user) {
       navigate("/");
     }
@@ -28,9 +28,12 @@ function Profile() {
   if (loading || status == "loading") {
     return <Loading />;
   }
+
+
   if (user?.role === "VOLUNTEER") {
     return <VolunteerProfile />;
   }
+
 
   return (
     <>

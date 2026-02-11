@@ -43,7 +43,7 @@ router.delete("/:id", deleteCampaign);
 router.patch("/:id/publish", requireAuth, publishCampaign);
 
 router.post("/:id/rating", validate(ratingSchema), addCampaignRating);
-router.post("/:id/apply", applyForCampaign);
+router.post("/:id/apply", requireAuth, applyForCampaign);
 
 router.get(
   "/:id/volunteers",

@@ -14,7 +14,7 @@ export const CampaignProvider = ({ children }) => {
   useEffect(() => {
     if (user?.role !== 'ADMIN') {
       fetchCampaigns({ user: user?.id })
-      return
+      return;
     }
     fetchCampaigns({ user: null })
   }, []);
