@@ -1,5 +1,6 @@
 import {
   getCampaignAttendanceService,
+  getMyAttendanceService,
   markCampaignAttendanceService,
 } from "../services/attendance.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
