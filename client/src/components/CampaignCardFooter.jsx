@@ -18,7 +18,7 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
           ? "Accepted"
           : "Register";
     }
-    return campaign.status == 'DRAFT' ? 'Publish' : "Published";
+    return user?.role == 'ADMIN' ? campaign.status == 'DRAFT' ? 'Publish' : "Published" : null;
   };
   return (
     <div className="flex gap-2 items-center justify-between pt-2">
