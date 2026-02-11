@@ -8,7 +8,7 @@ export default function Campaign() {
   const { campaigns, status, fetchCampaigns } = useCampaign();
 
   useEffect(() => {
-    fetchCampaigns({ user: null })
+    fetchCampaigns()
   }, [])
 
   if (status == "loading") {

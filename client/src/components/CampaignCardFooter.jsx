@@ -17,7 +17,8 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
         ? "Pending"
         : myStatus == "accepted"
           ? "Accepted"
-          : "Register";
+          : myStatus == 'rejected' ? "Rejected"
+            : "Register";
     }
     return user?.role == 'ADMIN' ? campaign.status == 'DRAFT' ? 'Publish' : "Published" : 'Register';
   };
@@ -38,7 +39,7 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
       {renderButton() && (
         <button
           title={renderButton()}
-          disabled={renderButton() == "Pending" || renderButton() == "Accepted" || renderButton() == 'Published'}
+          disabled={renderButton() == "Pending" || renderButton() == "Accepted" || renderButton() == 'Rejected' || renderButton() == 'Published'}
           onClick={() => {
             if (!user) {
               navigate('/login')

@@ -12,9 +12,7 @@ function VolunteerAccepted() {
   const { user, loading } = useAuth();
   const { campaigns, fetchCampaigns, status, choseCampaign, handleRegister } = useCampaign();
 
-  useEffect(() => {
-    fetchCampaigns()
-  }, [])
+
 
   const campaignList = Array.isArray(campaigns)
     ? campaigns
@@ -24,6 +22,8 @@ function VolunteerAccepted() {
   );
 
   useEffect(() => {
+    fetchCampaigns()
+
     if (!loading && !user) {
       navigate("/");
     }

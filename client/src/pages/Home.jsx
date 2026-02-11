@@ -11,24 +11,23 @@ import WhyWorkWithUs from "../components/WhyWorkWithUs";
 import { Link } from "react-router";
 
 function Home() {
-  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
-
-  const campaignList = Array.isArray(campaigns)
-    ? campaigns
-    : campaigns?.data ?? [];
-  const filteredCampaigns =
-    selectedCategory == null
-      ? campaignList
-      : campaignList.filter(
-        (c) => c.category?.toLowerCase() === selectedCategory?.toLowerCase()
-      );
-
   const isLoading = status === "loading";
-  const hasNoCampaignsToShow = filteredCampaigns.length === 0;
-  const showEmptyState = !isLoading && hasNoCampaignsToShow;
-  const isCategoryFilter = campaignList.length > 0 && hasNoCampaignsToShow;
+
+  // const campaignList = Array.isArray(campaigns)
+  //   ? campaigns
+  //   : campaigns?.data ?? [];
+  // const filteredCampaigns =
+  //   selectedCategory == null
+  //     ? campaignList
+  //     : campaignList.filter(
+  //       (c) => c.category?.toLowerCase() === selectedCategory?.toLowerCase()
+  //     );
+
+  // const hasNoCampaignsToShow = filteredCampaigns.length === 0;
+  // const showEmptyState = !isLoading && hasNoCampaignsToShow;
+  // const isCategoryFilter = campaignList.length > 0 && hasNoCampaignsToShow;
 
   return (
     <div>
@@ -36,10 +35,7 @@ function Home() {
       <CampaignFeatures />
       <HowItWorks />
       <WhyWorkWithUs />
-      <CategoryTabs
-        activeTab={selectedCategory}
-        onChange={setSelectedCategory}
-      />
+      <CategoryTabs />
       <div className="container mx-auto">
         <div className="flex justify-between items-center">
           <div>
@@ -62,15 +58,15 @@ function Home() {
           </div>
         )}
 
-        {showEmptyState && (
+        {!campaigns?.length && (
           <div className="mt-8 rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
-            <NoCampaignsFound isCategoryFilter={isCategoryFilter} />
+            <NoCampaignsFound />
           </div>
         )}
 
-        {!isLoading && filteredCampaigns.length > 0 && (
+        {!isLoading && campaigns?.length > 0 && (
           <div className="grid-container mt-6">
-            {filteredCampaigns.slice(0, 4).map((event) => (
+            {campaigns.slice(0, 4).map((event) => (
               <CampaignCard
                 key={event.id}
                 campaign={event}
@@ -88,7 +84,7 @@ function Home() {
 export default Home;
 
 
-export function NoCampaignsFound({ isCategoryFilter }) {
+export function NoCampaignsFound() {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
       <div className="w-24 h-24 rounded-full bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 shadow-inner">
@@ -98,9 +94,7 @@ export function NoCampaignsFound({ isCategoryFilter }) {
         No campaigns found
       </h2>
       <p className="text-accent/70 max-w-sm mx-auto">
-        {isCategoryFilter
-          ? "There are no campaigns in this category yet. Try another category or browse all."
-          : "There are no campaigns right now. Check back later or create one from your dashboard."}
+        There are no campaigns right now.
       </p>
     </div>
   );

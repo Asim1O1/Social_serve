@@ -9,12 +9,13 @@ import { XCircle } from 'lucide-react';
 function VolunteerRejected() {
     const navigate = useNavigate();
     const { user, loading } = useAuth();
-    const { campaigns, status, choseCampaign, handleRegister } = useCampaign();
+    const { campaigns, fetchCampaigns, status, choseCampaign, handleRegister } = useCampaign();
 
     const campaignList = Array.isArray(campaigns) ? campaigns : (campaigns?.data ?? []);
     const rejectedCampaigns = campaignList.filter((c) => c.myVolunteerStatus === 'rejected');
 
     useEffect(() => {
+        fetchCampaigns()
         if (!loading && !user) {
             navigate('/');
         }

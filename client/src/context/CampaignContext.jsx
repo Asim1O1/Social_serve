@@ -12,18 +12,18 @@ export const CampaignProvider = ({ children }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
-      fetchCampaigns({ user: user?.id })
+    if (user?.role === 'ADMIN') {
+      fetchCampaigns({ createdBy: user?.id })
       return;
     }
-    fetchCampaigns({ user: null })
-  }, []);
+    fetchCampaigns()
+  }, [user]);
 
-  const fetchCampaigns = async ({ user = null }) => {
+  const fetchCampaigns = async (query = null) => {
     setStatus("loading");
     try {
       const res = await api.get("/campaign", {
-        params: user ? { createdBy: user } : {},
+        params: query ? { ...query } : {},
       });
       setCampaigns(res?.data?.campaigns);
       setStatus("success");
