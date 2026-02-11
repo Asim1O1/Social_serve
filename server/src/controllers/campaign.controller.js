@@ -60,6 +60,7 @@ export const addCampaignRating = asyncHandler(async (req, res) => {
 });
 
 export const applyForCampaign = asyncHandler(async (req, res) => {
+  console.log("user is", req.user);
   const userId = req.user.id;
   const campaignId = req.params.id;
   const data = await applyForCampaignService(campaignId, userId);

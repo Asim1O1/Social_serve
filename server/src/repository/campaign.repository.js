@@ -86,7 +86,7 @@ export const getCampaigns = async (filters = {}, options = {}) => {
     page: options.page,
     limit: options.limit,
     select:
-      "title location date category status createdBy createdAt attachments volunteers",
+      "title location startDate endDate category status createdBy createdAt attachments volunteers",
     populate: [
       { path: "createdBy", select: "firstName lastName" },
       {

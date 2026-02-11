@@ -3,8 +3,13 @@ export const getCampaignPhase = (campaign) => {
 
   if (campaign.status === "DRAFT") return "DRAFT";
 
-  if (now < campaign.startDate) return "UPCOMING";
-  if (now <= campaign.endDate) return "ONGOING";
+  if (!campaign.startDate || !campaign.endDate) return "UNKNOWN";
+
+  const start = new Date(campaign.startDate);
+  const end = new Date(campaign.endDate);
+
+  if (now < start) return "UPCOMING";
+  if (now <= end) return "ONGOING";
 
   return "COMPLETED";
 };
