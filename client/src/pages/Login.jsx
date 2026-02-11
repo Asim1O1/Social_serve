@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 export default function Login() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { user, login } = useAuth();
+    const { login } = useAuth();
 
 
     const [email, setEmail] = useState("");
@@ -15,6 +15,11 @@ export default function Login() {
     const [error, setError] = useState("");
     const [viewpw, setViewpw] = useState(false)
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
 
 
     const handleSubmit = async (e) => {

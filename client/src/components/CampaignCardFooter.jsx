@@ -1,8 +1,9 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { MessageSquareText } from "lucide-react";
 import { useCampaign } from "../context/CampaignContext";
 
 function EventCardFooter({ campaign, choseCampaign, user, location }) {
+  const navigate = useNavigate()
   const { handleRegister, handlePublish } = useCampaign();
 
   const renderButton = () => {
@@ -18,7 +19,7 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
           ? "Accepted"
           : "Register";
     }
-    return user?.role == 'ADMIN' ? campaign.status == 'DRAFT' ? 'Publish' : "Published" : null;
+    return user?.role == 'ADMIN' ? campaign.status == 'DRAFT' ? 'Publish' : "Published" : 'Register';
   };
   return (
     <div className="flex gap-2 items-center justify-between pt-2">
@@ -39,6 +40,10 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
           title={renderButton()}
           disabled={renderButton() == "Pending" || renderButton() == "Accepted" || renderButton() == 'Published'}
           onClick={() => {
+            if (!user) {
+              navigate('/login')
+              return;
+            }
             if (user.role == 'VOLUNTEER') {
               handleRegister(campaign?.id)
               return;

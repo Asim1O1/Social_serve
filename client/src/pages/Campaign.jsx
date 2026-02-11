@@ -1,10 +1,15 @@
+import { useEffect } from "react";
 import CampaignCard from "../components/CampaignCard";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
 import { NoCampaignsFound } from "./Home";
 
 export default function Campaign() {
-  const { campaigns, status } = useCampaign();
+  const { campaigns, status, fetchCampaigns } = useCampaign();
+
+  useEffect(() => {
+    fetchCampaigns({ user: null })
+  }, [])
 
   if (status == "loading") {
     return <Loading />;
