@@ -69,6 +69,14 @@ const campaignSchema = new mongoose.Schema(
           enum: ["pending", "accepted", "rejected"],
           default: "pending",
         },
+        attendanceStatus: {
+          type: String,
+          enum: ["present", "absent"],
+          default: null,
+        },
+        attendanceMarkedAt: {
+          type: Date,
+        },
         appliedAt: {
           type: Date,
           default: Date.now,
