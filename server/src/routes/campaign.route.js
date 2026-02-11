@@ -7,9 +7,9 @@ import {
   getAllCampaigns,
   getCampaignById,
   getCampaignVolunteerRequests,
+  publishCampaign,
   respondToVolunteerRequest,
   updateCampaign,
-  publishCampaign,
 } from "../controllers/campaign.controller.js";
 import { optionalAuth } from "../middleware/optionalAuth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
