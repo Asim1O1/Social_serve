@@ -3,7 +3,7 @@ import { MessageSquareText } from "lucide-react";
 import { useCampaign } from "../context/CampaignContext";
 
 function EventCardFooter({ campaign, choseCampaign, user, location }) {
-  const { handleRegister } = useCampaign();
+  const { handleRegister, handlePublish } = useCampaign();
 
   const renderButton = () => {
     const loc =
@@ -15,10 +15,10 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
       return myStatus == "pending"
         ? "Pending"
         : myStatus == "accepted"
-        ? "Accepted"
-        : "Register";
+          ? "Accepted"
+          : "Register";
     }
-    return;
+    return campaign.status == 'DRAFT' ? 'Publish' : "Published";
   };
   return (
     <div className="flex gap-2 items-center justify-between pt-2">
@@ -37,8 +37,15 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
       {renderButton() && (
         <button
           title={renderButton()}
-          disabled={renderButton() == "Pending" || renderButton() == "Accepted"}
-          onClick={() => handleRegister(campaign?.id)}
+          disabled={renderButton() == "Pending" || renderButton() == "Accepted" || renderButton() == 'Published'}
+          onClick={() => {
+            if (user.role == 'VOLUNTEER') {
+              handleRegister(campaign?.id)
+              return;
+            }
+            handlePublish(campaign?.id)
+            return;
+          }}
           className="secondary-btn disabled:cursor-not-allowed!"
         >
           {renderButton()}

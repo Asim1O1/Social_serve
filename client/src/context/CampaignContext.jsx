@@ -43,6 +43,17 @@ export const CampaignProvider = ({ children }) => {
       toast.error(error?.message);
     }
   };
+  const handlePublish = async (campaignId) => {
+    try {
+      const res = await api.patch(`/campaign/${campaignId}/publish`)
+
+      if (res.status == 200) {
+        toast.success(res.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <CampaignContext.Provider
@@ -53,6 +64,7 @@ export const CampaignProvider = ({ children }) => {
         status,
         handleRegister,
         fetchCampaigns,
+        handlePublish
       }}
     >
       {children}

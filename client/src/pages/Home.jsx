@@ -9,25 +9,6 @@ import { useCampaign } from "../context/CampaignContext";
 import HowItWorks from "../components/HowItWorks";
 import WhyWorkWithUs from "../components/WhyWorkWithUs";
 import { Link } from "react-router";
-import { useAuth } from "../context/AuthContext";
-
-function NoCampaignsFound({ isCategoryFilter }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 shadow-inner">
-        <Megaphone className="w-12 h-12 text-primary/70" strokeWidth={1.5} />
-      </div>
-      <h2 className="text-2xl font-bold text-accent mb-2">
-        No campaigns found
-      </h2>
-      <p className="text-accent/70 max-w-sm mx-auto">
-        {isCategoryFilter
-          ? "There are no campaigns in this category yet. Try another category or browse all."
-          : "There are no campaigns right now. Check back later or create one from your dashboard."}
-      </p>
-    </div>
-  );
-}
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -41,8 +22,8 @@ function Home() {
     selectedCategory == null
       ? campaignList
       : campaignList.filter(
-          (c) => c.category?.toLowerCase() === selectedCategory?.toLowerCase()
-        );
+        (c) => c.category?.toLowerCase() === selectedCategory?.toLowerCase()
+      );
 
   const isLoading = status === "loading";
   const hasNoCampaignsToShow = filteredCampaigns.length === 0;
@@ -105,3 +86,22 @@ function Home() {
 }
 
 export default Home;
+
+
+export function NoCampaignsFound({ isCategoryFilter }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="w-24 h-24 rounded-full bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 shadow-inner">
+        <Megaphone className="w-12 h-12 text-primary/70" strokeWidth={1.5} />
+      </div>
+      <h2 className="text-2xl font-bold text-accent mb-2">
+        No campaigns found
+      </h2>
+      <p className="text-accent/70 max-w-sm mx-auto">
+        {isCategoryFilter
+          ? "There are no campaigns in this category yet. Try another category or browse all."
+          : "There are no campaigns right now. Check back later or create one from your dashboard."}
+      </p>
+    </div>
+  );
+}

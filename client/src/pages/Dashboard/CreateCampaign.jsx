@@ -30,7 +30,8 @@ function CreateCampaign() {
       description: "",
       category: "",
       location: "",
-      date: "",
+      startDate: "",
+      endDate: "",
       attachments: [],
       createdBy: user?.id || sessionStorage.getItem("id"),
     },
@@ -47,7 +48,8 @@ function CreateCampaign() {
         description: "",
         category: "",
         location: "",
-        date: "",
+        startDate: "",
+        endDate: "",
         attachments: [],
         createdBy: user?.id,
       })
@@ -209,14 +211,25 @@ function CreateCampaign() {
             </div>
 
             <div className="flex-1">
-              <label className="font-medium">Date</label>
+              <label className="font-medium">Start Date</label>
               <input
                 type="date"
-                {...register("date", { required: "Date is required" })}
-                className={`w-full border p-2 rounded ${errors.date ? "border-red-500" : "border-border"}`}
+                {...register("startDate", { required: "Start Date is required" })}
+                className={`w-full border p-2 rounded ${errors.startDate ? "border-red-500" : "border-border"}`}
               />
-              {errors.date && (
-                <p className="text-red-500 text-sm">{errors.date.message}</p>
+              {errors.startDate && (
+                <p className="text-red-500 text-sm">{errors.startDate.message}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <label className="font-medium">End Date</label>
+              <input
+                type="date"
+                {...register("endDate", { required: "End Date is required" })}
+                className={`w-full border p-2 rounded ${errors.endDate ? "border-red-500" : "border-border"}`}
+              />
+              {errors.endDate && (
+                <p className="text-red-500 text-sm">{errors.endDate.message}</p>
               )}
             </div>
           </div>

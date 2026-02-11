@@ -9,8 +9,6 @@ export default function Login() {
     const location = useLocation()
     const { user, login } = useAuth();
 
-    const from = location.state?.from || "/dashboard";
-
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,9 +23,12 @@ export default function Login() {
         setLoading(true)
 
         try {
-            const status = await login(email, password);
+            const data = await login(email, password);
 
-            if (status == 'success') {
+            const from = location.state?.from || data?.data?.role == 'ADMIN' ? "/dashboard" : '/campaign'
+
+
+            if (data.status == 'success') {
                 navigate(from, { replace: true });
             }
 

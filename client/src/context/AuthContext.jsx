@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.setItem('rt', data.data.refreshToken);
             sessionStorage.setItem('id', data.data.id);
             sessionStorage.setItem('at', data.data.accessToken);
-            return data.status;
+            return data;
         }
         return new Error(data);
     }

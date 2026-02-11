@@ -32,12 +32,6 @@ const campaignSchema = new mongoose.Schema(
     endDate: {
       type: Date,
       required: true,
-      validate: {
-        validator(value) {
-          return value >= this.startDate;
-        },
-        message: "endDate must be >= startDate",
-      },
     },
 
     status: {

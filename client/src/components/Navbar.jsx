@@ -8,11 +8,10 @@ function Navbar() {
 
   const navLinkClass = (path) => {
     const isActive = location.pathname === path;
-    return `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-      isActive
+    return `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
         ? "text-primary bg-primary/10"
         : "text-accent/90 hover:text-primary hover:bg-primary/5"
-    }`;
+      }`;
   };
 
   return (
@@ -36,21 +35,26 @@ function Navbar() {
             <span className="hidden sm:inline">Home</span>
           </Link>
 
-          {!loading && user && (
+          {!loading && user?.role == "ADMIN" && (
             <Link to="/dashboard" className={navLinkClass("/dashboard")}>
               <LayoutGrid size={18} className="shrink-0" />
               <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+          )}
+          {!loading && user?.role == "VOLUNTEER" && (
+            <Link to="/dashboard" className={navLinkClass("/dashboard")}>
+              <LayoutGrid size={18} className="shrink-0" />
+              <span className="hidden sm:inline">Profile</span>
             </Link>
           )}
 
           {!loading && !user && (
             <Link
               to="/login"
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg ${
-                location.pathname === "/login"
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg ${location.pathname === "/login"
                   ? "bg-primary"
-                  : "bg-gradient-to-br from-accent to-primary hover:opacity-90"
-              }`}
+                  : "bg-linear-to-br from-accent to-primary hover:opacity-90"
+                }`}
             >
               <LogIn size={18} className="shrink-0" />
               <span>Log in</span>

@@ -43,7 +43,7 @@ const CampaignVolunteers = () => {
                 <div className="flex text-gray-500 text-xs gap-4 justify-between">
                   <p>{campaign.category}</p>
                   <p>{campaign.location}</p>
-                  <p>{campaign.date.split("T")[0]}</p>
+                  <p>{campaign.date?.split("T")[0]}</p>
                 </div>
                 <div className="my-2 h-px w-full bg-primary/20" />
               </div>

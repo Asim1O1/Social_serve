@@ -1,6 +1,7 @@
 import CampaignCard from "../components/CampaignCard";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
+import { NoCampaignsFound } from "./Home";
 
 export default function Campaign() {
   const { campaigns, status } = useCampaign();
@@ -16,6 +17,11 @@ export default function Campaign() {
           <CampaignCard campaign={campaign} />
         ))}
       </div>
+      {!campaigns?.length && (
+        <div className="mt-8 rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
+          <NoCampaignsFound isCategoryFilter={null} />
+        </div>
+      )}
     </div>
   );
 }

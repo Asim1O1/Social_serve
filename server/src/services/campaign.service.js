@@ -75,7 +75,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
     queryFilters.createdBy = userId;
   }
 
-  if (role === "VOLUNTEER") {
+  if (!role || role === "VOLUNTEER") {
     queryFilters.status = "PUBLISHED";
   }
 
