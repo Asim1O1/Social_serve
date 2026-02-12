@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
+import { useCampaign } from "../context/CampaignContext";
 
 function Campaign() {
   const { user } = useAuth();
@@ -16,6 +17,8 @@ function Campaign() {
   const [volunteerPop, openPopup] = useState(false);
 
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user]);
+
+  const { handleVolunteerAttendance } = useCampaign()
 
   const loadCampaign = async () => {
     try {
@@ -36,34 +39,8 @@ function Campaign() {
   }, [id]);
 
   /* ================= Volunteers (ADMIN only) ================= */
-  // const handleVolunteer = async () => {
-  //   if (!isAdmin) return;
-  //   openPopup(true);
 
-  //   try {
-  //     const res = await api.get(`/campaign/${id}`);
-  //     setVolunteers(res.data);
-  //     console.log(res.data)
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("Failed to load volunteers");
-  //   }
-  // };
 
-  const handleVolunteerRequest = async (attendanceStatus, volunteerId) => {
-    try {
-      const res = await api.patch(
-        `/attendance/${id}/attendance/${volunteerId}`,
-        { attendanceStatus }
-      );
-      if (res.status == 'success') {
-        // loadCampaign()
-        toast.success(res.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
 
   const addComment = async () => {
     try {
@@ -139,7 +116,8 @@ function Campaign() {
 
                           {!vl.attendanceStatus && <> <button
                             onClick={() =>
-                              handleVolunteerRequest(
+                              handleVolunteerAttendance(
+                                id,
                                 "present",
                                 vl.volunteer.id
                               )
@@ -150,7 +128,8 @@ function Campaign() {
                           </button>
                             <button
                               onClick={() =>
-                                handleVolunteerRequest(
+                                handleVolunteerAttendance(
+                                  id,
                                   "absent",
                                   vl.volunteer.id
                                 )

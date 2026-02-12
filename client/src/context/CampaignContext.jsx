@@ -56,13 +56,28 @@ export const CampaignProvider = ({ children }) => {
     }
   }
 
+  const handleVolunteerAttendance = async (id, attendanceStatus, volunteerId) => {
+    try {
+      const res = await api.patch(
+        `/attendance/${id}/attendance/${volunteerId}`,
+        { attendanceStatus }
+      );
+      if (res.status == 'success') {
+        toast.success(res.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   return (
     <CampaignContext.Provider
       value={{
         campaigns,
         activeCampaign,
-        choseCampaign,
         status,
+        choseCampaign,
+        handleVolunteerAttendance,
         handleRegister,
         fetchCampaigns,
         handlePublish

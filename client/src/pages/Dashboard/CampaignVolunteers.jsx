@@ -1,5 +1,6 @@
 import { Link, Outlet, useParams } from "react-router";
 import { useCampaign } from "../../context/CampaignContext";
+import { Check, X } from "lucide-react";
 
 const CampaignVolunteers = () => {
   const { id } = useParams();
@@ -7,7 +8,7 @@ const CampaignVolunteers = () => {
     return <Outlet />;
   }
 
-  const { campaigns } = useCampaign();
+  const { campaigns, handleVolunteerAttendance } = useCampaign();
 
   return (
     <div className="space-y-10">
@@ -52,18 +53,30 @@ const CampaignVolunteers = () => {
               <div className="flex flex-col max-h-56 overflow-y-auto">
                 {acceptedVolunteers?.length ? (
                   acceptedVolunteers.map((el) => (
-                    <Link
-                      to={`${el.volunteer._id}`}
+                    <div
                       key={el.volunteer._id}
                       className="group flex items-center justify-between px-3 py-2 text-sm rounded text-gray-700 transition hover:bg-primary/5 hover:text-primary"
                     >
                       <span>
                         {el.volunteer.firstName} {el.volunteer.lastName}
                       </span>
-                      <span className="text-xs opacity-0 transition group-hover:opacity-100">
-                        View →
-                      </span>
-                    </Link>
+                      <div className="flex gap-1 text-white">
+                        <button onClick={() =>
+                          handleVolunteerAttendance(
+                            campaign.id,
+                            "present",
+                            el.volunteer._id
+                          )
+                        } title="Present" className="bg-green-400 rounded-full p-1" ><Check size={12} /></button>
+                        <button onClick={() =>
+                          handleVolunteerAttendance(
+                            campaign.id,
+                            "absent",
+                            el.volunteer._id
+                          )
+                        } title="absent" className="bg-red-400 rounded-full p-1"><X size={12} /></button>
+                      </div>
+                    </div>
                   ))
                 ) : (
                   <p className="text-xs text-accent/60 italic">

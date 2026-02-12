@@ -91,7 +91,7 @@ function VolunteerProfileView() {
       </h1>
 
       <div className="rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
-        <div className="p-6 md:p-8 bg-gradient-to-br from-primary/10 to-accent/10 border-b border-primary/10">
+        <div className="p-6 md:p-8 bg-linear-to-br from-primary/10 to-accent/10 border-b border-primary/10">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
               <User size={48} className="text-primary" />
