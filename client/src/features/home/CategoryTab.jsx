@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCampaign } from "../context/CampaignContext";
+import { useCampaign } from "../../context/CampaignContext";
 
 const categories = ["Health", "Education", "Environment", "Social Work"];
 

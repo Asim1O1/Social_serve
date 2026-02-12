@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { MessageSquareText } from "lucide-react";
-import { useCampaign } from "../context/CampaignContext";
+import { useCampaign } from "../../context/CampaignContext";
 
 function EventCardFooter({ campaign, choseCampaign, user, location }) {
   const navigate = useNavigate()

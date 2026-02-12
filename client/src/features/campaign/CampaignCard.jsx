@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import { useAuth } from "../context/AuthContext";
-import { api } from "../axios/axios";
+import { useAuth } from "../../context/AuthContext";
+import { api } from "../../axios/axios";
 import { toast } from "react-toastify";
 
 import CardHeader from "./CampaignCardHeader";
@@ -9,7 +9,7 @@ import CardInfo from "./CampaignCardInfo";
 import CardFooter from "./CampaignCardFooter";
 import CampaignCardRating from "./CampaignCardRating";
 import ActionsMenu from "./CampaignActionMenu";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../../components/ConfirmModal";
 
 function CampaignCard({ campaign, choseCampaign, handleRegister }) {
   const { user } = useAuth();

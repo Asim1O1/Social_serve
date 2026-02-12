@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import Loading from '../../components/Loading';
-import CampaignCard from '../../components/CampaignCard';
+import CampaignCard from '../../features/campaign/CampaignCard';
 import { useCampaign } from '../../context/CampaignContext';
 import { useAuth } from '../../context/AuthContext';
 import { XCircle } from 'lucide-react';

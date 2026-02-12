@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { ChevronRight, Megaphone } from "lucide-react";
-import CampaignCard from "../components/CampaignCard";
-import CategoryTabs from "../components/CategoryTab";
-import CampaignFeatures from "../components/Features";
-import HeroSection from "../components/HeroSection";
+import CampaignCard from "../features/campaign/CampaignCard";
+import CategoryTabs from "../features/home/CategoryTab";
+import CampaignFeatures from "../features/home/Features";
+import HeroSection from "../features/home/HeroSection";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
-import HowItWorks from "../components/HowItWorks";
-import WhyWorkWithUs from "../components/WhyWorkWithUs";
+import HowItWorks from "../features/home/HowItWorks";
+import WhyWorkWithUs from "../features/home/WhyWorkWithUs";
 import { Link } from "react-router";
 
 function Home() {

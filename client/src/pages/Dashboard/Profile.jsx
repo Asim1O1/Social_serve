@@ -2,9 +2,9 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
 import Loading from "../../components/Loading";
-import Comment from "../../components/Comment";
+import Comment from "../../features/campaign/Comment";
 import { useCampaign } from "../../context/CampaignContext";
-import CampaignCard from "../../components/CampaignCard";
+import CampaignCard from "../../features/campaign/CampaignCard";
 import VolunteerProfile from "./VolunteerProfile";
 
 function Profile() {

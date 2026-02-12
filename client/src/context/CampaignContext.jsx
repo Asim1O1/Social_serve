@@ -43,11 +43,12 @@ export const CampaignProvider = ({ children }) => {
       toast.error(error?.message);
     }
   };
+
   const handlePublish = async (campaignId) => {
     try {
       const res = await api.patch(`/campaign/${campaignId}/publish`)
 
-      if (res.status == 200) {
+      if (res.status == 'success') {
         toast.success(res.message)
       }
     } catch (error) {

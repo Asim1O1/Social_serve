@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import CampaignCard from "../components/CampaignCard";
+import CampaignCard from "../features/campaign/CampaignCard";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
 import { NoCampaignsFound } from "./Home";

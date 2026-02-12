@@ -18,7 +18,6 @@ function VolunteerRequests() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [campaignsWithRequests, setCampaignsWithRequests] = useState([]);
-  const [respondingId, setRespondingId] = useState(null);
 
   const fetchMyCampaignsWithVolunteers = async () => {
     if (!user?.id) return;
@@ -29,13 +28,11 @@ function VolunteerRequests() {
       });
       const campaigns = res?.data.campaigns ?? res ?? [];
       const list = Array.isArray(campaigns) ? campaigns : [];
-      // console.log(campaigns);
 
       const withRequests = await Promise.all(
         list.map(async (campaign) => {
           try {
             const volRes = await api.get(`/campaign/${campaign.id}/volunteers`);
-            // console.log(volRes);
             const volData = volRes?.data ?? volRes;
             return {
               ...campaign,
@@ -56,8 +53,6 @@ function VolunteerRequests() {
     }
   };
 
-  // console.log(campaignsWithRequests);
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/");
@@ -69,7 +64,6 @@ function VolunteerRequests() {
   }, [authLoading, user?.id, navigate]);
 
   const handleRespond = async (campaignId, volunteerIdParam, status) => {
-    setRespondingId(volunteerIdParam);
     try {
       await api.patch(
         `/campaign/${campaignId}/volunteer-requests/${volunteerIdParam}`,
@@ -80,24 +74,27 @@ function VolunteerRequests() {
         prev.map((c) =>
           c.id === campaignId
             ? {
-                ...c,
-                volunteerRequests: c.volunteerRequests.filter(
-                  (r) => r.volunteer._id !== volunteerIdParam
-                ),
-              }
+              ...c,
+              volunteerRequests: c.volunteerRequests.filter(
+                (r) => r.volunteer._id !== volunteerIdParam
+              ),
+            }
             : c
         )
       );
     } catch (err) {
       toast.error(err?.message ?? "Failed to update request");
-    } finally {
-      setRespondingId(null);
     }
   };
 
   if (authLoading || loading) {
     return <Loading />;
   }
+
+  const count = campaignsWithRequests.reduce(
+    (total, campaign) => total + (campaign.volunteerRequests?.length ?? 0),
+    0
+  );
 
   const hasAnyRequests = campaignsWithRequests.some(
     (c) => c.volunteerRequests?.length > 0

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { api } from "../axios/axios";
+import { api } from "../../axios/axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 

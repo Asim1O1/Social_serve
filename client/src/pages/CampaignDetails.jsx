@@ -1,4 +1,4 @@
-import { Bookmark, MapPin, Timer, UsersRound, X } from "lucide-react";
+import { Bookmark, MapPin, Timer, UsersRound, X, Check } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -12,68 +12,63 @@ function Campaign() {
   const location = useLocation();
 
   const [campaign, setCampaign] = useState(null);
-  const [volunteers, setVolunteers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [volunteerPop, openPopup] = useState(false);
 
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user]);
 
-  /* ================= Campaign ================= */
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCampaign = async () => {
-      try {
-        const res = await api.get(`/campaign/${id}`);
-        if (isMounted) setCampaign(res.data);
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to load campaign");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    loadCampaign();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [id]);
-
-  /* ================= Volunteers (ADMIN only) ================= */
-  const handleVolunteer = async () => {
-    if (!isAdmin) return;
-    openPopup(true);
-
+  const loadCampaign = async () => {
     try {
-      const res = await api.get(`/campaign/${id}/volunteers`);
-      setVolunteers(res.data);
+      const res = await api.get(`/campaign/${id}`);
+      if (res.status == 'success')
+        setCampaign(res.data);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to load volunteers");
+      toast.error("Failed to load campaign");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleVolunteerRequest = async (status, volunteerId) => {
+  /* ================= Campaign ================= */
+  useEffect(() => {
+    loadCampaign();
+  }, [id]);
+
+  /* ================= Volunteers (ADMIN only) ================= */
+  // const handleVolunteer = async () => {
+  //   if (!isAdmin) return;
+  //   openPopup(true);
+
+  //   try {
+  //     const res = await api.get(`/campaign/${id}`);
+  //     setVolunteers(res.data);
+  //     console.log(res.data)
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Failed to load volunteers");
+  //   }
+  // };
+
+  const handleVolunteerRequest = async (attendanceStatus, volunteerId) => {
     try {
       const res = await api.patch(
-        `/campaign/${id}/volunteer-requests/${volunteerId}`,
-        { status } // keep status consistent with backend
+        `/attendance/${id}/attendance/${volunteerId}`,
+        { attendanceStatus }
       );
-      handleVolunteer();
-
-      toast.success(res.message);
+      if (res.status == 'success') {
+        // loadCampaign()
+        toast.success(res.message);
+      }
     } catch (error) {
-      toast.error("Failed to approve volunteer");
-      console.error(error);
+      toast.error(error.message);
     }
   };
 
   const addComment = async () => {
     try {
       const res = await api.get("");
-    } catch (error) {}
+    } catch (error) { }
   };
 
   if (loading) return <Loading />;
@@ -81,7 +76,7 @@ function Campaign() {
   if (!campaign) return null;
 
   return (
-    <div className="max-w-6xl my-12 mx-auto">
+    <div className=" container my-12 mx-auto">
       {campaign?.attachments && (
         <img
           loading="lazy"
@@ -102,11 +97,11 @@ function Campaign() {
             </h1>
             {isAdmin && (
               <button
-                onClick={handleVolunteer}
+                onClick={() => openPopup(true)}
                 className="primary-btn md:space-x-2"
               >
                 <UsersRound size={16} />
-                <span className="hidden md:inline">Volunteer</span>
+                <span className="hidden md:inline">Volunteers Attendence</span>
               </button>
             )}
             {/* ================= Volunteers (ADMIN) ================= */}
@@ -117,7 +112,7 @@ function Campaign() {
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary">
-                      Volunteer Requests
+                      Volunteer Attendence
                     </h2>
 
                     <button
@@ -132,43 +127,45 @@ function Campaign() {
 
                   {/* Content */}
                   <div className="max-h-80 space-y-3 overflow-y-auto">
-                    {volunteers?.volunteerRequests?.length > 0 ? (
-                      volunteers.volunteerRequests.map((vl) => (
+                    {campaign.volunteers?.length > 0 ? (
+                      campaign.volunteers?.map((vl) => (
                         <div
                           key={vl.volunteer.id}
-                          className="flex gap-2 items-center justify-between rounded-lg bg-primary/30 px-4 py-3 hover:bg-primary/40 transition"
+                          className={`${vl?.attendanceStatus == 'present' ? "bg-green-400/40" : vl.attendanceStatus == 'absent' ? 'bg-red-400/40' : 'bg-primary/10'} flex gap-2 items-center justify-between rounded-lg px-4 py-3 hover:bg-primary/20 transition duration-150`}
                         >
                           <span className="text-black font-semibold">
                             {vl.volunteer.fullName}
                           </span>
 
-                          <button
+                          {!vl.attendanceStatus && <> <button
                             onClick={() =>
                               handleVolunteerRequest(
-                                "accepted",
+                                "present",
                                 vl.volunteer.id
                               )
                             }
                             className="primary-btn ml-auto"
                           >
-                            Approve
+                            Present
                           </button>
-                          <button
-                            onClick={() =>
-                              handleVolunteerRequest(
-                                "rejected",
-                                vl.volunteer.id
-                              )
-                            }
-                            className="secondary-btn bg-bg"
-                          >
-                            Decline
-                          </button>
+                            <button
+                              onClick={() =>
+                                handleVolunteerRequest(
+                                  "absent",
+                                  vl.volunteer.id
+                                )
+                              }
+                              className="secondary-btn bg-bg"
+                            >
+                              Absent
+                            </button></>}
+                          {/* {vl.attendanceStatus == 'absent' && <span className="bg-red-400 text-white p-1 rounded-full"><X /></span>}
+                          {vl.attendanceStatus == 'present' && <span className="bg-green-400 text-white p-1 rounded-full"><Check /></span>} */}
                         </div>
                       ))
                     ) : (
                       <p className="text-center text-black/60">
-                        No pending volunteer requests
+                        No pending volunteer attendence.
                       </p>
                     )}
                   </div>
