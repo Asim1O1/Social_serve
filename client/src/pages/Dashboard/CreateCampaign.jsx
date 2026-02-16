@@ -137,14 +137,14 @@ function CreateCampaign() {
 
   return (
     <div>
-      <h1 className="text-5xl font-bold text-primary mb-10">
+      <h1 className="text-3xl md:text-5xl font-bold text-primary mb-10">
         {id ? "Edit Campaign" : "Create Campaign"}
       </h1>
-      <div className="flex items-start flex-wrap md:flex-nowrap gap-10 md:gap-6 max-w-7xl w-5xl">
+      <div className="flex items-start flex-wrap md:flex-nowrap gap-10 md:gap-6 max-w-7xl">
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full md:min-w-xl space-y-6 rounded-lg bg-white p-6 shadow"
+          className="w-full md:w-3xl space-y-6 rounded-lg bg-white p-6 shadow"
         >
           {/* Title */}
           <div>
@@ -198,7 +198,7 @@ function CreateCampaign() {
           </div>
 
           {/* Location & Date */}
-          <div className="flex gap-6">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               <label className="font-medium">Location</label>
               <input

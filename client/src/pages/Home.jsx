@@ -58,7 +58,7 @@ function Home() {
           </div>
         )}
 
-        {!campaigns?.length && (
+        {!isLoading && !campaigns?.length && (
           <div className="mt-8 rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
             <NoCampaignsFound />
           </div>

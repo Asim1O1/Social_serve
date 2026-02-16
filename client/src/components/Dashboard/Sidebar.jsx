@@ -11,10 +11,9 @@ import {
 } from "lucide-react";
 
 const navLinkClass = (isActive) =>
-  `flex items-center gap-3 rounded-lg py-2.5 px-3 text-sm font-medium transition-all duration-200 ${
-    isActive
-      ? "bg-primary text-white shadow-md"
-      : "text-accent hover:bg-primary/10 hover:text-primary"
+  `flex items-center gap-3 rounded-lg py-2.5 px-3 text-sm font-medium transition-all duration-200 ${isActive
+    ? "bg-primary text-white shadow-md"
+    : "text-accent hover:bg-primary/10 hover:text-primary"
   }`;
 
 function Sidebar() {
@@ -22,7 +21,7 @@ function Sidebar() {
 
   if (user?.role === "ADMIN") {
     return (
-      <div className="w-12 h-[85vh] overflow-y-auto sticky top-25 ml-1 md:w-52 border border-primary rounded-xl overflow-hidden p-2 flex flex-col bg-white/50 shadow-sm">
+      <div className="w-12 h-[85vh] overflow-y-auto sticky top-25 ml-1 md:w-52 border border-primary rounded-xl overflow-hidden md:p-2 flex flex-col bg-white/50 shadow-sm">
         <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent/70 hidden md:block">
           Dashboard
         </p>

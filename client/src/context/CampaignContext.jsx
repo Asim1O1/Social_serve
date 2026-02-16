@@ -28,7 +28,7 @@ export const CampaignProvider = ({ children }) => {
       setCampaigns(res?.data?.campaigns);
       setStatus("success");
     } catch (error) {
-      toast.error(error.message);
+      // toast.error(error.message);
       setStatus("error");
     } finally {
       setStatus(null);
