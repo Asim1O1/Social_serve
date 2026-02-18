@@ -19,6 +19,8 @@ import { protectedLoader } from "./utils/authLoader";
 import NotFound from "./pages/Notfound";
 import VolunteerDetails from "./pages/Dashboard/VolunteerDetails";
 import Campaign from "./pages/Campaign";
+import CreateTask from "./features/task/CreateTask";
+import Common from "./layout/Common";
 
 export const router = createBrowserRouter([
   {
@@ -61,6 +63,21 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Profile />,
+          },
+          {
+            path: 'campaign/:id',
+            element: <Common />,
+            children: [
+              {
+                index: true,
+                element: <CampaignDetails />
+              },
+              {
+                path: 'create-task',
+                element: <CreateTask />
+              }
+
+            ]
           },
           {
             path: "create-campaign",

@@ -77,4 +77,3 @@ const defaultAuth = {
 };
 
 export const useAuth = () => useContext(AuthContext) ?? defaultAuth;
-

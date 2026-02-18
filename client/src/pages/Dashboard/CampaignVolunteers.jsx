@@ -37,9 +37,12 @@ const CampaignVolunteers = () => {
             >
               {/* Campaign Title */}
               <div className="mb-2">
-                <h4 className="text-lg font-semibold text-primary truncate">
-                  {campaign.title}
-                </h4>
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-semibold text-primary truncate">
+                    {campaign.title}
+                  </h4>
+                  <p className="text-gray-400">{campaign?.phase}</p>
+                </div>
                 <div className="my-2 h-px w-full bg-primary/20" />
                 <div className="flex text-gray-500 text-xs gap-4 justify-between">
                   <p>{campaign.category}</p>
@@ -57,10 +60,12 @@ const CampaignVolunteers = () => {
                       key={el.volunteer._id}
                       className="group flex items-center justify-between px-3 py-2 text-sm rounded text-gray-700 transition hover:bg-primary/5 hover:text-primary"
                     >
-                      <span>
+                      <Link to='/'>
                         {el.volunteer.firstName} {el.volunteer.lastName}
-                      </span>
-                      <div className="flex gap-1 text-white">
+                      </Link>
+                      {el.attendanceStatus == 'present' && <span>Present</span>}
+                      {el.attendanceStatus == 'absent' && <span>Absent</span>}
+                      {!el?.attendanceStatus && <div className="flex gap-1 text-white">
                         <button onClick={() =>
                           handleVolunteerAttendance(
                             campaign.id,
@@ -75,7 +80,7 @@ const CampaignVolunteers = () => {
                             el.volunteer._id
                           )
                         } title="absent" className="bg-red-400 rounded-full p-1"><X size={12} /></button>
-                      </div>
+                      </div>}
                     </div>
                   ))
                 ) : (

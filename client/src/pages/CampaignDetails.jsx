@@ -1,4 +1,4 @@
-import { Bookmark, MapPin, Timer, UsersRound, X, Check } from "lucide-react";
+import { Bookmark, MapPin, Plus, TableOfContents, Timer, UsersRound, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { toast } from "react-toastify";
@@ -14,11 +14,15 @@ function Campaign() {
 
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [volunteerPop, openPopup] = useState(false);
+  const [taskPop, openPopup] = useState(false);
+  const [taskList, setTaskList] = useState()
 
-  const isAdmin = useMemo(() => user?.role === "ADMIN", [user]);
+  const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
 
-  const { handleVolunteerAttendance } = useCampaign()
+  const loadTask = async () => {
+    const res = await api.get(`/task/campaigns/${id}/tasks`)
+    setTaskList(res.data)
+  }
 
   const loadCampaign = async () => {
     try {
@@ -36,7 +40,11 @@ function Campaign() {
   /* ================= Campaign ================= */
   useEffect(() => {
     loadCampaign();
-  }, [id]);
+    if (taskPop) {
+      loadTask()
+      return
+    }
+  }, [id, taskPop]);
 
   /* ================= Volunteers (ADMIN only) ================= */
 
@@ -53,7 +61,7 @@ function Campaign() {
   if (!campaign) return null;
 
   return (
-    <div className=" container my-12 mx-auto">
+    <div className=" container mx-auto">
       {campaign?.attachments && (
         <img
           loading="lazy"
@@ -68,28 +76,30 @@ function Campaign() {
       {/* ================= Event Header ================= */}
       <div className="flex flex-col gap-6 md:flex-row md:items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h1 className="text-primary text-4xl font-bold mb-2">
+          <div className="flex items-center justify-between gap-5">
+            <h1 className="text-primary text-4xl mr-auto font-bold mb-2">
               {campaign.title}
             </h1>
-            {isAdmin && (
+            {isAdmin && (<>
+              <Link className="primary-btn" to='create-task'><Plus size={16} />Create Task</Link>
               <button
                 onClick={() => openPopup(true)}
                 className="primary-btn md:space-x-2"
               >
-                <UsersRound size={16} />
-                <span className="hidden md:inline">Volunteers Attendence</span>
+                <TableOfContents size={16} />
+                <span className="hidden md:inline">View Task</span>
               </button>
+            </>
             )}
-            {/* ================= Volunteers (ADMIN) ================= */}
-            {isAdmin && volunteerPop && (
+            {/* ================= Tasks popup (ADMIN) ================= */}
+            {isAdmin && taskPop && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                 {/* Modal */}
                 <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl p-6 animate-fadeIn">
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-primary">
-                      Volunteer Attendence
+                      Task List
                     </h2>
 
                     <button
@@ -104,47 +114,21 @@ function Campaign() {
 
                   {/* Content */}
                   <div className="max-h-80 space-y-3 overflow-y-auto">
-                    {campaign.volunteers?.length > 0 ? (
-                      campaign.volunteers?.map((vl) => (
+                    {taskList?.length > 0 ? (
+                      taskList.map((vl) => (
                         <div
-                          key={vl.volunteer.id}
+                          key={vl.id}
                           className={`${vl?.attendanceStatus == 'present' ? "bg-green-400/40" : vl.attendanceStatus == 'absent' ? 'bg-red-400/40' : 'bg-primary/10'} flex gap-2 items-center justify-between rounded-lg px-4 py-3 hover:bg-primary/20 transition duration-150`}
                         >
                           <span className="text-black font-semibold">
-                            {vl.volunteer.fullName}
+                            {vl.title}
                           </span>
-
-                          {!vl.attendanceStatus && <> <button
-                            onClick={() =>
-                              handleVolunteerAttendance(
-                                id,
-                                "present",
-                                vl.volunteer.id
-                              )
-                            }
-                            className="primary-btn ml-auto"
-                          >
-                            Present
-                          </button>
-                            <button
-                              onClick={() =>
-                                handleVolunteerAttendance(
-                                  id,
-                                  "absent",
-                                  vl.volunteer.id
-                                )
-                              }
-                              className="secondary-btn bg-bg"
-                            >
-                              Absent
-                            </button></>}
-                          {/* {vl.attendanceStatus == 'absent' && <span className="bg-red-400 text-white p-1 rounded-full"><X /></span>}
-                          {vl.attendanceStatus == 'present' && <span className="bg-green-400 text-white p-1 rounded-full"><Check /></span>} */}
+                          <span>{vl.points}</span>
                         </div>
                       ))
                     ) : (
                       <p className="text-center text-black/60">
-                        No pending volunteer attendence.
+                        No task found.
                       </p>
                     )}
                   </div>

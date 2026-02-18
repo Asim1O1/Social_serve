@@ -53,7 +53,7 @@ function Sidebar() {
             className={({ isActive }) => navLinkClass(isActive)}
           >
             <UserCheck size={20} className="shrink-0" />
-            <span className="hidden md:inline">Accepted Volunteers</span>
+            <span className="hidden md:inline">Attendance</span>
           </NavLink>
           <NavLink
             to="/dashboard/profile"
