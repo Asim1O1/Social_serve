@@ -27,7 +27,7 @@ function Sidebar() {
         </p>
         <nav className="space-y-1 flex flex-col">
           <NavLink
-            to="/dashboard"
+            to="/dashboard/campaign"
             end
             className={({ isActive }) => navLinkClass(isActive)}
           >
@@ -49,7 +49,7 @@ function Sidebar() {
             <span className="hidden md:inline">Volunteer Requests</span>
           </NavLink>
           <NavLink
-            to="/dashboard/accepted"
+            to="/dashboard/accepted/campaign"
             className={({ isActive }) => navLinkClass(isActive)}
           >
             <UserCheck size={20} className="shrink-0" />
@@ -75,7 +75,7 @@ function Sidebar() {
         </p>
         <nav className="space-y-1 flex flex-col">
           <NavLink
-            to="/dashboard"
+            to="/dashboard/profile"
             end
             className={({ isActive }) => navLinkClass(isActive)}
           >
@@ -83,14 +83,14 @@ function Sidebar() {
             <span className="hidden md:inline">Profile</span>
           </NavLink>
           <NavLink
-            to="accepted"
+            to="accepted/campaign"
             className={({ isActive }) => navLinkClass(isActive)}
           >
             <CheckCircle2 size={20} className="shrink-0" />
             <span className="hidden md:inline">Accepted</span>
           </NavLink>
           <NavLink
-            to="rejected"
+            to="rejected/campaign"
             className={({ isActive }) => navLinkClass(isActive)}
           >
             <XCircle size={20} className="shrink-0" />

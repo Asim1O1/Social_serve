@@ -30,9 +30,7 @@ export default function Login() {
         try {
             const data = await login(email, password);
 
-            const from = location.state?.from || data?.data?.role == 'ADMIN' ? "/dashboard" : '/campaign'
-
-
+            const from = location.state?.from || data?.data?.role == 'ADMIN' ? "/dashboard/campaign" : '/campaign'
             if (data.status == 'success') {
                 navigate(from, { replace: true });
             }

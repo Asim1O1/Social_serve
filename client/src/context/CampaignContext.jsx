@@ -64,6 +64,7 @@ export const CampaignProvider = ({ children }) => {
       );
       if (res.status == 'success') {
         toast.success(res.message);
+        return res.data;
       }
     } catch (error) {
       toast.error(error.message);

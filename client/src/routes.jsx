@@ -8,7 +8,7 @@ import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import VolunteerAccepted from "./pages/Dashboard/VolunteerAccepted";
 import VolunteerRejected from "./pages/Dashboard/VolunteerRejected";
 import VolunteerRequests from "./pages/Dashboard/VolunteerRequests";
-import VolunteerProfile from "./pages/Dashboard/VolunteerProfile";
+import VolunteerProfile from "./pages/Dashboard/Profile";
 import VolunteerProfileView from "./pages/Dashboard/VolunteerProfileView";
 import ForgotPassword from "./pages/ForgotPassword";
 
@@ -21,6 +21,7 @@ import VolunteerDetails from "./pages/Dashboard/VolunteerDetails";
 import Campaign from "./pages/Campaign";
 import CreateTask from "./features/task/CreateTask";
 import Common from "./layout/Common";
+import SubmitTaskForm from "./features/task/SubmitTaskForm";
 
 export const router = createBrowserRouter([
   {
@@ -47,12 +48,19 @@ export const router = createBrowserRouter([
           },
           {
             path: "campaign",
-            element: <Campaign />,
+            element: <Common />,
+            children: [
+              {
+                index: true,
+                element: <Campaign />
+              },
+              {
+                path: ":id",
+                element: <CampaignDetails />,
+              },
+            ]
           },
-          {
-            path: "campaign/:id",
-            element: <CampaignDetails />,
-          },
+
         ],
       },
       {
@@ -61,21 +69,32 @@ export const router = createBrowserRouter([
         loader: protectedLoader,
         children: [
           {
-            index: true,
-            element: <Profile />,
-          },
-          {
-            path: 'campaign/:id',
+            path: 'campaign',
             element: <Common />,
             children: [
               {
                 index: true,
-                element: <CampaignDetails />
+                element: <Campaign />
               },
               {
-                path: 'create-task',
-                element: <CreateTask />
-              }
+                path: ':id',
+                element: <Common />,
+                children: [
+                  {
+                    index: true,
+                    element: <CampaignDetails />
+                  },
+                  {
+                    path: 'create-task',
+                    element: <CreateTask />
+                  },
+                  {
+                    path: 'submit-task/:id',
+                    element: <SubmitTaskForm />
+                  }
+                ]
+              },
+
 
             ]
           },
@@ -98,15 +117,16 @@ export const router = createBrowserRouter([
           },
           {
             path: "profile",
-            element: <VolunteerProfile />,
+            element: <Profile />,
           },
           {
-            path: "accepted",
+            path: "accepted/campaign",
             element: <VolunteerAccepted />,
-            children: [{ path: ":id", element: <VolunteerDetails /> }],
+            children: [{ path: ":id", element: <VolunteerDetails /> },
+            ],
           },
           {
-            path: "rejected",
+            path: "rejected/campaign",
             element: <VolunteerRejected />,
           },
         ],

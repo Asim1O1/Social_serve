@@ -36,13 +36,13 @@ function Navbar() {
           </Link>
 
           {!loading && user?.role == "ADMIN" && (
-            <Link to="/dashboard" className={navLinkClass("/dashboard")}>
+            <Link to="/dashboard/campaign" className={navLinkClass("/dashboard")}>
               <LayoutGrid size={18} className="shrink-0" />
               <span className="hidden sm:inline">Dashboard</span>
             </Link>
           )}
           {!loading && user?.role == "VOLUNTEER" && (
-            <Link to="/dashboard" className={navLinkClass("/dashboard")}>
+            <Link to="/dashboard/profile" className={navLinkClass("/dashboard")}>
               <LayoutGrid size={18} className="shrink-0" />
               <span className="hidden sm:inline">Profile</span>
             </Link>
