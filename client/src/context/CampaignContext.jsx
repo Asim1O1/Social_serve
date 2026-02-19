@@ -64,6 +64,7 @@ export const CampaignProvider = ({ children }) => {
       );
       if (res.status == 'success') {
         toast.success(res.message);
+        fetchCampaigns({ createdBy: user?.id })
         return res.data;
       }
     } catch (error) {

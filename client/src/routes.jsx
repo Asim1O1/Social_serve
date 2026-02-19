@@ -7,11 +7,8 @@ import CampaignDetails from "./pages/CampaignDetails";
 import CreateCampaign from "./pages/Dashboard/CreateCampaign";
 import VolunteerAccepted from "./pages/Dashboard/VolunteerAccepted";
 import VolunteerRejected from "./pages/Dashboard/VolunteerRejected";
-import VolunteerRequests from "./pages/Dashboard/VolunteerRequests";
-import VolunteerProfile from "./pages/Dashboard/Profile";
 import VolunteerProfileView from "./pages/Dashboard/VolunteerProfileView";
 import ForgotPassword from "./pages/ForgotPassword";
-
 import Client from "./layout/Client";
 import Dashboard from "./layout/Dashboard";
 import RootLayout from "./layout/Root";
@@ -22,6 +19,7 @@ import Campaign from "./pages/Campaign";
 import CreateTask from "./features/task/CreateTask";
 import Common from "./layout/Common";
 import SubmitTaskForm from "./features/task/SubmitTaskForm";
+import VolunteerManagement from "./pages/Dashboard/VolunteerManagement";
 
 export const router = createBrowserRouter([
   {
@@ -107,8 +105,8 @@ export const router = createBrowserRouter([
             element: <CreateCampaign />,
           },
           {
-            path: "volunteer-requests",
-            element: <VolunteerRequests />,
+            path: "volunteer-management",
+            element: <VolunteerManagement />,
           },
 
           {
