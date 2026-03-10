@@ -80,7 +80,7 @@ export const submitTaskService = async (
   taskId,
   volunteerId,
   summary,
-  proof,
+  proofFiles,
 ) => {
   const task = await getTaskById(taskId);
   assertOrThrow(task, HTTP_STATUS.NOT_FOUND, "Task not found");
@@ -116,12 +116,27 @@ export const submitTaskService = async (
     "You have already submitted this task",
   );
 
+  let proof = [];
+  if (proofFiles.length > 0) {
+    const uploadPromises = proofFiles.map(async (file) => {
+      const uploaded = await uploadToCloudinary(file.buffer, "task_proofs");
+      return {
+        url: uploaded.secure_url,
+        public_id: uploaded.public_id,
+        type: uploaded.resource_type,
+      };
+    });
+
+    proof = await Promise.all(uploadPromises);
+  }
+
   const submission = await createTaskSubmissionRepo({
     task: taskId,
     volunteer: volunteerId,
     summary,
     proof,
   });
+
   return submission;
 };
 
