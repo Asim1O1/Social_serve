@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { MessageSquareText } from "lucide-react";
 import { useCampaign } from "../../context/CampaignContext";
 
@@ -32,7 +32,7 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
         <span>{campaign?.comments?.length || 0}</span>
       </button>
 
-      <Link to={`campaign/${campaign.id}`} className="ml-auto primary-btn">
+      <Link to={`../campaign/${campaign.id}`} className="ml-auto primary-btn">
         View
       </Link>
 

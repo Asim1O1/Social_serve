@@ -18,9 +18,14 @@ function Campaign() {
   const [taskList, setTaskList] = useState()
 
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
+  const isVolunteer = useMemo(() => user?.role === 'VOLUNTEER', [user])
 
   const loadTask = async () => {
     const res = await api.get(`/task/campaigns/${id}/tasks`)
+    if (res.status == 'error') {
+      toast.error(res.error.message)
+      return;
+    }
     setTaskList(res.data)
   }
 
@@ -38,13 +43,18 @@ function Campaign() {
   };
 
   /* ================= Campaign ================= */
+
   useEffect(() => {
-    loadCampaign();
+    loadCampaign()
+  }, [id])
+
+  useEffect(() => {
     if (taskPop) {
       loadTask()
       return
     }
-  }, [id, taskPop]);
+
+  }, [taskPop]);
 
   /* ================= Volunteers (ADMIN only) ================= */
 
@@ -80,19 +90,19 @@ function Campaign() {
             <h1 className="text-primary text-4xl mr-auto font-bold mb-2">
               {campaign.title}
             </h1>
-            {isAdmin && (<>
+            {isAdmin && (
               <Link className="primary-btn" to='create-task'><Plus size={16} />Create Task</Link>
-              <button
-                onClick={() => openPopup(true)}
-                className="primary-btn md:space-x-2"
-              >
-                <TableOfContents size={16} />
-                <span className="hidden md:inline">View Task</span>
-              </button>
-            </>
             )}
+
+            {(isVolunteer || isAdmin) && <button
+              onClick={() => openPopup(true)}
+              className="primary-btn md:space-x-2"
+            >
+              <TableOfContents size={16} />
+              <span className="hidden md:inline">View Task</span>
+            </button>}
             {/* ================= Tasks popup (ADMIN) ================= */}
-            {isAdmin && taskPop && (
+            {taskPop && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                 {/* Modal */}
                 <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl p-6 animate-fadeIn">
@@ -113,17 +123,18 @@ function Campaign() {
                   <hr className="my-4 border-black/10" />
 
                   {/* Content */}
-                  <div className="max-h-80 space-y-3 overflow-y-auto">
+                  <div className="max-h-80 space-y-1 overflow-y-auto">
                     {taskList?.length > 0 ? (
                       taskList.map((vl) => (
                         <div
                           key={vl.id}
-                          className={`${vl?.attendanceStatus == 'present' ? "bg-green-400/40" : vl.attendanceStatus == 'absent' ? 'bg-red-400/40' : 'bg-primary/10'} flex gap-2 items-center justify-between rounded-lg px-4 py-3 hover:bg-primary/20 transition duration-150`}
+                          className={`bg-primary/10 flex gap-6 items-center rounded-lg px-4 py-2 hover:bg-primary/20 transition duration-150`}
                         >
-                          <span className="text-black font-semibold">
+                          <span className="text-black font-semibold mr-auto">
                             {vl.title}
                           </span>
-                          <span>{vl.points}</span>
+                          <span className="text-sm text-gray-500">{vl.points}</span>
+                          {isVolunteer && <Link to={`submit-task/${vl.id}`} className="primary-btn">Submit</Link>}
                         </div>
                       ))
                     ) : (
