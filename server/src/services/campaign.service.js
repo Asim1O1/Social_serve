@@ -14,6 +14,8 @@ import {
   updateCampaign,
 } from "../repository/campaign.repository.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
+import { extractMentions } from "../utils/extractMentions.js";
+import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 
 export const createCampaignService = async (data) => {
   const {
@@ -389,23 +391,62 @@ export const publishCampaignService = async (campaignId, userId) => {
   return campaign;
 };
 
-export const addCampaignRatingService = async (campaignId, data) => {
-  const { volunteer, rating, comment } = data;
+export const addCampaignRatingService = async (campaignId, userId, data) => {
+  const { rating, comment } = data;
+
+  const campaign = await getCampaignById(campaignId);
+  assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
+
+  const phase = getCampaignPhase(campaign);
+  assertOrThrow(
+    phase === "COMPLETED",
+    HTTP_STATUS.BAD_REQUEST,
+    "You can only rate a completed campaign",
+  );
+
+  const volunteerRecord = campaign.volunteers.find(
+    (v) => v.volunteer._id.toString() === userId.toString(),
+  );
+  assertOrThrow(
+    volunteerRecord,
+    HTTP_STATUS.FORBIDDEN,
+    "You did not participate in this campaign",
+  );
+  assertOrThrow(
+    volunteerRecord.status === "accepted",
+    HTTP_STATUS.BAD_REQUEST,
+    "Only accepted volunteers can rate this campaign",
+  );
+  assertOrThrow(
+    volunteerRecord.attendanceStatus === "present",
+    HTTP_STATUS.BAD_REQUEST,
+    "You must attend the campaign to submit feedback",
+  );
+
+  const alreadyRated = campaign.ratings.some(
+    (r) => r.volunteer._id.toString() === userId.toString(),
+  );
+  assertOrThrow(
+    !alreadyRated,
+    HTTP_STATUS.BAD_REQUEST,
+    "You have already rated this campaign",
+  );
+
+  const mentions = await extractMentions(comment);
 
   const ratingData = {
-    volunteer,
+    volunteer: userId,
     rating,
     comment: comment || null,
+    mentions,
     createdAt: new Date(),
   };
 
   const updated = await addCampaignRating(campaignId, ratingData);
-  assertOrThrow(updated, HTTP_STATUS.NOT_FOUND, "Campaign not found");
-
-  const { _id, ratings } = updated;
+  await updateVolunteerLevelAndBadge(volunteer);
 
   return {
-    id: _id,
-    ratings,
+    id: updated._id,
+    ratings: updated.ratings,
   };
 };

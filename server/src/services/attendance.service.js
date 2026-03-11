@@ -6,6 +6,7 @@ import {
 import { getCampaignById } from "../repository/campaign.repository.js";
 import assertOrThrow from "../utils/assertOrThrow.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
+import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 
 export const markCampaignAttendanceService = async (
   campaignId,
@@ -62,6 +63,7 @@ export const markCampaignAttendanceService = async (
   volunteerEntry.attendanceMarkedAt = new Date();
 
   await campaign.save();
+  await updateVolunteerLevelAndBadge(volunteerId);
 
   return {
     campaignId,
