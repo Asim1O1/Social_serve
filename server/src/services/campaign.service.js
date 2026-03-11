@@ -3,6 +3,7 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 import campaignModel from "../models/campaign.model.js";
+import { findUserById } from "../repository/auth.repository.js";
 import {
   addCampaignRating,
   addCampaignVolunteer,
@@ -13,6 +14,7 @@ import {
   getCampaignWithVolunteerRequests,
   updateCampaign,
 } from "../repository/campaign.repository.js";
+import { deleteCommentsByCampaign } from "../repository/comment.repository.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
 import { extractMentions } from "../utils/extractMentions.js";
 import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
@@ -270,6 +272,7 @@ export const updateCampaignService = async (id, data) => {
 export const deleteCampaignService = async (id) => {
   const deleted = await deleteCampaign(id);
   assertOrThrow(deleted, HTTP_STATUS.NOT_FOUND, "Campaign not found");
+  await deleteCommentsByCampaign(campaignId);
 
   return {
     id,
@@ -443,7 +446,7 @@ export const addCampaignRatingService = async (campaignId, userId, data) => {
   };
 
   const updated = await addCampaignRating(campaignId, ratingData);
-  await updateVolunteerLevelAndBadge(volunteer);
+  await updateVolunteerLevelAndBadge(userId);
 
   return {
     id: updated._id,

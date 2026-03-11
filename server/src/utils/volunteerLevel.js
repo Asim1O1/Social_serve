@@ -11,14 +11,17 @@ export const LEVELS = [
 ];
 
 export const calculateVolunteerPoints = async (volunteerId) => {
-  const user = await userModel.findById(volunteerId);
-  if (!user) return 0;
-
   let points = 0;
 
-  user.attendanceHistory?.forEach((att) => {
-    if (att.attendanceStatus === "present") points += 1;
+  const attendedCampaigns = await Campaign.countDocuments({
+    volunteers: {
+      $elemMatch: {
+        volunteer: volunteerId,
+        attendanceStatus: "present",
+      },
+    },
   });
+  points += attendedCampaigns;
 
   const acceptedTasks = await taskSubmissionModel.countDocuments({
     volunteer: volunteerId,
@@ -27,22 +30,21 @@ export const calculateVolunteerPoints = async (volunteerId) => {
   points += acceptedTasks * 5;
 
   const completedCampaigns = await Campaign.countDocuments({
-    "volunteers.volunteer": volunteerId,
-    status: "PUBLISHED",
+    volunteers: {
+      $elemMatch: {
+        volunteer: volunteerId,
+        status: "accepted",
+        attendanceStatus: "present",
+      },
+    },
     endDate: { $lte: new Date() },
   });
   points += completedCampaigns * 10;
 
-  const campaignsWithRatings = await Campaign.find({
+  const ratedCampaigns = await Campaign.countDocuments({
     "ratings.volunteer": volunteerId,
-  }).lean();
-
-  campaignsWithRatings.forEach((c) => {
-    const rating = c.ratings.find(
-      (r) => r.volunteer.toString() === volunteerId.toString(),
-    );
-    if (rating) points += rating.rating || 0;
   });
+  points += ratedCampaigns;
 
   return points;
 };
