@@ -101,7 +101,7 @@ export const router = createBrowserRouter([
             element: <CreateCampaign />,
           },
           {
-            path: "create-campaign/:id",
+            path: "campaign/create-campaign/:id",
             element: <CreateCampaign />,
           },
           {

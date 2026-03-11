@@ -19,13 +19,17 @@ export const CampaignProvider = ({ children }) => {
     fetchCampaigns()
   }, [user]);
 
+  const handlePagination = (page) => {
+    fetchCampaigns({ page })
+  }
+
   const fetchCampaigns = async (query = null) => {
     setStatus("loading");
     try {
       const res = await api.get("/campaign", {
         params: query ? { ...query } : {},
       });
-      setCampaigns(res?.data?.campaigns);
+      setCampaigns(res?.data);
       setStatus("success");
     } catch (error) {
       // toast.error(error.message);
@@ -79,6 +83,7 @@ export const CampaignProvider = ({ children }) => {
         activeCampaign,
         status,
         choseCampaign,
+        handlePagination,
         handleVolunteerAttendance,
         handleRegister,
         fetchCampaigns,

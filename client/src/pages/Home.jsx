@@ -58,15 +58,15 @@ function Home() {
           </div>
         )}
 
-        {!isLoading && !campaigns?.length && (
+        {!isLoading && !campaigns?.campaigns?.length && (
           <div className="mt-8 rounded-2xl border border-primary/20 bg-white/60 shadow-sm overflow-hidden">
             <NoCampaignsFound />
           </div>
         )}
 
-        {!isLoading && campaigns?.length > 0 && (
+        {!isLoading && campaigns?.campaigns?.length > 0 && (
           <div className="grid-container mt-6">
-            {campaigns.slice(0, 4).map((event) => (
+            {campaigns?.campaigns?.slice(0, 4).map((event) => (
               <CampaignCard
                 key={event.id}
                 campaign={event}
