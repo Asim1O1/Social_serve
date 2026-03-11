@@ -54,7 +54,17 @@ export const router = createBrowserRouter([
               },
               {
                 path: ":id",
-                element: <CampaignDetails />,
+                element: <Common />,
+                children: [
+                  {
+                    index: true,
+                    element: <CampaignDetails />
+                  },
+                  {
+                    path: 'submit-task/:id',
+                    element: <SubmitTaskForm />
+                  }
+                ]
               },
             ]
           },
