@@ -6,6 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 import {
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   MapPin,
   User,
   XCircle,
@@ -17,7 +19,9 @@ function VolunteerManagement() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  const { campaigns, handleVolunteerAttendance, fetchCampaigns } = useCampaign()
+  const { campaigns, handleVolunteerAttendance, handlePagination, fetchCampaigns } = useCampaign()
+  const pagination = campaigns?.pagination?.totalPages
+
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -62,7 +66,7 @@ function VolunteerManagement() {
 
 
         <div className="space-y-8">
-          {campaigns?.map(
+          {campaigns?.campaigns?.map(
             (campaign, index) => (
               <section
                 key={index}
@@ -192,6 +196,31 @@ function VolunteerManagement() {
               </section>
             )
           )}
+
+          {campaigns?.pagination?.totalPages > 0 && <div className="my-6 flex gap-2">
+            <button
+              onClick={() => handlePagination(Number(campaigns.pagination.page) - 1)}
+              className="secondary-btn"
+              disabled={!campaigns.pagination.hasPrevPage}>
+              <ChevronLeft />
+            </button>
+
+            {Array.from({ length: pagination }, (_, i) => (
+              <button
+                onClick={() => { i + 1 !== campaigns.pagination.page && handlePagination(i + 1) }}
+                className={campaigns.pagination.page == i + 1 ? "primary-btn" : "secondary-btn"}>
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePagination(Number(campaigns.pagination.page) + 1)}
+              className="secondary-btn"
+              disabled={!campaigns.pagination.hasNextPage}>
+              <ChevronRight />
+            </button>
+
+          </div>}
         </div>
       </div >
     </>

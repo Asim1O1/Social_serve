@@ -53,7 +53,7 @@ function CampaignCard({ campaign, choseCampaign, handleRegister }) {
       <CardInfo campaign={campaign} />
 
       <CampaignCardRating
-        campaignId={campaign.id}
+        campaignId={campaign.id || campaign.campaignId}
         user={user}
         myRating={
           campaign.ratings?.find(

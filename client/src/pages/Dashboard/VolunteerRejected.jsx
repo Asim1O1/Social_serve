@@ -9,13 +9,11 @@ import { XCircle } from 'lucide-react';
 function VolunteerRejected() {
     const navigate = useNavigate();
     const { user, loading } = useAuth();
-    const { campaigns, fetchCampaigns, status, choseCampaign, handleRegister } = useCampaign();
+    const { myAttendance, fetchMyAttendance, status, choseCampaign, handleRegister } = useCampaign();
 
-    const campaignList = Array.isArray(campaigns) ? campaigns : (campaigns?.data ?? []);
-    const rejectedCampaigns = campaignList.filter((c) => c.myVolunteerStatus === 'rejected');
 
     useEffect(() => {
-        fetchCampaigns()
+        fetchMyAttendance({ status: 'rejected' })
         if (!loading && !user) {
             navigate('/');
         }
@@ -34,7 +32,7 @@ function VolunteerRejected() {
                 Campaigns where your volunteer application was not accepted.
             </p>
 
-            {rejectedCampaigns.length === 0 ? (
+            {myAttendance?.attendance?.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl bg-primary/5 border border-primary/20">
                     <XCircle className="w-16 h-16 text-primary/40 mb-4" />
                     <p className="text-lg font-medium text-accent">No rejected events</p>
@@ -44,7 +42,7 @@ function VolunteerRejected() {
                 </div>
             ) : (
                 <div className="grid-container">
-                    {rejectedCampaigns.map((campaign) => (
+                    {myAttendance?.attendance?.map((campaign) => (
                         <CampaignCard
                             key={campaign.id}
                             campaign={campaign}

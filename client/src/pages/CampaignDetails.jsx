@@ -60,10 +60,22 @@ function Campaign() {
 
 
 
-  const addComment = async () => {
+  const addComment = async (e) => {
+    e.preventDefault();
+
+    const comment = e.target[0].value;
+
     try {
-      const res = await api.get("");
-    } catch (error) { }
+      const res = await api.post(`/comment/${id}`, { comment });
+
+      if (res.data.status !== "success") {
+        throw new Error(res?.data?.error?.message || "Error Adding Comment.");
+      }
+
+      toast.success("Comment Added");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   if (loading) return <Loading />;

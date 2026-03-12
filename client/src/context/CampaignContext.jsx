@@ -8,6 +8,7 @@ const CampaignContext = createContext(null);
 export const CampaignProvider = ({ children }) => {
   const [campaigns, setCampaigns] = useState(null);
   const [activeCampaign, choseCampaign] = useState(null);
+  const [myAttendance, setMyAttendance] = useState(null)
   const [status, setStatus] = useState(); // error || loading || success
   const { user } = useAuth();
 
@@ -51,7 +52,6 @@ export const CampaignProvider = ({ children }) => {
   const handlePublish = async (campaignId) => {
     try {
       const res = await api.patch(`/campaign/${campaignId}/publish`)
-
       if (res.status == 'success') {
         toast.success(res.message)
       }
@@ -60,10 +60,25 @@ export const CampaignProvider = ({ children }) => {
     }
   }
 
+  const fetchMyAttendance = async (query) => {
+    const params = new URLSearchParams(query).toString();
+
+    try {
+      const res = await api.get(`attendance/volunteers/me/attendance?${params}`)
+
+      if (res.status !== 'success') {
+        throw new Error(res.error.message)
+      }
+      setMyAttendance(res.data)
+    } catch (err) {
+      toast.error(err.message)
+    }
+  }
+
   const handleVolunteerAttendance = async (id, attendanceStatus, volunteerId) => {
     try {
       const res = await api.patch(
-        `/attendance/${id}/attendance/${volunteerId}`,
+        `/ attendance / ${id} /attendance/${volunteerId} `,
         { attendanceStatus }
       );
       if (res.status == 'success') {
@@ -82,6 +97,8 @@ export const CampaignProvider = ({ children }) => {
         campaigns,
         activeCampaign,
         status,
+        myAttendance,
+        fetchMyAttendance,
         choseCampaign,
         handlePagination,
         handleVolunteerAttendance,
