@@ -21,6 +21,7 @@ import {
   ratingSchema,
   updateCampaignSchema,
 } from "../validations/campaign.validation.js";
+import commentRouter from "./comment.route.js";
 
 const router = express.Router();
 
@@ -41,7 +42,6 @@ router.put(
 router.delete("/:id", deleteCampaign);
 
 router.patch("/:id/publish", requireAuth, publishCampaign);
-
 router.post(
   "/:id/rating",
   requireAuth,
@@ -62,5 +62,7 @@ router.patch(
   requireRole("ADMIN"),
   respondToVolunteerRequest,
 );
+
+router.use("/:id/ratings/:ratingId/comments", commentRouter);
 
 export default router;
