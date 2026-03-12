@@ -1,12 +1,13 @@
 import { HTTP_STATUS } from "../constants/http.js";
-import { getCampaignById } from "../repository/campaign.repository.js";
+
 import {
   createComment,
   deleteComment,
   getCommentById,
   getCommentsByRating,
-} from "../repository/comment.repository.js";
-import assertOrThrow from "../utils/assertOrThrow.js";
+} from "";
+import { getCampaignById } from "../repository/campaign.repository.js";
+import { assertOrThrow } from "../utils/assertOrThrow.js";
 import { extractMentions } from "../utils/extractMentions.js";
 
 const buildCommentTree = (comments) => {

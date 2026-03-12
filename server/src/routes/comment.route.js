@@ -10,8 +10,10 @@ import { addCommentSchema } from "../validations/comment.validation.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", requireAuth, getCommentThread);
-router.post("/:id", requireAuth, validate(addCommentSchema), addComment);
-router.delete("/:commentId", requireAuth, deleteComment);
+router.get("/:ratingId", requireAuth, getCommentThread);
+
+router.post("/:ratingId", requireAuth, validate(addCommentSchema), addComment);
+
+router.delete("/:ratingId/:commentId", requireAuth, deleteComment);
 
 export default router;

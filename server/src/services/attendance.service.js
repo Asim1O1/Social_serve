@@ -78,7 +78,7 @@ export const getCampaignAttendanceService = async (
   adminId,
   filters = {},
 ) => {
-  const { page = 1, limit = 10 } = filters;
+  const { page = 1, limit = 10, status = "all" } = filters;
 
   const result = await getCampaignAttendancePaginated(campaignId, {
     page: Number(page),
@@ -95,9 +95,21 @@ export const getCampaignAttendanceService = async (
     "Not authorized to view attendance",
   );
 
-  const acceptedVolunteers = campaign.volunteers.filter(
+  let acceptedVolunteers = campaign.volunteers.filter(
     (v) => v.status === "accepted",
   );
+
+  if (status === "present") {
+    acceptedVolunteers = acceptedVolunteers.filter(
+      (v) => v.attendanceStatus === "present",
+    );
+  }
+
+  if (status === "absent") {
+    acceptedVolunteers = acceptedVolunteers.filter(
+      (v) => v.attendanceStatus === "absent",
+    );
+  }
 
   const attendance = acceptedVolunteers.map((v) => ({
     volunteerId: v.volunteer._id,
