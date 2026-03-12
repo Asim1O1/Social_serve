@@ -3,7 +3,6 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 import campaignModel from "../models/campaign.model.js";
-import { findUserById } from "../repository/auth.repository.js";
 import {
   addCampaignRating,
   addCampaignVolunteer,
@@ -18,6 +17,10 @@ import { deleteCommentsByCampaign } from "../repository/comment.repository.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
 import { extractMentions } from "../utils/extractMentions.js";
 import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
+import {
+  notifyRatingSubmitted,
+  notifyVolunteerApplied,
+} from "./notification.service.js";
 
 export const createCampaignService = async (data) => {
   const {
@@ -207,6 +210,13 @@ export const respondToVolunteerRequestService = async (
   volunteerRequest.status = status;
   volunteerRequest.respondedAt = new Date();
 
+  await notifyApplicationResponse({
+    sender: adminId,
+    recipient: volunteerId,
+    campaign,
+    status,
+  });
+
   await campaign.save();
 
   return {
@@ -316,6 +326,12 @@ export const applyForCampaignService = async (campaignId, userId) => {
 
   const updated = await addCampaignVolunteer(campaignId, {
     volunteer: userId,
+  });
+
+  await notifyVolunteerApplied({
+    sender: userId,
+    recipient: campaign.createdBy._id,
+    campaign,
   });
 
   return {
@@ -447,6 +463,11 @@ export const addCampaignRatingService = async (campaignId, userId, data) => {
 
   const updated = await addCampaignRating(campaignId, ratingData);
   await updateVolunteerLevelAndBadge(userId);
+  await notifyRatingSubmitted({
+    sender: userId,
+    recipient: campaign.createdBy._id,
+    campaign,
+  });
 
   return {
     id: updated._id,

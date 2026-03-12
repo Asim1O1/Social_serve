@@ -7,7 +7,7 @@ import {
   getCommentById,
   getCommentsByRating,
 } from "../repository/comment.repository.js";
-import { assertOrThrow } from "../utils/assertOrThrow.js";
+import assertOrThrow from "../utils/assertOrThrow.js";
 import { extractMentions } from "../utils/extractMentions.js";
 
 const buildCommentTree = (comments) => {
@@ -112,6 +112,31 @@ export const addCommentService = async (campaignId, ratingId, userId, data) => {
     parentId: parentId || null,
     mentions,
   });
+
+  const isAuthorOrganizer = isOrganizer(campaign, userId);
+  const otherParticipant = isAuthorOrganizer
+    ? rating.volunteer._id
+    : campaign.createdBy._id;
+
+  await notifyCommentReceived({
+    sender: userId,
+    recipient: otherParticipant,
+    campaign,
+    ratingId,
+    commentId: newComment._id,
+  });
+
+  for (const mentionedUserId of mentions) {
+    if (mentionedUserId.toString() !== otherParticipant.toString()) {
+      await notifyMention({
+        sender: userId,
+        recipient: mentionedUserId,
+        campaign,
+        ratingId,
+        commentId: newComment._id,
+      });
+    }
+  }
 
   return getCommentById(newComment._id);
 };
