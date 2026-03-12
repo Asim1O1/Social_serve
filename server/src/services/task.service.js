@@ -12,6 +12,7 @@ import {
 } from "../repository/task.repository.js";
 import assertOrThrow from "../utils/assertOrThrow.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
+import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 
 export const createTaskService = async (campaignId, userId, data) => {
   const campaign = await getCampaignById(campaignId);
@@ -160,7 +161,6 @@ export const reviewTaskSubmissionService = async (
   submissionId,
   organizerId,
   status,
-  pointsAwarded,
 ) => {
   assertOrThrow(
     ["accepted", "rejected"].includes(status),
@@ -179,7 +179,6 @@ export const reviewTaskSubmissionService = async (
   );
 
   submission.status = status;
-  submission.pointsAwarded = pointsAwarded || 0;
   submission.reviewedBy = organizerId;
   submission.reviewedAt = new Date();
 
@@ -187,10 +186,18 @@ export const reviewTaskSubmissionService = async (
 
   if (status === "accepted") {
     const user = await userModel.findById(submission.volunteer);
-    user.badges.push({
-      name: `Task Completed: ${submission.task.title}`,
-    });
-    await user.save();
+
+    const existingBadge = user.badges.find(
+      (b) => b.name === `Task Completed: ${submission.task.title}`,
+    );
+    if (!existingBadge) {
+      user.badges.push({
+        name: `Task Completed: ${submission.task.title}`,
+        earnedAt: new Date(),
+      });
+      await user.save();
+      await updateVolunteerLevelAndBadge(submission.volunteer);
+    }
   }
 
   return submission;
