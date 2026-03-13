@@ -128,6 +128,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
 export const getCampaignByIdService = async (id, userId) => {
   const campaign = await getCampaignById(id);
+
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
   const myVolunteer = campaign.volunteers.find(

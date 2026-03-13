@@ -1,20 +1,27 @@
+import { CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import Loading from "../../components/Loading";
-import CampaignCard from "../../features/campaign/CampaignCard";
-import { useCampaign } from "../../context/CampaignContext";
 import { useAuth } from "../../context/AuthContext";
-import { CheckCircle2 } from "lucide-react";
+import { useCampaign } from "../../context/CampaignContext";
+import CampaignCard from "../../features/campaign/CampaignCard";
 import CampaignVolunteers from "./CampaignVolunteers";
-import { api } from "../../axios/axios";
 
 function VolunteerAccepted() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { status: campaignStatus, myAttendance, fetchMyAttendance, choseCampaign, handleRegister } = useCampaign();
+
+  const {
+    campaigns,
+    status: campaignStatus,
+    fetchCampaigns,
+    choseCampaign,
+    handleRegister,
+  } = useCampaign();
 
   useEffect(() => {
-    fetchMyAttendance({ status: 'accepted' })
+    fetchCampaigns();
+
     if (!loading && !user) {
       navigate("/");
     }
@@ -28,6 +35,11 @@ function VolunteerAccepted() {
     return <CampaignVolunteers />;
   }
 
+  const acceptedCampaigns =
+    campaigns?.campaigns?.filter(
+      (campaign) => campaign.myVolunteerStatus === "accepted",
+    ) || [];
+
   return (
     <>
       <div className="flex-1 flex items-center justify-between">
@@ -35,11 +47,12 @@ function VolunteerAccepted() {
           Accepted Events
         </h1>
       </div>
+
       <p className="text-accent/80 mb-6">
         Campaigns where your volunteer application was accepted.
       </p>
 
-      {myAttendance?.attendance?.length === 0 ? (
+      {acceptedCampaigns.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl bg-primary/5 border border-primary/20">
           <CheckCircle2 className="w-16 h-16 text-primary/40 mb-4" />
           <p className="text-lg font-medium text-accent">
@@ -52,7 +65,7 @@ function VolunteerAccepted() {
         </div>
       ) : (
         <div className="grid-container">
-          {myAttendance?.attendance?.map((campaign) => (
+          {acceptedCampaigns.map((campaign) => (
             <CampaignCard
               key={campaign.id}
               campaign={campaign}
