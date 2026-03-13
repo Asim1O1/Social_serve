@@ -113,6 +113,31 @@ export const addCommentService = async (campaignId, ratingId, userId, data) => {
     mentions,
   });
 
+  const isAuthorOrganizer = isOrganizer(campaign, userId);
+  const otherParticipant = isAuthorOrganizer
+    ? rating.volunteer._id
+    : campaign.createdBy._id;
+
+  await notifyCommentReceived({
+    sender: userId,
+    recipient: otherParticipant,
+    campaign,
+    ratingId,
+    commentId: newComment._id,
+  });
+
+  for (const mentionedUserId of mentions) {
+    if (mentionedUserId.toString() !== otherParticipant.toString()) {
+      await notifyMention({
+        sender: userId,
+        recipient: mentionedUserId,
+        campaign,
+        ratingId,
+        commentId: newComment._id,
+      });
+    }
+  }
+
   return getCommentById(newComment._id);
 };
 

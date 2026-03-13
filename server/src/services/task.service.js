@@ -14,6 +14,7 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
+import { notifyTaskSubmissionReviewed } from "./notification.service.js";
 
 export const createTaskService = async (campaignId, userId, data) => {
   const campaign = await getCampaignById(campaignId);
@@ -184,6 +185,13 @@ export const reviewTaskSubmissionService = async (
   submission.reviewedAt = new Date();
 
   await submission.save();
+  await notifyTaskSubmissionReviewed({
+    sender: organizerId,
+    recipient: submission.volunteer,
+    campaign,
+    task: submission.task,
+    status,
+  });
 
   if (status === "accepted") {
     const user = await userModel.findById(submission.volunteer);
