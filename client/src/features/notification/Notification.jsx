@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Bell, Trash2 } from "lucide-react";
-import { api } from "../../axios/axios";
 import { useNavigate } from "react-router";
+import { api } from "../../axios/axios";
+import { socket } from "../../socket/socket";
 
 function NotificationBell() {
     const [notifications, setNotifications] = useState([]);
@@ -10,12 +11,26 @@ function NotificationBell() {
 
     const unread = notifications.filter((n) => !n.isRead).length;
 
+    /* ================= SOCKET LISTENER ================= */
+
+    useEffect(() => {
+        socket.on("notification", (data) => {
+            setNotifications((prev) => [data, ...prev]);
+        });
+
+        return () => {
+            socket.off("notification");
+        };
+    }, []);
+
+    /* ================= INITIAL LOAD ================= */
+
     const fetchNotifications = async () => {
         try {
             const res = await api.get("/notification");
 
-            if (res.status === "success") {
-                setNotifications(res.data);
+            if (res.data.status === "success") {
+                setNotifications(res.data.data);
             }
         } catch (error) {
             console.log(error);
@@ -26,12 +41,16 @@ function NotificationBell() {
         fetchNotifications();
     }, []);
 
+    /* ================= ACTIONS ================= */
+
     const markAsRead = async (id) => {
         try {
             await api.patch(`/notification/${id}/read`);
 
             setNotifications((prev) =>
-                prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+                prev.map((n) =>
+                    n._id === id ? { ...n, isRead: true } : n
+                )
             );
         } catch (error) {
             console.log(error);
@@ -54,7 +73,9 @@ function NotificationBell() {
         try {
             await api.delete(`/notification/${id}`);
 
-            setNotifications((prev) => prev.filter((n) => n._id !== id));
+            setNotifications((prev) =>
+                prev.filter((n) => n._id !== id)
+            );
         } catch (error) {
             console.log(error);
         }
@@ -70,6 +91,8 @@ function NotificationBell() {
         }
     };
 
+    /* ================= UI ================= */
+
     return (
         <div className="relative">
             {/* Bell Icon */}
@@ -79,19 +102,20 @@ function NotificationBell() {
             >
                 <Bell size={22} />
 
-                {/* Red dot */}
                 {unread > 0 && (
                     <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 )}
             </button>
 
-            {/* Notification Dropdown */}
+            {/* Dropdown */}
             {open && (
                 <div className="absolute right-0 mt-3 w-96 bg-white border border-primary/20 rounded-xl shadow-lg z-50">
 
                     {/* Header */}
                     <div className="flex justify-between items-center px-4 py-3 border-b">
-                        <h4 className="font-semibold text-primary">Notifications</h4>
+                        <h4 className="font-semibold text-primary">
+                            Notifications
+                        </h4>
 
                         {unread > 0 && (
                             <button
@@ -103,7 +127,7 @@ function NotificationBell() {
                         )}
                     </div>
 
-                    {/* Notification List */}
+                    {/* List */}
                     <div className="max-h-96 overflow-y-auto">
 
                         {notifications.length === 0 && (
@@ -122,14 +146,15 @@ function NotificationBell() {
                                     onClick={() => handleClick(n)}
                                     className="flex-1"
                                 >
-                                    <p className="text-sm text-gray-800">{n.message}</p>
+                                    <p className="text-sm text-gray-800">
+                                        {n.message}
+                                    </p>
 
                                     <p className="text-xs text-gray-400 mt-1">
                                         {new Date(n.createdAt).toLocaleString()}
                                     </p>
                                 </div>
 
-                                {/* Delete */}
                                 <button
                                     onClick={() => deleteNotification(n._id)}
                                     className="text-gray-400 hover:text-red-500"

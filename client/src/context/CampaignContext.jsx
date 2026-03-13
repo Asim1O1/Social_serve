@@ -79,7 +79,7 @@ export const CampaignProvider = ({ children }) => {
   const handleVolunteerAttendance = async (id, attendanceStatus, volunteerId) => {
     try {
       const res = await api.patch(
-        `/ attendance / ${id} /attendance/${volunteerId} `,
+        `/attendance/${id}/attendance/${volunteerId} `,
         { attendanceStatus }
       );
       if (res.status == 'success') {

@@ -97,6 +97,7 @@ function CreateCampaign() {
 
   /* ---------------- Submit ---------------- */
   const onSubmit = async (data) => {
+
     try {
       const formData = new FormData()
 
@@ -112,6 +113,9 @@ function CreateCampaign() {
 
       const endpoint = id ? `/campaign/${id}` : "/campaign"
       const method = id ? "put" : "post"
+
+      console.log(formData)
+
 
       await api[method](endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },

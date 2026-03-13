@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { api, apiPublic } from "../axios/axios";
+import { socket } from "../socket/socket";
+
 
 const AuthContext = createContext(null)
 
@@ -7,6 +9,17 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+
+
+    useEffect(() => {
+        if (user) {
+            socket.connect();
+            socket.emit("register", user.id);
+        }
+        return () => {
+            socket.disconnect();
+        };
+    }, [user]);
 
     useEffect(() => {
         const id = sessionStorage.getItem("id")
@@ -56,7 +69,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const data = await api.get("/auth/me");
             if (data?.data) setUser(data.data);
-        } catch (_) {}
+        } catch (_) { }
     };
 
     return (
@@ -70,10 +83,10 @@ const defaultAuth = {
     user: null,
     loading: true,
     error: null,
-    login: async () => {},
-    logout: () => {},
-    register: async () => {},
-    refreshUser: async () => {},
+    login: async () => { },
+    logout: () => { },
+    register: async () => { },
+    refreshUser: async () => { },
 };
 
 export const useAuth = () => useContext(AuthContext) ?? defaultAuth;
