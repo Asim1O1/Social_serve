@@ -12,6 +12,7 @@ import {
 } from "../repository/task.repository.js";
 import assertOrThrow from "../utils/assertOrThrow.js";
 import { getCampaignPhase } from "../utils/campaignPhase.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 
 export const createTaskService = async (campaignId, userId, data) => {

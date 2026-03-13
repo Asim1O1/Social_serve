@@ -142,11 +142,12 @@ function Campaign() {
                           key={vl.id}
                           className={`bg-primary/10 flex gap-6 items-center rounded-lg px-4 py-2 hover:bg-primary/20 transition duration-150`}
                         >
+                          {console.log(vl)}
                           <span className="text-black font-semibold mr-auto">
                             {vl.title}
                           </span>
                           <span className="text-sm text-gray-500">{vl.points}</span>
-                          {isVolunteer && <Link to={`submit-task/${vl.id}`} className="primary-btn">Submit</Link>}
+                          {isVolunteer && <Link to={`submit-task/${vl._id}`} className="primary-btn">Submit</Link>}
                         </div>
                       ))
                     ) : (

@@ -20,6 +20,8 @@ import CreateTask from "./features/task/CreateTask";
 import Common from "./layout/Common";
 import SubmitTaskForm from "./features/task/SubmitTaskForm";
 import VolunteerManagement from "./pages/Dashboard/VolunteerManagement";
+import TaskReviewPage from "./features/task/TaskReview";
+import TaskList from "./features/task/TaskList";
 
 export const router = createBrowserRouter([
   {
@@ -61,7 +63,7 @@ export const router = createBrowserRouter([
                     element: <CampaignDetails />
                   },
                   {
-                    path: 'submit-task/:id',
+                    path: 'submit-task/:taskId',
                     element: <SubmitTaskForm />
                   }
                 ]
@@ -99,11 +101,26 @@ export const router = createBrowserRouter([
                   {
                     path: 'submit-task/:id',
                     element: <SubmitTaskForm />
-                  }
+                  },
+
                 ]
               },
 
 
+            ]
+          },
+          {
+            path: 'task-review',
+            element: <Common />,
+            children: [
+              {
+                index: true,
+                element: <TaskList />
+              },
+              {
+                path: ':campaignId',
+                element: <TaskReviewPage />
+              }
             ]
           },
           {

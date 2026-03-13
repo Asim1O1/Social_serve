@@ -118,8 +118,8 @@ function CreateCampaign() {
       })
 
       toast.success(id ? "Campaign updated" : "Campaign created")
+      reset()
       fetchCampaigns()
-      // navigate("/dashboard")
     } catch (err) {
       console.log(err);
 

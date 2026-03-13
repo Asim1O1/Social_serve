@@ -54,6 +54,15 @@ function Sidebar() {
             </span>
           </NavLink>
           <NavLink
+            to="/dashboard/task-review"
+            className={({ isActive }) => navLinkClass(isActive)}
+          >
+            <UsersRound size={20} className="shrink-0" />
+            <span className="hidden md:block flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
+              Task Review
+            </span>
+          </NavLink>
+          <NavLink
             to="/dashboard/profile"
             className={({ isActive }) => navLinkClass(isActive)}
           >
