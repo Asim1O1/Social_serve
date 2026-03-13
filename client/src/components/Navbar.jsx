@@ -35,6 +35,10 @@ function Navbar() {
             <House size={18} className="shrink-0" />
             <span className="hidden sm:inline">Home</span>
           </Link>
+          <Link to="/campaign" className={navLinkClass("/campaign")}>
+            <House size={18} className="shrink-0" />
+            <span className="hidden sm:inline">Campaigns</span>
+          </Link>
 
           {(!loading && (user?.role == 'ADMIN' || user?.role == "VOLUNTEER")) &&
             (
