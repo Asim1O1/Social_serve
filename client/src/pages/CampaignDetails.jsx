@@ -17,11 +17,13 @@ function Campaign() {
   const [loading, setLoading] = useState(true);
   const [taskPop, openPopup] = useState(false);
   const [taskList, setTaskList] = useState()
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
 
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
   const isVolunteer = useMemo(() => user?.role === 'VOLUNTEER', [user])
 
-  const { comments, loadComments, deleteComment } = useCampaign()
+  const { comments, loadComments, deleteComment, addComment } = useCampaign()
 
 
 
@@ -166,7 +168,7 @@ function Campaign() {
         </p>
         <p className="bg-secondary rounded px-1 flex items-center gap-1">
           <Timer size={18} />
-          <span>{campaign?.date?.split("T")[0]}</span>
+          <span>{campaign?.endDate?.split("T")[0]}</span>
         </p>
         <p className="bg-secondary rounded px-1 flex items-center gap-1">
           <MapPin size={18} />
@@ -191,14 +193,15 @@ function Campaign() {
             comments.map((c) => (
               <div
                 key={c._id}
-                className="min-w-[280px] bg-white border border-border p-4 rounded-2xl shadow-sm hover:shadow-md transition-all"
+                className={`min-w-[280px] bg-white border border-border p-4 rounded-2xl shadow-sm`}
+                style={{ marginLeft: c.parentId ? "40px" : "0px" }}
               >
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-start gap-3 mb-2">
                   <img
-                    src={c.author?.profilePic || "http://placehold.co/10x10"}
+                    src={c.author?.profilePic || "http://placehold.co/40x40"}
                     className="w-10 h-10 rounded-full border"
-                    alt="avatar"
                   />
+
                   <div className="flex flex-col">
                     <p className="font-semibold">
                       {c.author?.fullName || "Unknown User"}
@@ -207,8 +210,11 @@ function Campaign() {
                       {new Date(c.createdAt).toLocaleDateString()}
                     </p>
                   </div>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {c.comment}
+                  </p>
 
-                  {(user?.id === c.user?._id || isAdmin) && (
+                  {(user?.id === c.author?._id || isAdmin) && (
                     <button
                       onClick={() => deleteComment(c._id)}
                       className="ml-auto text-red-400 hover:text-red-600"
@@ -218,9 +224,80 @@ function Campaign() {
                   )}
                 </div>
 
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {c.comment}
-                </p>
+
+                {c.replies.map(rpl => (
+                  <div className="ml-4 flex items-start gap-2 space-y-2">
+                    <div className="flex gap-2">
+                      <img
+                        src={c.author?.profilePic || "http://placehold.co/40x40"}
+                        className="w-10 h-10 rounded-full border"
+                      />
+
+                      <div className="flex flex-col">
+                        <p className="font-semibold">
+                          {c.author?.fullName || "Unknown User"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(c.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="ml-4 text-gray-700 text-sm leading-relaxed mb-2">
+                      {rpl.comment}
+                    </p>
+                  </div>
+                ))}
+
+                {/* Reply Button */}
+                {user && (
+                  <button
+                    className="text-xs text-primary hover:underline"
+                    onClick={() => setReplyingTo(c)}
+                  >
+                    Reply
+                  </button>
+                )}
+
+                {/* Reply Input */}
+                {replyingTo?._id === c._id && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      className="border border-border rounded-lg p-2 text-sm"
+                      rows="2"
+                      placeholder="Write a reply..."
+                    />
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          await addComment(
+                            id,
+                            c.rating,
+                            replyText,
+                            c._id
+                          );
+                          setReplyText("");
+                          setReplyingTo(null);
+                        }}
+                        className="primary-btn text-sm"
+                      >
+                        Reply
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setReplyText("");
+                        }}
+                        className="text-gray-500 text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))
           ) : (
