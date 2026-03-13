@@ -92,7 +92,6 @@ function VolunteerProfile() {
   if (authLoading || profileLoading) return <Loading />;
   if (!user) return null;
 
-  console.log(user)
 
   const displayName =
     user.firstName && user.lastName
