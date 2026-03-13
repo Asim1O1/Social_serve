@@ -20,14 +20,13 @@ export const getTaskSubmissions = (taskId) => {
 };
 
 export const getSubmissionById = (submissionId) => {
-  return TaskSubmission.findById(submissionId)
-    .populate({
-      path: "task",
-      populate: {
-        path: "campaign",
-        model: "Campaign",
-      },
-    });
+  return TaskSubmission.findById(submissionId).populate({
+    path: "task",
+    populate: {
+      path: "campaign",
+      model: "Campaign",
+    },
+  });
 };
 
 export const updateTaskSubmission = (submissionId, updateData) => {
