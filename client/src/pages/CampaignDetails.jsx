@@ -6,6 +6,7 @@ import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
 import { useCampaign } from '../context/CampaignContext'
+import CampaignCardRating from "../features/campaign/CampaignCardRating";
 
 function Campaign() {
   const { user } = useAuth();
@@ -214,22 +215,18 @@ function Campaign() {
           )}
         </div>
 
+
         {/* ================= Add Comment ================= */}
         <div className="relative mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm">
-          <form onSubmit={(e) => addComment(e, id)} className={!user ? "blur-sm" : ""}>
-            <textarea
-              placeholder="Write your comment..."
-              className="w-full border border-border rounded-xl p-3 outline-none focus:border-primary transition-all"
-              rows="3"
-            />
-            <button
-              type="submit"
-              disabled={!user}
-              className="mt-3 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-hover transition-all"
-            >
-              Post Comment
-            </button>
-          </form>
+          <CampaignCardRating
+            campaignId={campaign.id || campaign.campaignId}
+            user={user}
+            myRating={
+              campaign.ratings?.find(
+                (r) => r.volunteer?.id === user?.id || r.volunteer === user?.id
+              )
+            }
+          />
 
           {!user && (
             <Link

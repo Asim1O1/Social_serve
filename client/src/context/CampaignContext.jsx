@@ -111,14 +111,12 @@ export const CampaignProvider = ({ children }) => {
     }
   };
 
-  const addComment = async (e, id) => {
-    e.preventDefault();
-    const comment = e.target[0].value;
+  const addComment = async (id, ratingId, comment) => {
 
     if (!comment.trim()) return;
 
     try {
-      const res = await api.post(`/comment/${id}`, { comment });
+      const res = await api.post(`/campaign/${id}/ratings/${ratingId}/comments`, { comment });
 
       if (res.data.status !== "success") {
         throw new Error(res?.data?.error?.message || "Error Adding Comment.");

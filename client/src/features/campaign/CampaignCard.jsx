@@ -52,15 +52,7 @@ function CampaignCard({ campaign, choseCampaign, handleRegister }) {
       <CardHeader title={campaign?.title} campaign={campaign} />
       <CardInfo campaign={campaign} />
 
-      <CampaignCardRating
-        campaignId={campaign.id || campaign.campaignId}
-        user={user}
-        myRating={
-          campaign.ratings?.find(
-            (r) => r.volunteer?.id === user?.id || r.volunteer === user?.id
-          )?.rating
-        }
-      />
+      
 
       <hr className="h-px bg-primary border-none" />
       <CardFooter

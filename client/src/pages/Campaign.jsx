@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Campaign() {
   const { campaigns, status, fetchCampaigns, handlePagination } = useCampaign();
-  const pagination = campaigns?.pagination?.totalPages
+  const pagination = campaigns && campaigns?.pagination?.totalPages
 
   useEffect(() => {
     fetchCampaigns()
