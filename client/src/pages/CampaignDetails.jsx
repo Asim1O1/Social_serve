@@ -21,7 +21,14 @@ function Campaign() {
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
   const isVolunteer = useMemo(() => user?.role === 'VOLUNTEER', [user])
 
-  const { comments, loadComments, deleteComment, addComment } = useCampaign()
+  const { comments, loadComments, deleteComment } = useCampaign()
+
+  useEffect(() => {
+    campaign?.ratings?.forEach((rating) => {
+      console.log(rating)
+      // loadCampaign(id, rating._id)
+    })
+  }, [id, campaign])
 
   const loadTask = async () => {
     const res = await api.get(`/task/campaigns/${id}/tasks`)
@@ -49,7 +56,6 @@ function Campaign() {
 
   useEffect(() => {
     loadCampaign()
-    loadComments(id)
   }, [id])
 
   useEffect(() => {
@@ -173,7 +179,7 @@ function Campaign() {
       <div className="my-5">
         <h2 className="text-2xl font-semibold text-primary mb-4">Comments</h2>
 
-        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent">
+        <div className="flex flex-col gap-1 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent">
           {comments?.length ? (
             comments.map((c) => (
               <div
@@ -182,13 +188,13 @@ function Campaign() {
               >
                 <div className="flex items-center gap-3 mb-2">
                   <img
-                    src={c.user?.avatar || "/placeholder.png"}
+                    src={c.author?.profilePic || "http://placehold.co/10x10"}
                     className="w-10 h-10 rounded-full border"
                     alt="avatar"
                   />
                   <div className="flex flex-col">
                     <p className="font-semibold">
-                      {c.user?.name || "Unknown User"}
+                      {c.author?.fullName || "Unknown User"}
                     </p>
                     <p className="text-xs text-gray-500">
                       {new Date(c.createdAt).toLocaleDateString()}
@@ -219,7 +225,7 @@ function Campaign() {
         {/* ================= Add Comment ================= */}
         <div className="relative mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm">
           <CampaignCardRating
-            campaignId={campaign.id || campaign.campaignId}
+            campaignId={campaign?.id || campaign?.campaignId}
             user={user}
             myRating={
               campaign.ratings?.find(

@@ -118,28 +118,26 @@ export const CampaignProvider = ({ children }) => {
     try {
       const res = await api.post(`/campaign/${id}/ratings/${ratingId}/comments`, { comment });
 
-      if (res.data.status !== "success") {
+      if (res.status !== "success") {
         throw new Error(res?.data?.error?.message || "Error Adding Comment.");
       }
 
       toast.success("Comment Added");
 
-      e.target.reset();
-
-      loadComments(); // refresh comments
+      loadComments(id); // refresh comments
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  const loadComments = async (id) => {
+  const loadComments = async (id, ratingId) => {
     try {
-      const res = await api.get(`/comment/${id}`);
-
+      const res = await api.get(`/campaign/${id}/ratings/${ratingId}/comments`);
       if (res.status !== "success") {
         throw new Error("Failed to load comments");
       }
 
+      console.log(res.data)
       setComments(res.data);
     } catch (error) {
       console.error(error.message);

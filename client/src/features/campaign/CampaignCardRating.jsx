@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { api } from "../../axios/axios";
 import { toast } from "react-toastify";
@@ -8,7 +8,8 @@ import { useCampaign } from "../../context/CampaignContext";
 function CampaignCardRating({ campaignId, user, myRating: initialMyRating }) {
   const navigate = useNavigate();
   const [hoverRating, setHoverRating] = useState(0);
-  const [myRating, setMyRating] = useState(initialMyRating.rating ?? 0);
+  const [myRating, setMyRating] = useState(initialMyRating?.rating ?? 0);
+  const ratingId = initialMyRating?._id
   const [loading, setLoading] = useState(false);
 
   const { addComment } = useCampaign()
@@ -19,8 +20,6 @@ function CampaignCardRating({ campaignId, user, myRating: initialMyRating }) {
     if (!user?.id || loading) return;
 
     const comment = e.target.comment.value;
-    const ratingId = initialMyRating._id
-    console.log(ratingId)
 
     setLoading(true);
     try {
@@ -36,7 +35,6 @@ function CampaignCardRating({ campaignId, user, myRating: initialMyRating }) {
         const res = await addComment(campaignId, ratingId, comment)
         return
       }
-      toast.error(err?.message ?? "Failed to submit rating");
     } finally {
       setLoading(false);
     }
