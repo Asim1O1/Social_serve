@@ -91,7 +91,7 @@ function VolunteerManagement() {
                     )}
                   </div>
                 </div>
-                {campaign.volunteers.length ? <ul className="divide-y divide-primary/10">
+                {campaign?.volunteers?.length ? <ul className="divide-y divide-primary/10">
 
                   {campaign.volunteers.map((request, index) => (
                     <li

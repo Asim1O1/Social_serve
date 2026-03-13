@@ -174,7 +174,7 @@ export const reviewTaskSubmissionService = async (
   assertOrThrow(submission, HTTP_STATUS.NOT_FOUND, "Submission not found");
 
   const campaign = await getCampaignById(submission.task.campaign);
-  const createdByUser = campaign.createdBy();
+  const createdByUser = campaign.createdBy;
   assertOrThrow(
     createdByUser._id.toString() === organizerId.toString(),
     HTTP_STATUS.FORBIDDEN,

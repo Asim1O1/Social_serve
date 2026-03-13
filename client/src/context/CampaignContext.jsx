@@ -10,7 +10,7 @@ export const CampaignProvider = ({ children }) => {
   const [activeCampaign, choseCampaign] = useState(null);
   const [myAttendance, setMyAttendance] = useState(null)
   const [comments, setComments] = useState(null)
-  const [status, setStatus] = useState(); // error || loading || success
+  const [status, setStatus] = useState(null); // error || loading || success
   const { user } = useAuth();
 
   useEffect(() => {
@@ -44,7 +44,10 @@ export const CampaignProvider = ({ children }) => {
   const handleRegister = async (campaignId) => {
     try {
       const res = await api.post(`/campaign/${campaignId}/apply`, { user });
-      toast.success(res.message);
+      if (res.status == 'success') {
+        toast.success(res.message);
+        return 'pending'
+      }
     } catch (error) {
       toast.error(error?.message);
     }
@@ -55,6 +58,7 @@ export const CampaignProvider = ({ children }) => {
       const res = await api.patch(`/campaign/${campaignId}/publish`)
       if (res.status == 'success') {
         toast.success(res.message)
+        return 'published'
       }
     } catch (error) {
       toast.error(error.message)
