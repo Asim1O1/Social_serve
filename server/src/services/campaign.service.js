@@ -18,6 +18,7 @@ import { getCampaignPhase } from "../utils/campaignPhase.js";
 import { extractMentions } from "../utils/extractMentions.js";
 import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 import {
+  notifyApplicationResponse,
   notifyRatingSubmitted,
   notifyVolunteerApplied,
 } from "./notification.service.js";
