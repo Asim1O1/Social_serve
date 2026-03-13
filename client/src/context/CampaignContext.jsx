@@ -136,9 +136,12 @@ export const CampaignProvider = ({ children }) => {
       if (res.status !== "success") {
         throw new Error("Failed to load comments");
       }
+      if (comments) {
+        setComments(prev => ([...prev, res.data]));
+        return
+      }
+      setComments(res.data)
 
-      console.log(res.data)
-      setComments(res.data);
     } catch (error) {
       console.error(error.message);
     }

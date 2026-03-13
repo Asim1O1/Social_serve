@@ -23,12 +23,7 @@ function Campaign() {
 
   const { comments, loadComments, deleteComment } = useCampaign()
 
-  useEffect(() => {
-    campaign?.ratings?.forEach((rating) => {
-      console.log(rating)
-      // loadCampaign(id, rating._id)
-    })
-  }, [id, campaign])
+
 
   const loadTask = async () => {
     const res = await api.get(`/task/campaigns/${id}/tasks`)
@@ -65,6 +60,18 @@ function Campaign() {
     }
 
   }, [taskPop]);
+
+
+  useEffect(() => {
+    if (campaign) {
+      const ratings = campaign.ratings
+      for (const rating of ratings)
+        loadComments(id, rating._id)
+    }
+
+  }, [id, campaign]);
+
+  console.log(comments)
 
   /* ================= Volunteers (ADMIN only) ================= */
 

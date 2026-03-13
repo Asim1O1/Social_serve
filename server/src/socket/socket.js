@@ -6,7 +6,7 @@ import {
 
 let io;
 
-const onlineUsers = new Map(); // userId → socketId
+const onlineUsers = new Map();
 
 export const initSocket = (server) => {
   io = new Server(server, {
@@ -20,29 +20,22 @@ export const initSocket = (server) => {
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
-    // ── Register user (existing — unchanged) ──────────────────────────────
     socket.on("register", (userId) => {
       onlineUsers.set(userId.toString(), socket.id);
       console.log(`User ${userId} registered with socket ${socket.id}`);
     });
 
-    // ── Join a conversation room ──────────────────────────────────────────
-    // Client emits: { conversationId }
     socket.on("join_conversation", ({ conversationId }) => {
       if (!conversationId) return;
       socket.join(conversationId);
       console.log(`Socket ${socket.id} joined room: ${conversationId}`);
     });
 
-    // ── Leave a conversation room ─────────────────────────────────────────
     socket.on("leave_conversation", ({ conversationId }) => {
       if (!conversationId) return;
       socket.leave(conversationId);
     });
 
-    // ── Send a message ────────────────────────────────────────────────────
-    // Client emits: { conversationId, senderId, text?, attachment? }
-    // attachment shape: { url, public_id, type, originalName }
     socket.on("send_message", async (data) => {
       try {
         const { conversationId, senderId, text, attachment } = data;
@@ -57,10 +50,8 @@ export const initSocket = (server) => {
           attachment,
         });
 
-        // Broadcast to everyone in the room (sender gets it back too for confirmation)
         io.to(conversationId).emit("message_received", { message });
 
-        // If recipient is online but NOT in this room, send a push-style notification
         if (recipientId) {
           const recipientSocketId = onlineUsers.get(recipientId.toString());
           if (recipientSocketId) {
@@ -76,8 +67,6 @@ export const initSocket = (server) => {
       }
     });
 
-    // ── Typing indicators ─────────────────────────────────────────────────
-    // Client emits: { conversationId, userId }
     socket.on("typing", ({ conversationId, userId }) => {
       if (!conversationId || !userId) return;
       socket.to(conversationId).emit("user_typing", { userId });
@@ -88,14 +77,11 @@ export const initSocket = (server) => {
       socket.to(conversationId).emit("user_stop_typing", { userId });
     });
 
-    // ── Mark messages as read ─────────────────────────────────────────────
-    // Client emits: { conversationId, userId }
     socket.on("messages_read", async ({ conversationId, userId }) => {
       try {
         if (!conversationId || !userId) return;
         await markAsReadService(conversationId, userId);
 
-        // Notify the other participant their messages were seen
         socket.to(conversationId).emit("messages_seen", {
           conversationId,
           readBy: userId,
@@ -105,7 +91,6 @@ export const initSocket = (server) => {
       }
     });
 
-    // ── Disconnect (existing — unchanged) ─────────────────────────────────
     socket.on("disconnect", () => {
       for (const [userId, socketId] of onlineUsers.entries()) {
         if (socketId === socket.id) {

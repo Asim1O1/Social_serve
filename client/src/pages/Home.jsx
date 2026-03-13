@@ -1,17 +1,20 @@
-import { useState } from "react";
 import { ChevronRight, Megaphone } from "lucide-react";
+import { Link, Navigate } from "react-router";
+import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
+import { useCampaign } from "../context/CampaignContext";
 import CampaignCard from "../features/campaign/CampaignCard";
 import CategoryTabs from "../features/home/CategoryTab";
 import CampaignFeatures from "../features/home/Features";
 import HeroSection from "../features/home/HeroSection";
-import Loading from "../components/Loading";
-import { useCampaign } from "../context/CampaignContext";
 import HowItWorks from "../features/home/HowItWorks";
 import WhyWorkWithUs from "../features/home/WhyWorkWithUs";
-import { Link } from "react-router";
 
 function Home() {
-
+  const { user } = useAuth();
+  if (user.role === "ADMIN") {
+    return <Navigate to="/dashboard" />;
+  }
   const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
   const isLoading = status === "loading";
 
@@ -82,7 +85,6 @@ function Home() {
 }
 
 export default Home;
-
 
 export function NoCampaignsFound() {
   return (

@@ -19,21 +19,21 @@ function VolunteerRejected() {
   } = useCampaign();
 
   useEffect(() => {
-    fetchCampaigns();
-
     if (!loading && !user) {
       navigate("/");
+      return;
     }
-  }, [loading, user, navigate]);
+    // Let backend do the filtering — pagination will be correct
+    if (user?.role === "VOLUNTEER") {
+      fetchCampaigns({ myVolunteerStatus: "rejected" });
+    }
+  }, [loading, user]);
 
   if (loading || campaignStatus === "loading") {
     return <Loading />;
   }
 
-  const rejectedCampaigns =
-    campaigns?.campaigns?.filter(
-      (campaign) => campaign.myVolunteerStatus === "rejected",
-    ) || [];
+  const rejectedCampaigns = campaigns?.campaigns || [];
 
   return (
     <>
