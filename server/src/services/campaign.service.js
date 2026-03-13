@@ -211,7 +211,7 @@ export const respondToVolunteerRequestService = async (
   volunteerRequest.respondedAt = new Date();
 
   await notifyApplicationResponse({
-    sender: adminId,
+    sender: organizerId,
     recipient: volunteerId,
     campaign,
     status,
