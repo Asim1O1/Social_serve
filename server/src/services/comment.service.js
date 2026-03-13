@@ -9,6 +9,7 @@ import {
 } from "../repository/comment.repository.js";
 import assertOrThrow from "../utils/assertOrThrow.js";
 import { extractMentions } from "../utils/extractMentions.js";
+import { notifyCommentReceived } from "./notification.service.js";
 
 const buildCommentTree = (comments) => {
   const map = {};
