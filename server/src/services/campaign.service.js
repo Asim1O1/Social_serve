@@ -77,7 +77,7 @@ export const createCampaignService = async (data) => {
 };
 
 export const getCampaignsService = async (filters = {}, userId, role) => {
-  const { page = 1, limit = 10, ...queryFilters } = filters;
+  const { page = 1, limit = 10, myVolunteerStatus, ...queryFilters } = filters;
 
   if (role === "ADMIN") {
     queryFilters.createdBy = userId;
@@ -85,6 +85,11 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
 
   if (!role || role === "VOLUNTEER") {
     queryFilters.status = "PUBLISHED";
+  }
+
+  if (myVolunteerStatus && userId) {
+    queryFilters.volunteerStatus = myVolunteerStatus;
+    queryFilters.volunteerId = userId;
   }
 
   const result = await getCampaigns(queryFilters, {
@@ -101,6 +106,7 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
       );
       myVolunteerStatus = myVolunteer?.status ?? null;
     }
+
     const phase = getCampaignPhase(campaign);
 
     return {
