@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { Blend, House, LayoutGrid, LogIn } from "lucide-react";
+import NotificationBell from "../features/notification/Notification";
 
 function Navbar() {
   const location = useLocation();
@@ -34,6 +35,11 @@ function Navbar() {
             <House size={18} className="shrink-0" />
             <span className="hidden sm:inline">Home</span>
           </Link>
+
+          {(!loading && (user?.role == 'ADMIN' || user?.role == "VOLUNTEER")) &&
+            (
+              <NotificationBell />
+            )}
 
           {!loading && user?.role == "ADMIN" && (
             <Link to="/dashboard/campaign" className={navLinkClass("/dashboard")}>

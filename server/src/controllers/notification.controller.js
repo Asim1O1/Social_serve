@@ -8,7 +8,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { success } from "../utils/response.js";
 
 export const getNotifications = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.id;n
   const result = await getNotificationsService(userId, req.query);
   return success(res, "Notifications fetched successfully", result);
 });

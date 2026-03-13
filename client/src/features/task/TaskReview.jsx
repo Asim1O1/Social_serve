@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { api } from "../../axios/axios";
 import { toast } from "react-toastify";
 
@@ -30,27 +30,7 @@ function TaskReviewPage() {
     fetchTasks();
   }, [campaignId]);
 
-  // Update review status
-  const updateReview = async (taskId, status) => {
-    setUpdatingId(taskId);
-    try {
-      const res = await api.patch(`/tasks/submissions/${taskId}/review`, {
-        status,
-      });
-      if (res.status === "success") {
-        toast.success("Review updated");
-        setTasks((prev) =>
-          prev.map((t) => (t._id === taskId ? { ...t, status } : t))
-        );
-      } else {
-        toast.error(res.message || "Failed to update review");
-      }
-    } catch (err) {
-      toast.error(err?.response?.data?.message || err.message);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+
 
   if (loading) return <p className="text-center mt-10">Loading tasks...</p>;
 
@@ -59,7 +39,7 @@ function TaskReviewPage() {
       <div>
         <h2 className="text-4xl font-bold text-primary mb-2">Task Review</h2>
         <p className="text-gray-500 text-sm max-w-xl">
-          Review tasks submitted for this campaign. Update attendance or approve/reject submissions.
+          Review tasks submitted for this campaign.
         </p>
       </div>
 
@@ -101,24 +81,16 @@ function TaskReviewPage() {
               )}
 
               <div className="flex flex-wrap gap-2 mt-3">
-                {["Accepted", "Rejected", "Present", "Absent"].map((status) => (
-                  <button
-                    key={status}
-                    disabled={updatingId === task._id}
-                    onClick={() => updateReview(task._id, status)}
-                    className={`px-3 py-1 text-sm rounded text-white font-semibold ${
-                      status === "Accepted"
-                        ? "bg-green-500"
-                        : status === "Rejected"
-                        ? "bg-red-500"
-                        : status === "Present"
-                        ? "bg-blue-500"
-                        : "bg-gray-500"
-                    } disabled:opacity-50`}
-                  >
-                    {updatingId === task._id ? "Updating..." : status}
-                  </button>
-                ))}
+                <Link to={`../task/${task._id}`}
+                
+                  disabled={updatingId === task._id}
+                 
+                  className={`
+                       primary-btn
+                      `}
+                >
+                  View
+                </Link>
               </div>
 
               {task.status && (

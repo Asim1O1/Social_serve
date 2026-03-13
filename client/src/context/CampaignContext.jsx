@@ -9,6 +9,7 @@ export const CampaignProvider = ({ children }) => {
   const [campaigns, setCampaigns] = useState(null);
   const [activeCampaign, choseCampaign] = useState(null);
   const [myAttendance, setMyAttendance] = useState(null)
+  const [comments, setComments] = useState(null)
   const [status, setStatus] = useState(); // error || loading || success
   const { user } = useAuth();
 
@@ -90,6 +91,59 @@ export const CampaignProvider = ({ children }) => {
       toast.error(error.message);
     }
   };
+  const deleteComment = async (commentId) => {
+    try {
+      const res = await api.delete(`/comment/${commentId}`);
+
+      if (res.status !== "success") {
+        throw new Error("Failed to delete comment");
+      }
+
+      setComments((prev) => prev.filter((c) => c._id !== commentId));
+
+      toast.success("Comment deleted");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const addComment = async (e, id) => {
+    e.preventDefault();
+
+    const comment = e.target.comment.value;
+
+    if (!comment.trim()) return;
+
+    try {
+      const res = await api.post(`/comment/${id}`, { comment });
+
+      if (res.data.status !== "success") {
+        throw new Error(res?.data?.error?.message || "Error Adding Comment.");
+      }
+
+      toast.success("Comment Added");
+
+      e.target.reset();
+
+      loadComments(); // refresh comments
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const loadComments = async (id) => {
+    try {
+      const res = await api.get(`/comment/${id}`);
+
+      if (res.status !== "success") {
+        throw new Error("Failed to load comments");
+      }
+
+      setComments(res.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   return (
     <CampaignContext.Provider
@@ -98,6 +152,10 @@ export const CampaignProvider = ({ children }) => {
         activeCampaign,
         status,
         myAttendance,
+        comments,
+        loadComments,
+        deleteComment,
+        addComment,
         fetchMyAttendance,
         choseCampaign,
         handlePagination,

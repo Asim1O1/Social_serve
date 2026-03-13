@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
-import { useCampaign } from "../context/CampaignContext";
+import { useCampaign } from '../context/CampaignContext'
 
 function Campaign() {
   const { user } = useAuth();
@@ -19,6 +19,8 @@ function Campaign() {
 
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
   const isVolunteer = useMemo(() => user?.role === 'VOLUNTEER', [user])
+
+  const { comments, loadComments, deleteComment, addComment } = useCampaign()
 
   const loadTask = async () => {
     const res = await api.get(`/task/campaigns/${id}/tasks`)
@@ -46,6 +48,7 @@ function Campaign() {
 
   useEffect(() => {
     loadCampaign()
+    loadComments(id)
   }, [id])
 
   useEffect(() => {
@@ -57,26 +60,6 @@ function Campaign() {
   }, [taskPop]);
 
   /* ================= Volunteers (ADMIN only) ================= */
-
-
-
-  const addComment = async (e) => {
-    e.preventDefault();
-
-    const comment = e.target[0].value;
-
-    try {
-      const res = await api.post(`/comment/${id}`, { comment });
-
-      if (res.data.status !== "success") {
-        throw new Error(res?.data?.error?.message || "Error Adding Comment.");
-      }
-
-      toast.success("Comment Added");
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
 
   if (loading) return <Loading />;
 
@@ -142,7 +125,6 @@ function Campaign() {
                           key={vl.id}
                           className={`bg-primary/10 flex gap-6 items-center rounded-lg px-4 py-2 hover:bg-primary/20 transition duration-150`}
                         >
-                          {console.log(vl)}
                           <span className="text-black font-semibold mr-auto">
                             {vl.title}
                           </span>
@@ -191,10 +173,10 @@ function Campaign() {
         <h2 className="text-2xl font-semibold text-primary mb-4">Comments</h2>
 
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent">
-          {campaign?.comments?.length ? (
-            campaign.comments.map((c, index) => (
+          {comments?.length ? (
+            comments.map((c) => (
               <div
-                key={index}
+                key={c._id}
                 className="min-w-[280px] bg-white border border-border p-4 rounded-2xl shadow-sm hover:shadow-md transition-all"
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -203,18 +185,27 @@ function Campaign() {
                     className="w-10 h-10 rounded-full border"
                     alt="avatar"
                   />
-                  <div>
+                  <div className="flex flex-col">
                     <p className="font-semibold">
                       {c.user?.name || "Unknown User"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {c.createdAt?.slice(0, 10)}
+                      {new Date(c.createdAt).toLocaleDateString()}
                     </p>
                   </div>
+
+                  {(user?.id === c.user?._id || isAdmin) && (
+                    <button
+                      onClick={() => deleteComment(c._id)}
+                      className="ml-auto text-red-400 hover:text-red-600"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 </div>
 
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  {c.text}
+                  {c.comment}
                 </p>
               </div>
             ))
