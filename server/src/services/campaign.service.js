@@ -101,7 +101,6 @@ export const getCampaignsService = async (filters = {}, userId, role) => {
       myVolunteerStatus = myVolunteer?.status ?? null;
     }
     const phase = getCampaignPhase(campaign);
-    console.log("Campaign Phase:", phase);
 
     return {
       id: campaign._id,
