@@ -113,8 +113,7 @@ export const CampaignProvider = ({ children }) => {
 
   const addComment = async (e, id) => {
     e.preventDefault();
-
-    const comment = e.target.comment.value;
+    const comment = e.target[0].value;
 
     if (!comment.trim()) return;
 

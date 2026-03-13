@@ -216,7 +216,7 @@ function Campaign() {
 
         {/* ================= Add Comment ================= */}
         <div className="relative mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm">
-          <form onSubmit={addComment} className={!user ? "blur-sm" : ""}>
+          <form onSubmit={(e) => addComment(e, id)} className={!user ? "blur-sm" : ""}>
             <textarea
               placeholder="Write your comment..."
               className="w-full border border-border rounded-xl p-3 outline-none focus:border-primary transition-all"
