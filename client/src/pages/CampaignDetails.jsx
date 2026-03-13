@@ -229,16 +229,16 @@ function Campaign() {
                   <div className="ml-4 flex items-start gap-2 space-y-2">
                     <div className="flex gap-2">
                       <img
-                        src={c.author?.profilePic || "http://placehold.co/40x40"}
+                        src={rpl.author?.profilePic?.url || "http://placehold.co/40x40"}
                         className="w-10 h-10 rounded-full border"
                       />
 
                       <div className="flex flex-col">
                         <p className="font-semibold">
-                          {c.author?.fullName || "Unknown User"}
+                          {rpl.author?.fullName || "Unknown User"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {new Date(c.createdAt).toLocaleDateString()}
+                          {new Date(rpl.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
