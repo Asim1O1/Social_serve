@@ -16,7 +16,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-10 w-full bg-white/30 backdrop-blur-sm">
+    <nav className="sticky top-0 z-10 w-full bg-white/90 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-6">
         <Link
           to="/"
@@ -40,10 +40,7 @@ function Navbar() {
             <span className="hidden sm:inline">Campaigns</span>
           </Link>
 
-          {(!loading && (user?.role == 'ADMIN' || user?.role == "VOLUNTEER")) &&
-            (
-              <NotificationBell />
-            )}
+
 
           {!loading && user?.role == "ADMIN" && (
             <Link to="/dashboard/campaign" className={navLinkClass("/dashboard")}>
@@ -67,6 +64,10 @@ function Navbar() {
               <span>Log in</span>
             </Link>
           )}
+          {(!loading && (user?.role == 'ADMIN' || user?.role == "VOLUNTEER")) &&
+            (
+              <NotificationBell />
+            )}
         </div>
       </div>
     </nav>

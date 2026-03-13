@@ -40,6 +40,7 @@ function VolunteerManagement() {
         `/campaign/${campaignId}/volunteer-requests/${volunteerIdParam}`,
         { status }
       );
+      console.log(res)
       if (res.status == 'success') {
         toast.success(`Request ${status}`);
         fetchCampaigns({ createdBy: user?.id })
