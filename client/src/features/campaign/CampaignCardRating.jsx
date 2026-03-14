@@ -188,7 +188,7 @@ function CampaignCardRating({
                 onMouseDown={() => handleMentionSelect(u)}
                 className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-2"
               >
-                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
+                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                   {u.firstName[0]}
                 </span>
                 {u.firstName} {u.lastName}
