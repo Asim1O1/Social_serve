@@ -1,7 +1,6 @@
 import { ChevronRight, Megaphone } from "lucide-react";
-import { Link, Navigate } from "react-router";
+import { Link } from "react-router";
 import Loading from "../components/Loading";
-import { useAuth } from "../context/AuthContext";
 import { useCampaign } from "../context/CampaignContext";
 import CampaignCard from "../features/campaign/CampaignCard";
 import CategoryTabs from "../features/home/CategoryTab";
@@ -11,10 +10,6 @@ import HowItWorks from "../features/home/HowItWorks";
 import WhyWorkWithUs from "../features/home/WhyWorkWithUs";
 
 function Home() {
-  const { user } = useAuth();
-  if (user.role === "ADMIN") {
-    return <Navigate to="/dashboard" />;
-  }
   const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
   const isLoading = status === "loading";
 

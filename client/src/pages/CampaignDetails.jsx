@@ -1,11 +1,18 @@
-import { Bookmark, MapPin, Plus, TableOfContents, Timer, UsersRound, X } from "lucide-react";
+import {
+  Bookmark,
+  MapPin,
+  Plus,
+  TableOfContents,
+  Timer,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { api } from "../axios/axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
-import { useCampaign } from '../context/CampaignContext'
+import { useCampaign } from "../context/CampaignContext";
 import CampaignCardRating from "../features/campaign/CampaignCardRating";
 
 function Campaign() {
@@ -16,31 +23,28 @@ function Campaign() {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [taskPop, openPopup] = useState(false);
-  const [taskList, setTaskList] = useState()
+  const [taskList, setTaskList] = useState();
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
 
-  const isAdmin = useMemo(() => user?.role === "ADMIN", [user])
-  const isVolunteer = useMemo(() => user?.role === 'VOLUNTEER', [user])
+  const isAdmin = useMemo(() => user?.role === "ADMIN", [user]);
+  const isVolunteer = useMemo(() => user?.role === "VOLUNTEER", [user]);
 
-  const { comments, loadComments, deleteComment, addComment } = useCampaign()
-
-
+  const { comments, loadComments, deleteComment, addComment } = useCampaign();
 
   const loadTask = async () => {
-    const res = await api.get(`/task/campaigns/${id}/tasks`)
-    if (res.status == 'error') {
-      toast.error(res.error.message)
+    const res = await api.get(`/task/campaigns/${id}/tasks`);
+    if (res.status == "error") {
+      toast.error(res.error.message);
       return;
     }
-    setTaskList(res.data)
-  }
+    setTaskList(res.data);
+  };
 
   const loadCampaign = async () => {
     try {
       const res = await api.get(`/campaign/${id}`);
-      if (res.status == 'success')
-        setCampaign(res.data);
+      if (res.status == "success") setCampaign(res.data);
     } catch (error) {
       console.log(error);
       toast.error("Failed to load campaign");
@@ -52,28 +56,24 @@ function Campaign() {
   /* ================= Campaign ================= */
 
   useEffect(() => {
-    loadCampaign()
-  }, [id])
+    loadCampaign();
+  }, [id]);
 
   useEffect(() => {
     if (taskPop) {
-      loadTask()
-      return
+      loadTask();
+      return;
     }
-
   }, [taskPop]);
-
 
   useEffect(() => {
     if (campaign) {
-      const ratings = campaign.ratings
-      for (const rating of ratings)
-        loadComments(id, rating._id)
+      const ratings = campaign.ratings;
+      for (const rating of ratings) loadComments(id, rating._id);
     }
-
   }, [id, campaign]);
 
-  console.log(comments)
+  console.log(comments);
 
   /* ================= Volunteers (ADMIN only) ================= */
 
@@ -102,16 +102,21 @@ function Campaign() {
               {campaign.title}
             </h1>
             {isAdmin && (
-              <Link className="primary-btn" to='create-task'><Plus size={16} />Create Task</Link>
+              <Link className="primary-btn" to="create-task">
+                <Plus size={16} />
+                Create Task
+              </Link>
             )}
 
-            {(isVolunteer || isAdmin) && <button
-              onClick={() => openPopup(true)}
-              className="primary-btn md:space-x-2"
-            >
-              <TableOfContents size={16} />
-              <span className="hidden md:inline">View Task</span>
-            </button>}
+            {(isVolunteer || isAdmin) && (
+              <button
+                onClick={() => openPopup(true)}
+                className="primary-btn md:space-x-2"
+              >
+                <TableOfContents size={16} />
+                <span className="hidden md:inline">View Task</span>
+              </button>
+            )}
             {/* ================= Tasks popup (ADMIN) ================= */}
             {taskPop && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -144,8 +149,17 @@ function Campaign() {
                           <span className="text-black font-semibold mr-auto">
                             {vl.title}
                           </span>
-                          <span className="text-sm text-gray-500">{vl.points}</span>
-                          {isVolunteer && <Link to={`submit-task/${vl._id}`} className="primary-btn">Submit</Link>}
+                          <span className="text-sm text-gray-500">
+                            {vl.points}
+                          </span>
+                          {isVolunteer && (
+                            <Link
+                              to={`submit-task/${vl._id}`}
+                              className="primary-btn"
+                            >
+                              Submit
+                            </Link>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -224,12 +238,14 @@ function Campaign() {
                   )}
                 </div>
 
-
-                {c.replies.map(rpl => (
+                {c.replies.map((rpl) => (
                   <div className="ml-4 flex items-start gap-2 space-y-2">
                     <div className="flex gap-2">
                       <img
-                        src={rpl.author?.profilePic?.url || "http://placehold.co/40x40"}
+                        src={
+                          rpl.author?.profilePic?.url ||
+                          "http://placehold.co/40x40"
+                        }
                         className="w-10 h-10 rounded-full border"
                       />
 
@@ -272,12 +288,7 @@ function Campaign() {
                     <div className="flex gap-2">
                       <button
                         onClick={async () => {
-                          await addComment(
-                            id,
-                            c.rating,
-                            replyText,
-                            c._id
-                          );
+                          await addComment(id, c.rating, replyText, c._id);
                           setReplyText("");
                           setReplyingTo(null);
                         }}
@@ -305,19 +316,16 @@ function Campaign() {
           )}
         </div>
 
-
         {/* ================= Add Comment ================= */}
         <div className="relative mt-6 p-4 bg-white border border-border rounded-2xl shadow-sm">
           <CampaignCardRating
             campaignId={campaign?.id || campaign?.campaignId}
             user={user}
-            myRating={
-              campaign.ratings?.find(
-                (r) => r.volunteer?.id === user?.id || r.volunteer === user?.id
-              )
-            }
+            volunteers={campaign.volunteers}
+            myRating={campaign.ratings?.find(
+              (r) => r.volunteer?.id === user?.id || r.volunteer === user?.id,
+            )}
           />
-
           {!user && (
             <Link
               state={{ from: location.pathname }}
