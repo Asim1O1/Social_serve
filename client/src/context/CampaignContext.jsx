@@ -126,20 +126,13 @@ export const CampaignProvider = ({ children }) => {
 
       loadComments(id, ratingId); // refresh comments
     } catch (error) {
-      toast.error(error.message);
+      console.error(error.message);
     }
   };
 
   const loadComments = async (id, ratingId) => {
     try {
       const res = await api.get(`/campaign/${id}/ratings/${ratingId}/comments`);
-      if (res.status !== "success") {
-        throw new Error("Failed to load comments");
-      }
-      if (comments) {
-        setComments(prev => ([...prev, ...res.data]));
-        return
-      }
       setComments(res.data)
 
     } catch (error) {

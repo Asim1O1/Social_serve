@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
-import { Blend, MessageCircleMore, House, LayoutGrid, LogIn } from "lucide-react";
+import { Blend, HandHeart, House, LayoutGrid, LogIn } from "lucide-react";
 import NotificationBell from "../features/notification/Notification";
 import CampaignChat from "../features/chat/Campaignchat";
-import { useState } from "react";
 
 function Navbar() {
   const location = useLocation();
@@ -39,7 +38,7 @@ function Navbar() {
             <span className="hidden sm:inline">Home</span>
           </Link>
           <Link to="/campaign" className={navLinkClass("/campaign")}>
-            <House size={18} className="shrink-0" />
+            <HandHeart size={18} className="shrink-0" />
             <span className="hidden sm:inline">Campaigns</span>
           </Link>
 
@@ -71,8 +70,8 @@ function Navbar() {
             (
               <NotificationBell />
             )}
-          {user &&  <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
-            />}
+          {user && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
+          />}
         </div>
       </div>
     </nav>

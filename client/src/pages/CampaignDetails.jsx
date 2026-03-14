@@ -79,17 +79,17 @@ function Campaign() {
   useEffect(() => {
     if (campaign) {
       const ratings = campaign.ratings;
+      console.log(comments)
       for (const rating of ratings) loadComments(id, rating._id);
     }
   }, [id, campaign]);
 
-  console.log(comments);
 
   /* ================= Volunteers (ADMIN only) ================= */
 
   if (loading) return <Loading />;
 
-  if (!campaign) return null;
+  if (!campaign) return <p className="py-5 text-xl text-primary">Campign not found</p>;
 
   return (
     <div className="container mx-auto px-4 pb-16">
