@@ -16,72 +16,97 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 const assertParticipant = (conversation, userId) => {
-  const isParticipant = conversation.participants.some(
-    (p) => p._id.toString() === userId.toString(),
-  );
+  console.log("The conversation and user id dis", conversation, userId);
+
+  assertOrThrow(userId, HTTP_STATUS.INTERNAL_SERVER_ERROR, "User ID is missing");
+
+  const uid = userId.toString();
+
+  const isParticipant = conversation.participants.some((p) => {
+    if (!p) return false;
+
+    // if populated document
+    if (p._id) return p._id.toString() === uid;
+
+    // if just an ObjectId
+    return p.toString() === uid;
+  });
+
   assertOrThrow(isParticipant, HTTP_STATUS.FORBIDDEN, "Access denied");
 };
 
-const resolveParticipants = (campaign, requestingUser, volunteerId) => {
+const resolveParticipants = (campaign, requestingUser, targetVolunteerId) => {
+  const campaignOwnerId =
+    campaign.createdBy?._id?.toString() ?? campaign.createdBy?.toString();
+
+  assertOrThrow(
+    campaignOwnerId,
+    HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    "Campaign has no valid creator"
+  );
+
+  // Support both id (JWT payload) and _id (Mongoose document)
+  const requestingUserId = (requestingUser._id ?? requestingUser.id)?.toString();
+
+  assertOrThrow(
+    requestingUserId,
+    HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    "Requesting user has no valid ID"
+  );
+
   if (requestingUser.role === "ADMIN") {
     assertOrThrow(
-      volunteerId,
+      targetVolunteerId != null,
       HTTP_STATUS.BAD_REQUEST,
-      "volunteerId is required",
+      "volunteerId is required when an admin initiates a conversation"
     );
     return {
-      adminId: requestingUser._id,
-      volunteerId,
+      adminId: requestingUserId,
+      participantId: targetVolunteerId.toString(),
     };
   }
 
   return {
-    adminId: campaign.createdBy._id ?? campaign.createdBy,
-    volunteerId: requestingUser._id,
+    adminId: campaignOwnerId,
+    participantId: requestingUserId,
   };
 };
 
 export const getOrCreateConversationService = async (
   campaignId,
   requestingUser,
-  volunteerId,
+  volunteerId
 ) => {
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
 
-  const { adminId, volunteerId: resolvedVolunteerId } = resolveParticipants(
+  const { adminId, participantId } = resolveParticipants(
     campaign,
     requestingUser,
-    volunteerId,
+    volunteerId
   );
 
-  const volunteerRecord = campaign.volunteers.find(
-    (v) => v.volunteer._id.toString() === resolvedVolunteerId.toString(),
-  );
+  const volunteerRecord = campaign.volunteers?.find((v) => {
+    const volId = v.volunteer?._id?.toString() ?? v.volunteer?.toString();
+    return volId === participantId;
+  });
+
   assertOrThrow(
     volunteerRecord,
     HTTP_STATUS.FORBIDDEN,
-    "Volunteer has not applied to this campaign",
+    "Volunteer has not applied to this campaign"
   );
+
   assertOrThrow(
     volunteerRecord.status === "accepted",
     HTTP_STATUS.FORBIDDEN,
-    "Only accepted volunteers can use campaign chat",
+    "Only accepted volunteers can use campaign chat"
   );
 
-  let conversation = await findConversation(
-    campaignId,
-    adminId,
-    resolvedVolunteerId,
-  );
+  let conversation = await findConversation(campaignId, adminId, participantId);
 
   if (!conversation) {
-    conversation = await createConversation(
-      campaignId,
-      adminId,
-      resolvedVolunteerId,
-    );
-
+    conversation = await createConversation(campaignId, adminId, participantId);
     conversation = await getConversationById(conversation._id);
   }
 
@@ -89,24 +114,31 @@ export const getOrCreateConversationService = async (
 };
 
 export const getConversationsService = async (userId) => {
-  return getConversationsByUser(userId);
+  console.log("----- SERVICE: getConversationsService -----");
+  console.log("User ID received:", userId);
+
+  const conversations = await getConversationsByUser(userId);
+
+  console.log("Conversations fetched from DB:", conversations.length);
+  console.log("Conversations:", JSON.stringify(conversations, null, 2));
+
+  return conversations;
 };
 
-export const getMessagesService = async (conversationId, userId, query) => {
-  const { page = 1, limit = 30 } = query;
+export const getMessagesService = async (conversationId, userId, query = {}) => {
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 30;
 
   const conversation = await getConversationById(conversationId);
+  console.log("The conversations are as folow", conversation)
   assertOrThrow(conversation, HTTP_STATUS.NOT_FOUND, "Conversation not found");
+
   assertParticipant(conversation, userId);
 
-  const messages = await getMessagesByConversation(
-    conversationId,
-    Number(page),
-    Number(limit),
-  );
+  const messages = await getMessagesByConversation(conversationId, page, limit);
 
-  await markMessagesAsRead(conversationId, userId);
-  await resetUnreadCount(conversationId, userId);
+  markMessagesAsRead(conversationId, userId).catch(() => {});
+  resetUnreadCount(conversationId, userId).catch(() => {});
 
   return { messages, conversation };
 };
@@ -119,30 +151,35 @@ export const sendMessageService = async ({
 }) => {
   const conversation = await getConversationById(conversationId);
   assertOrThrow(conversation, HTTP_STATUS.NOT_FOUND, "Conversation not found");
+
   assertParticipant(conversation, senderId);
 
   const message = await createMessage({
     conversationId,
     sender: senderId,
     text: text || null,
-    attachment: attachment || {},
+    attachment: attachment ?? null,
   });
 
   await updateConversationLastMessage(conversationId, message._id);
 
   const recipient = conversation.participants.find(
-    (p) => p._id.toString() !== senderId.toString(),
+    (p) => p._id.toString() !== senderId.toString()
   );
+
   if (recipient) {
     await incrementUnreadCount(conversationId, recipient._id);
   }
 
   const populated = await message.populate(
     "sender",
-    "firstName lastName profilePic role",
+    "firstName lastName profilePic role"
   );
 
-  return { message: populated, recipientId: recipient?._id };
+  return {
+    message: populated,
+    recipientId: recipient?._id?.toString() ?? null,
+  };
 };
 
 export const uploadAttachmentService = async (file) => {

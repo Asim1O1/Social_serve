@@ -1,11 +1,15 @@
 import { Link, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
-import { Blend, House, LayoutGrid, LogIn } from "lucide-react";
+import { Blend, MessageCircleMore, House, LayoutGrid, LogIn } from "lucide-react";
 import NotificationBell from "../features/notification/Notification";
+import CampaignChat from "../features/chat/Campaignchat";
+import { useState } from "react";
 
 function Navbar() {
   const location = useLocation();
   const { user, loading } = useAuth();
+
+  const [openChat, setOpenChat] = useState(false)
 
   const navLinkClass = (path) => {
     const isActive = location.pathname === path;
@@ -68,6 +72,12 @@ function Navbar() {
             (
               <NotificationBell />
             )}
+          {user && <div className="relative"><button onClick={() => setOpenChat(!openChat)}><MessageCircleMore className="text-primary" /></button>
+            {openChat && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
+              onClose={() => setOpenChat(false)}
+            />}
+          </div>
+          }
         </div>
       </div>
     </nav>

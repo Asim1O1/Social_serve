@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 
@@ -28,12 +29,26 @@ export const getConversationById = (conversationId) => {
     .populate("lastMessage");
 };
 
-export const getConversationsByUser = (userId) => {
-  return Conversation.find({ participants: userId })
+export const getConversationsByUser = async (userId) => {
+  console.log("========== DB QUERY ==========");
+  console.log("UserId received:", userId);
+  console.log("UserId type:", typeof userId);
+
+  const objectId = new mongoose.Types.ObjectId(userId);
+
+  console.log("Converted ObjectId:", objectId);
+
+  const conversations = await Conversation.find({
+    participants: { $in: [objectId] },
+  })
     .populate("participants", "firstName lastName profilePic role")
     .populate("lastMessage")
     .populate("campaignId", "title")
     .sort({ updatedAt: -1 });
+
+  console.log("Conversations found:", conversations.length);
+
+  return conversations;
 };
 
 export const updateConversationLastMessage = (conversationId, messageId) => {

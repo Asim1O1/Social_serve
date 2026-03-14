@@ -23,6 +23,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/Notfound";
 import Register from "./pages/Register";
 import { protectedLoader } from "./utils/authLoader";
+import CampaignChat from "./features/chat/Campaignchat";
 
 export const router = createBrowserRouter([
   {
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
         loader: protectedLoader,
         children: [
+          { path: 'chat', element: <CampaignChat /> },
           {
             path: "campaign",
             element: <Common />,
@@ -85,6 +87,10 @@ export const router = createBrowserRouter([
               {
                 index: true,
                 element: <Campaign />,
+              },
+              {
+                path: 'chat',
+                element: <CampaignChat />
               },
               {
                 path: ":id",

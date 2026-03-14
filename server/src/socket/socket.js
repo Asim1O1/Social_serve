@@ -6,7 +6,7 @@ import {
 
 let io;
 
-const onlineUsers = new Map();
+const onlineUsers = new Map(); // userId → socketId
 
 export const initSocket = (server) => {
   io = new Server(server, {
@@ -23,6 +23,12 @@ export const initSocket = (server) => {
     socket.on("register", (userId) => {
       onlineUsers.set(userId.toString(), socket.id);
       console.log(`User ${userId} registered with socket ${socket.id}`);
+
+      // ── NEW: tell everyone this user is now online ──────────────────────────
+      socket.broadcast.emit("user_online", { userId: userId.toString() });
+
+      // ── NEW: send the current online user list back to the registering client
+      socket.emit("online_users", Array.from(onlineUsers.keys()));
     });
 
     socket.on("join_conversation", ({ conversationId }) => {
@@ -96,6 +102,9 @@ export const initSocket = (server) => {
         if (socketId === socket.id) {
           onlineUsers.delete(userId);
           console.log(`User ${userId} disconnected`);
+
+          // ── NEW: tell everyone this user is now offline ───────────────────
+          socket.broadcast.emit("user_offline", { userId });
           break;
         }
       }

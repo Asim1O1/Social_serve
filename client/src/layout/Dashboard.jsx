@@ -1,15 +1,17 @@
-import { Blend, LogOut, User } from "lucide-react";
+import { Blend, LogOut, MessageCircleMore, User } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Outlet } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/Dashboard/Sidebar";
 import { useEffect, useRef, useState } from "react";
 import NotificationBell from "../features/notification/Notification";
+import CampaignChat from "../features/chat/Campaignchat";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [profilePop, openProfile] = useState(false);
+  const [openChat, setOpenChat] = useState(false)
 
   const profileRef = useRef(null);
 
@@ -65,8 +67,8 @@ function Dashboard() {
 
             <div
               className={`absolute top-full right-0 mt-2 w-56 rounded-xl border border-primary/20 bg-white shadow-xl overflow-hidden transition-all duration-200 origin-top-right ${profilePop
-                  ? "opacity-100 scale-100 visible"
-                  : "opacity-0 scale-95 pointer-events-none invisible"
+                ? "opacity-100 scale-100 visible"
+                : "opacity-0 scale-95 pointer-events-none invisible"
                 }`}
             >
               <div className="p-4 bg-linear-to-br from-primary/10 to-accent/10 border-b border-primary/10">
@@ -119,6 +121,12 @@ function Dashboard() {
             </div>
           </div>
           <NotificationBell />
+          {user && <div className="relative"><button onClick={() => setOpenChat(!openChat)}><MessageCircleMore className="text-primary" /></button>
+            {openChat && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
+              onClose={() => setOpenChat(false)}
+            />}
+          </div>
+          }
         </div>
         <div className="pt-26 flex">
           <Sidebar />
