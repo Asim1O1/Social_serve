@@ -82,19 +82,35 @@ function CampaignCardRating({
     }
     if (loading) return;
     setLoading(true);
+
     try {
-      await api.post(`/campaign/${campaignId}/rating`, {
-        volunteer: user.id,
-        rating: myRating,
-      });
-      await addComment(campaignId, ratingId, comment);
-      toast.success("Thanks for your rating!");
-      setComment("");
-    } catch (err) {
-      if (err.message) {
-        await addComment(campaignId, ratingId, comment);
-        setComment("");
+      let currentRatingId = ratingId;
+
+      // If no rating exists yet, create one first
+      if (!currentRatingId) {
+        const res = await api.post(`/campaign/${campaignId}/rating`, {
+          volunteer: user.id,
+          rating: myRating,
+        });
+
+        if (res.status === 'error') {
+          throw new Error(res.message || 'Failed to submit rating');
+        }
+
+        // Get the rating ID from response
+        currentRatingId = res.data?.id || res.data?.ratingId;
       }
+
+      // Now add comment using the rating ID (either existing or newly created)
+      if (comment.trim()) {
+        await addComment(campaignId, currentRatingId, comment);
+      }
+
+      toast.success("Thanks for your feedback!");
+      setComment("");
+
+    } catch (err) {
+      toast.error(err.message || "Failed to submit feedback");
     } finally {
       setLoading(false);
     }
@@ -129,11 +145,10 @@ function CampaignCardRating({
             >
               <Star
                 size={22}
-                className={`transition-colors duration-150 ${
-                  value <= displayRating
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-transparent text-gray-200"
-                }`}
+                className={`transition-colors duration-150 ${value <= displayRating
+                  ? "fill-amber-400 text-amber-400"
+                  : "fill-transparent text-gray-200"
+                  }`}
               />
             </button>
           ))}
@@ -173,7 +188,7 @@ function CampaignCardRating({
                 onMouseDown={() => handleMentionSelect(u)}
                 className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-2"
               >
-                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
+                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                   {u.firstName[0]}
                 </span>
                 {u.firstName} {u.lastName}

@@ -40,7 +40,7 @@ function Campaign() {
   const isAdmin = useMemo(() => user?.role === "ADMIN", [user]);
   const isVolunteer = useMemo(() => user?.role === "VOLUNTEER", [user]);
 
-  const { comments, loadComments, deleteComment, addComment } = useCampaign();
+  const { commentsByRating, getCommentsByRating, loadComments, deleteComment, addComment } = useCampaign();
 
   const loadTask = async () => {
     const res = await api.get(`/task/campaigns/${id}/tasks`);
@@ -78,21 +78,31 @@ function Campaign() {
 
   useEffect(() => {
     if (campaign) {
-      const ratings = campaign.ratings;
-      for (const rating of ratings) loadComments(id, rating._id);
+      const ratings = campaign?.ratings;
+      for (const rating of ratings) {
+        loadComments(id, rating?._id);
+      }
     }
   }, [id, campaign]);
 
-  console.log(comments);
+  const allCommentsForCampaign = useMemo(() => {
+    if (!campaign?.ratings) return [];
+
+    // Combine comments from all ratings of this campaign
+    return campaign.ratings.flatMap(rating =>
+      getCommentsByRating(rating._id) || []
+    );
+  }, [campaign, commentsByRating]);
+
 
   /* ================= Volunteers (ADMIN only) ================= */
 
   if (loading) return <Loading />;
 
-  if (!campaign) return null;
+  if (!campaign) return <p className="py-5 text-xl text-primary">Campign not found</p>;
 
   return (
-    <div className="container mx-auto px-4 pb-16">
+    <div className="container mx-auto px-4 py-4">
       {/* ── Hero Image ── */}
       {campaign?.attachments && (
         <div className="relative mb-10 rounded-2xl overflow-hidden shadow-lg">
@@ -176,8 +186,8 @@ function Campaign() {
         </h2>
 
         <div className="flex flex-col gap-3">
-          {comments?.length ? (
-            comments.map((c) => (
+          {allCommentsForCampaign?.length ? (
+            allCommentsForCampaign.map((c) => (
               <div
                 key={c._id}
                 className="bg-white border border-primary/10 rounded-2xl shadow-sm p-4 transition hover:shadow-md"
