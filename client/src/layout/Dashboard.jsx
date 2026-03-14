@@ -11,7 +11,6 @@ function Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [profilePop, openProfile] = useState(false);
-  const [openChat, setOpenChat] = useState(false)
 
   const profileRef = useRef(null);
 
@@ -121,11 +120,8 @@ function Dashboard() {
             </div>
           </div>
           <NotificationBell />
-          {user && <div className="relative"><button onClick={() => setOpenChat(!openChat)}><MessageCircleMore className="text-primary" /></button>
-            {openChat && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
-              onClose={() => setOpenChat(false)}
-            />}
-          </div>
+          {user && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.email.split("@")[0] || "unknown", lastName: user?.lastName, role: user?.role }}
+          />
           }
         </div>
         <div className="pt-26 flex">

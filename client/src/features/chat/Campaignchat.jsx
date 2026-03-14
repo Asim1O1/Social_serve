@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:6190/api";
+const API_BASE = import.meta.env.VITE_BE_URL ?? "http://localhost:6190/api";
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:6190";
 const PAGE_LIMIT = 30;
 
@@ -36,16 +36,9 @@ const avatarCls = (id = "") =>
   [...(id ?? "")].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLOURS.length
   ];
 
-// ─── API helper ───────────────────────────────────────────────────────────────
-// ─── Replace this import at the top of CampaignChat.jsx ─────────────────────
 import { api } from "../../axios/axios";
+import { MessageCircleMore } from "lucide-react";
 
-// ─── Remove the old apiFetch and API_BASE constant, replace with this ─────────
-
-// apiFetch now uses the axios `api` instance which:
-//   - automatically attaches the Bearer token from sessionStorage
-//   - handles 401 → refresh token → retry
-//   - returns response.data already (interceptor unwraps it)
 const apiFetch = async (path, opts = {}) => {
   const { method = "GET", body, ...rest } = opts;
 
@@ -56,47 +49,8 @@ const apiFetch = async (path, opts = {}) => {
     ...rest,
   });
 
-  // axios interceptor already unwraps to response.data
-  // your backend wraps in { status, data, message } so unwrap .data
   return response.data ?? response;
 };
-
-// ─── Replace the file upload fetch() call inside handleFileChange ─────────────
-// Find this block in handleFileChange and replace it:
-const handleFileChange = async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  setUploading(true);
-  try {
-    const fd = new FormData();
-    fd.append("file", file);
-
-    // Use api instance — token is attached automatically by the request interceptor
-    const response = await api.post("/messages/upload", fd, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    // interceptor returns response.data, backend wraps in { data: {...} }
-    const att = response.data ?? response;
-    await sendMessage(att);
-  } catch (err) {
-    console.error("Attachment error:", err);
-  } finally {
-    setUploading(false);
-    e.target.value = "";
-  }
-};
-
-// ─── Socket URL — derive from VITE_BE since port is now in the env var ────────
-// Replace the SOCKET_URL constant at the top:
-
-// ─── Socket auth — attach the Bearer token so the server can auth the socket ──
-// Replace the socket init inside the useEffect:
-export const socket = io(SOCKET_URL, {
-  auth: {
-    token: sessionStorage.getItem("at"),
-  },
-});
 
 // ─── Shared components ────────────────────────────────────────────────────────
 const Avatar = ({ name = "", userId = "", size = "w-10 h-10", text = "text-sm", online = false }) => (
@@ -456,7 +410,8 @@ const PeopleTab = ({ currentUser, conversations, onlineUsers, onSelectPerson }) 
 //   5. sendMessage() calls POST /api/conversation to create the convo
 //   6. Gets back convoId → emits send_message via socket → clears pendingChat
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function CampaignChat({ currentUser, onClose }) {
+export default function CampaignChat({ currentUser }) {
+  const [openChat, setOpenChat] = useState()
   const [conversations, setConversations] = useState([]);
   const [loadingConvos, setLoadingConvos] = useState(true);
   const [activeConvoId, setActiveConvoId] = useState(null);
@@ -471,6 +426,10 @@ export default function CampaignChat({ currentUser, onClose }) {
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [sidebarTab, setSidebarTab] = useState("chats");
 
+  const onClose = () => {
+    setOpenChat(false)
+  }
+
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -484,19 +443,25 @@ export default function CampaignChat({ currentUser, onClose }) {
 
   // ── Socket ──────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const socket = io(SOCKET_URL, { withCredentials: true });
+    const token = sessionStorage.getItem("at");
+    const socket = io(SOCKET_URL, {
+      auth: { token },
+      withCredentials: true,
+    });
     socketRef.current = socket;
 
     socket.on("connect", () => socket.emit("register", currentUser._id));
 
     socket.on("online_users", (ids) => setOnlineUsers(new Set(ids)));
-    socket.on("user_online", ({ userId }) => setOnlineUsers((p) => new Set([...p, userId])));
-    socket.on("user_offline", ({ userId }) => setOnlineUsers((p) => { const n = new Set(p); n.delete(userId); return n; }));
+    socket.on("user_online", ({ userId }) => setOnlineUsers((prev) => new Set([...prev, userId])));
+    socket.on("user_offline", ({ userId }) => {
+      setOnlineUsers((prev) => { const n = new Set(prev); n.delete(userId); return n; });
+    });
 
     socket.on("message_received", ({ message }) => {
-      setMessages((p) => p.find((m) => m._id === message._id) ? p : [...p, message]);
-      setConversations((p) =>
-        p.map((c) =>
+      setMessages((prev) => prev.find((m) => m._id === message._id) ? prev : [...prev, message]);
+      setConversations((prev) =>
+        prev.map((c) =>
           c._id === message.conversationId
             ? { ...c, lastMessage: message, unreadCount: (c.unreadCount ?? 0) + (message.sender?._id !== currentUser._id ? 1 : 0) }
             : c
@@ -505,10 +470,11 @@ export default function CampaignChat({ currentUser, onClose }) {
     });
 
     socket.on("new_message_notification", ({ conversationId }) =>
-      setConversations((p) =>
-        p.map((c) => c._id === conversationId && c._id !== activeConvoId
-          ? { ...c, unreadCount: (c.unreadCount ?? 0) + 1 }
-          : c
+      setConversations((prev) =>
+        prev.map((c) =>
+          c._id === conversationId && c._id !== activeConvoId
+            ? { ...c, unreadCount: (c.unreadCount ?? 0) + 1 }
+            : c
         )
       )
     );
@@ -532,8 +498,7 @@ export default function CampaignChat({ currentUser, onClose }) {
       if (activeConvoId) socket.emit("leave_conversation", { conversationId: activeConvoId });
       socket.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser._id, activeConvoId]);
 
   // ── Load conversations on mount ─────────────────────────────────────────────
   useEffect(() => {
@@ -651,14 +616,14 @@ export default function CampaignChat({ currentUser, onClose }) {
     if (!trimmed && !attachmentPayload) return;
 
     const socket = socketRef.current;
+    setText("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
 
+    let convoId = activeConvoId;
+
+    // ── Handle pending chat ──
     if (pendingChat) {
-      // ── First message in a new conversation ──────────────────────────────
-      setText("");
-      if (inputRef.current) inputRef.current.style.height = "auto";
-
       try {
-        // Create the conversation
         const convo = await apiFetch("/message/conversation", {
           method: "POST",
           body: JSON.stringify({
@@ -666,54 +631,46 @@ export default function CampaignChat({ currentUser, onClose }) {
             volunteerId: pendingChat.volunteerId,
           }),
         });
-
-        const convoId = convo._id;
-
-        // Merge into conversations list
-        setConversations((p) => {
-          const exists = p.find((c) => c._id === convoId);
-          return exists ? p : [convo, ...p];
-        });
-
-        // Set as active
+        convoId = convo._id;
+        setConversations((prev) => [convo, ...prev]);
         setActiveConvoId(convoId);
         setPendingChat(null);
-
-        // Join socket room
         socket?.emit("join_conversation", { conversationId: convoId });
-
-        // Send the message
-        socket?.emit("send_message", {
-          conversationId: convoId,
-          senderId: currentUser._id,
-          text: trimmed || null,
-          attachment: attachmentPayload || undefined,
-        });
-
-        // Reload conversations so sidebar shows the new one with lastMessage
-        apiFetch("/message/conversations").then(setConversations).catch(console.error);
-
       } catch (e) {
         console.error("Failed to create conversation:", e);
-        // Restore text if failed
         if (trimmed) setText(trimmed);
+        return;
       }
-
-    } else if (activeConvoId) {
-      // ── Normal send to existing conversation ─────────────────────────────
-      socket?.emit("send_message", {
-        conversationId: activeConvoId,
-        senderId: currentUser._id,
-        text: trimmed || null,
-        attachment: attachmentPayload || undefined,
-      });
-      socket?.emit("stop_typing", { conversationId: activeConvoId, userId: currentUser._id });
-      clearTimeout(typingTimeout.current);
-      setText("");
-      if (inputRef.current) inputRef.current.style.height = "auto";
     }
-  };
 
+    // ── Optimistic message object ──
+    const optimisticMsg = {
+      _id: `temp-${Date.now()}`, // temporary id
+      conversationId: convoId,
+      sender: { ...currentUser },
+      text: trimmed || null,
+      attachment: attachmentPayload || null,
+      createdAt: new Date().toISOString(),
+      readBy: [currentUser._id],
+      pending: true, // flag for UI
+    };
+
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setConversations((prev) =>
+      prev.map((c) =>
+        c._id === convoId ? { ...c, lastMessage: optimisticMsg } : c
+      )
+    );
+
+    // ── Emit to socket ──
+    socket?.emit("send_message", {
+      conversationId: convoId,
+      senderId: currentUser._id,
+      text: trimmed || null,
+      attachment: attachmentPayload || undefined,
+    });
+    socket?.emit("stop_typing", { conversationId: convoId, userId: currentUser._id });
+  };
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
@@ -722,16 +679,62 @@ export default function CampaignChat({ currentUser, onClose }) {
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setUploading(true);
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch(`${API_BASE}/messages/upload`, {
-        method: "POST", credentials: "include", body: fd,
+
+      let convoId = activeConvoId;
+
+      // If pendingChat, create convo first
+      if (!convoId && pendingChat) {
+        const convo = await apiFetch("/message/conversation", {
+          method: "POST",
+          body: JSON.stringify({
+            campaignId: pendingChat.campaignId,
+            volunteerId: pendingChat.volunteerId,
+          }),
+        });
+        convoId = convo._id;
+        setConversations((prev) => [convo, ...prev]);
+        setActiveConvoId(convoId);
+        setPendingChat(null);
+        socketRef.current?.emit("join_conversation", { conversationId: convoId });
+      }
+
+      // ── Optimistic attachment message ──
+      const optimisticMsg = {
+        _id: `temp-${Date.now()}`,
+        conversationId: convoId,
+        sender: { ...currentUser },
+        text: null,
+        attachment: { name: file.name, type: file.type },
+        createdAt: new Date().toISOString(),
+        readBy: [currentUser._id],
+        pending: true,
+      };
+      setMessages((prev) => [...prev, optimisticMsg]);
+      setConversations((prev) =>
+        prev.map((c) =>
+          c._id === convoId ? { ...c, lastMessage: optimisticMsg } : c
+        )
+      );
+
+      // Upload file
+      const response = await api.post(`/message/conversation/${convoId}/attachment`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      if (!res.ok) throw new Error("Upload failed");
-      const att = (await res.json()).data;
-      await sendMessage(att);
+      const att = response.data ?? response;
+
+      // ── Emit socket with real attachment info ──
+      socketRef.current?.emit("send_message", {
+        conversationId: convoId,
+        senderId: currentUser._id,
+        text: null,
+        attachment: att,
+      });
+
     } catch (err) {
       console.error("Attachment error:", err);
     } finally {
@@ -772,275 +775,281 @@ export default function CampaignChat({ currentUser, onClose }) {
 
   // ─── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="flex absolute top-10 right-4 h-[80vh] bg-gray-50 overflow-hidden font-sans">
+    <div className="relative">
+      <button onClick={() => setOpenChat(!openChat)}><MessageCircleMore className="text-primary" /></button>
+      {openChat && <div className="flex absolute top-10 right-4 h-[80vh] bg-gray-50 font-sans overflow-hidden rounded-2xl shadow-lg border border-gray-100">
 
-      {/* ════════════ SIDEBAR ════════════ */}
-      <aside className="w-[300px] min-w-[300px] bg-white border-r border-gray-100 flex flex-col h-screen">
+        {/* ───────────── SIDEBAR ───────────── */}
+        <aside className="w-[300px] bg-white border-r border-gray-100 flex flex-col">
 
-        {/* Current user */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
-          <Avatar name={`${currentUser.firstName} ${currentUser.lastName}`}
-            userId={currentUser._id} size="w-9 h-9" text="text-xs" online={true} />
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-gray-900 truncate">
-              {currentUser.firstName} {currentUser.lastName}
-            </p>
-            <p className="text-[11px] text-emerald-500 font-medium">● Active</p>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b border-gray-100 flex-shrink-0">
-          {[
-            { id: "chats", label: "Chats", badge: totalUnread > 0 ? totalUnread : null },
-            { id: "people", label: "People", badge: null },
-          ].map((tab) => (
-            <button key={tab.id} onClick={() => setSidebarTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[13px]
-                          font-semibold transition-colors relative
-                          ${sidebarTab === tab.id ? "text-sky-600" : "text-gray-400 hover:text-gray-600"}`}>
-              {tab.label}
-              {tab.badge !== null && (
-                <span className="min-w-[16px] h-4 px-1 rounded-full bg-sky-500 text-white
-                                 text-[10px] font-bold flex items-center justify-center">
-                  {tab.badge}
-                </span>
-              )}
-              {sidebarTab === tab.id && (
-                <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-sky-500 rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab body */}
-        <div className="flex flex-col flex-1 min-h-0">
-          {sidebarTab === "chats" ? (
-            <ChatsTab
-              conversations={conversations}
-              loadingConvos={loadingConvos}
-              activeConvoId={activeConvoId}
-              currentUser={currentUser}
-              onlineUsers={onlineUsers}
-              onOpenConvo={openConvo}
-              onSwitchToPeople={() => setSidebarTab("people")}
+          {/* Current user */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/30">
+            <Avatar
+              name={`${currentUser.firstName} ${currentUser.lastName}`}
+              userId={currentUser._id}
+              size="w-9 h-9"
+              text="text-xs"
+              online
             />
-          ) : (
-            <PeopleTab
-              currentUser={currentUser}
-              conversations={conversations}
-              onlineUsers={onlineUsers}
-              onSelectPerson={handleSelectPerson}
-            />
-          )}
-        </div>
-      </aside>
-
-      {/* ════════════ CHAT AREA ════════════ */}
-      {!hasChatOpen ? (
-        /* Welcome state */
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-10 bg-gray-50/80">
-          <div className="w-20 h-20 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center">
-            <svg className="w-9 h-9 text-gray-300" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13.5px] font-semibold text-gray-900 truncate">
+                {currentUser.firstName} {currentUser.lastName}
+              </p>
+              <p className="text-[11px] text-emerald-500 font-medium">● Active</p>
+            </div>
           </div>
-          <div>
-            <p className="text-base font-semibold text-gray-500">Your messages live here</p>
-            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
-              {conversations.length === 0
-                ? "Go to People and select someone to start your first conversation."
-                : "Select a conversation from the left to continue chatting."}
-            </p>
-          </div>
-          {conversations.length === 0 && (
-            <button onClick={() => setSidebarTab("people")}
-              className="px-5 py-2 rounded-full bg-sky-500 text-white text-sm font-semibold
-                         hover:bg-sky-600 transition-colors shadow-sm">
-              Browse people
-            </button>
-          )}
-        </div>
-      ) : (
-        /* Chat panel — works for both pending and existing convos */
-        <div className="flex-1 flex flex-col h-screen min-w-0">
 
-          {/* Header */}
-          <div className="h-[60px] bg-white border-b border-gray-100 flex items-center
-                          px-5 gap-3 flex-shrink-0 shadow-sm">
-            {chatOther ? (
-              <>
-                <Avatar name={chatOtherName} userId={chatOther._id}
-                  size="w-9 h-9" text="text-xs" online={chatOtherOnline} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">{chatOtherName || "Unknown"}</p>
-                  <p className={`text-xs ${chatOtherOnline ? "text-emerald-500" : "text-gray-400"}`}>
-                    {chatOtherOnline ? "Online" : "Offline"}
-                  </p>
-                </div>
-              </>
+          {/* Tabs */}
+          <div className="flex border-b border-gray-100 bg-white">
+            {[
+              { id: "chats", label: "Chats", badge: totalUnread > 0 ? totalUnread : null },
+              { id: "people", label: "People" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSidebarTab(tab.id)}
+                className={`relative flex-1 py-2.5 flex items-center justify-center gap-1.5 text-[13px] font-semibold transition-colors
+                      ${sidebarTab === tab.id
+                    ? "text-sky-600"
+                    : "text-gray-400 hover:text-gray-600"}`}
+              >
+                {tab.label}
+                {tab.badge && (
+                  <span className="min-w-[16px] h-4 px-1 bg-sky-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {tab.badge}
+                  </span>
+                )}
+                {sidebarTab === tab.id && (
+                  <span className="absolute bottom-0 left-6 right-6 h-[2px] bg-sky-500 rounded-full transition-all" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-hidden">
+            {sidebarTab === "chats" ? (
+              <ChatsTab
+                conversations={conversations}
+                loadingConvos={loadingConvos}
+                activeConvoId={activeConvoId}
+                currentUser={currentUser}
+                onlineUsers={onlineUsers}
+                onOpenConvo={openConvo}
+                onSwitchToPeople={() => setSidebarTab("people")}
+              />
             ) : (
-              <div className="flex-1 flex items-center gap-2">
-                <Spinner size="w-4 h-4" />
-                <span className="text-sm text-gray-400">Loading…</span>
-              </div>
+              <PeopleTab
+                currentUser={currentUser}
+                conversations={conversations}
+                onlineUsers={onlineUsers}
+                onSelectPerson={handleSelectPerson}
+              />
             )}
-            {onClose && (
-              <button onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400
-                           hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                ✕
+          </div>
+        </aside>
+
+        {/* ───────────── CHAT AREA ───────────── */}
+        {!hasChatOpen ? (
+          /* Welcome */
+          <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center bg-gradient-to-b from-gray-50 to-gray-100 px-10">
+            <div className="w-20 h-20 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+              <svg className="w-9 h-9 text-gray-300" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-base font-semibold text-gray-600">Your messages live here</p>
+              <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+                {conversations.length === 0
+                  ? "Go to People and select someone to start your first conversation."
+                  : "Select a chat from the left to continue."}
+              </p>
+            </div>
+            {conversations.length === 0 && (
+              <button
+                onClick={() => setSidebarTab("people")}
+                className="px-5 py-2 rounded-full bg-sky-500 text-white text-sm font-semibold shadow-sm hover:bg-sky-600 transition-colors"
+              >
+                Browse people
               </button>
             )}
           </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-1">
-
-            {hasMore && (
-              <div className="text-center mb-2">
-                <button onClick={loadMore} disabled={loadingMsgs}
-                  className="text-xs text-sky-500 border border-sky-100 bg-sky-50 rounded-full
-                             px-4 py-1.5 hover:bg-sky-100 transition-colors disabled:opacity-50">
-                  {loadingMsgs ? "Loading…" : "Load older messages"}
-                </button>
-              </div>
-            )}
-
-            {loadingMsgs && messages.length === 0 && (
-              <div className="flex justify-center py-10"><Spinner size="w-5 h-5" /></div>
-            )}
-
-            {/* Empty state — pending chat or new conversation with no messages */}
-            {!loadingMsgs && messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center flex-1 gap-3 py-16 text-center">
-                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
-                  {chatOther && (
-                    <Avatar name={chatOtherName} userId={chatOther._id}
-                      size="w-14 h-14" text="text-base" />
-                  )}
+        ) : (
+          /* Chat open */
+          <div className="flex-1 flex flex-col bg-gray-50">
+            {/* Header */}
+            <div className="h-[60px] bg-white border-b border-gray-100 flex items-center px-5 gap-3 shadow-sm">
+              {chatOther ? (
+                <>
+                  <Avatar
+                    name={chatOtherName}
+                    userId={chatOther._id}
+                    size="w-9 h-9"
+                    text="text-xs"
+                    online={chatOtherOnline}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{chatOtherName || "Unknown"}</p>
+                    <p className={`text-xs ${chatOtherOnline ? "text-emerald-500" : "text-gray-400"}`}>
+                      {chatOtherOnline ? "Online" : "Offline"}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center gap-2">
+                  <Spinner size="w-4 h-4" />
+                  <span className="text-sm text-gray-400">Loading…</span>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-600">{chatOtherName}</p>
+              )}
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col">
+              {hasMore && (
+                <div className="text-center mb-3">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMsgs}
+                    className="text-xs text-sky-600 border border-sky-100 bg-sky-50 rounded-full px-4 py-1.5 hover:bg-sky-100 disabled:opacity-50"
+                  >
+                    {loadingMsgs ? "Loading…" : "Load older messages"}
+                  </button>
+                </div>
+              )}
+
+              {loadingMsgs && messages.length === 0 && (
+                <div className="flex justify-center py-12"><Spinner size="w-5 h-5" /></div>
+              )}
+
+              {!loadingMsgs && messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center flex-1 py-14 text-center text-gray-500">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                    {chatOther && (
+                      <Avatar name={chatOtherName} userId={chatOther._id} size="w-14 h-14" text="text-base" />
+                    )}
+                  </div>
+                  <p className="text-sm font-semibold">{chatOtherName}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    {pendingChat
-                      ? "Send a message to start the conversation"
-                      : "No messages yet — say something!"}
+                    {pendingChat ? "Send a message to start chatting" : "No messages yet — say hi!"}
                   </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Message bubbles grouped by date */}
-            {Object.entries(groupedMessages).map(([date, msgs]) => (
-              <div key={date} className="flex flex-col gap-1">
-                <div className="flex items-center gap-3 my-3">
-                  <div className="flex-1 h-px bg-gray-100" />
-                  <span className="text-[11px] text-gray-400 whitespace-nowrap
-                                   border border-gray-100 rounded-full py-0.5 px-2.5">
-                    {date}
-                  </span>
-                  <div className="flex-1 h-px bg-gray-100" />
-                </div>
+              {Object.entries(groupedMessages).map(([date, msgs]) => (
+                <div key={date}>
+                  <div className="flex items-center gap-3 my-3">
+                    <div className="flex-1 h-px bg-gray-100" />
+                    <span className="text-[11px] text-gray-400 border border-gray-100 rounded-full py-0.5 px-2.5 bg-white">
+                      {date}
+                    </span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
 
-                {msgs.map((m, i) => {
-                  const isMine = m.sender?._id === currentUser._id || m.sender === currentUser._id;
-                  const isLast = i === msgs.length - 1;
-                  const seen = isMine && (m.readBy ?? []).some((id) => id !== currentUser._id);
+                  {msgs.map((m, i) => {
+                    const isMine = m.sender?._id === currentUser._id || m.sender === currentUser._id;
+                    const isLast = i === msgs.length - 1;
+                    const seen = isMine && (m.readBy ?? []).some((id) => id !== currentUser._id);
 
-                  return (
-                    <div key={m._id}
-                      className={`flex flex-col mb-0.5 ${isMine ? "items-end" : "items-start"}`}>
-                      <div className={`flex items-end gap-2 ${isMine ? "flex-row-reverse" : ""}`}>
-                        {!isMine && chatOther && (
-                          <Avatar name={chatOtherName} userId={chatOther._id}
-                            size="w-7 h-7" text="text-[10px]" />
-                        )}
-                        <div className={`max-w-[60%] px-3.5 py-2.5 rounded-2xl text-[13.5px] leading-relaxed
-                          ${isMine
-                            ? "bg-sky-500 text-white rounded-br-sm"
-                            : "bg-white text-gray-800 border border-gray-100 shadow-sm rounded-bl-sm"}`}>
-                          {m.text && <p>{m.text}</p>}
-                          {m.attachment?.url && <AttachmentBubble att={m.attachment} mine={isMine} />}
-                          <p className={`text-[11px] mt-1 ${isMine ? "text-white/60 text-right" : "text-gray-400"}`}>
-                            {m.createdAt ? fmtTime(m.createdAt) : ""}
-                          </p>
+                    return (
+                      <div key={m._id} className={`flex flex-col mb-1 ${isMine ? "items-end" : "items-start"}`}>
+                        <div className={`flex items-end gap-2 ${isMine ? "flex-row-reverse" : ""}`}>
+                          {!isMine && chatOther && (
+                            <Avatar name={chatOtherName} userId={chatOther._id} size="w-7 h-7" text="text-[10px]" />
+                          )}
+                          <div
+                            className={`max-w-[65%] px-3.5 py-2.5 rounded-2xl text-[13.5px] leading-relaxed shadow-sm 
+                        ${isMine
+                                ? "bg-sky-500 text-white rounded-br-sm"
+                                : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"}`}
+                          >
+                            {m.text && <p>{m.text}</p>}
+                            {m.attachment?.url && <AttachmentBubble att={m.attachment} mine={isMine} />}
+                            <p className={`text-[11px] mt-1 ${isMine ? "text-white/70 text-right" : "text-gray-400"}`}>
+                              {m.createdAt ? fmtTime(m.createdAt) : ""}
+                            </p>
+                          </div>
                         </div>
+                        {isMine && isLast && (
+                          <p className={`text-[11px] mt-0.5 mr-1 ${seen ? "text-emerald-500" : "text-gray-400"}`}>
+                            {seen ? "Seen" : "Delivered"}
+                          </p>
+                        )}
                       </div>
-                      {isMine && isLast && (
-                        <p className={`text-[11px] mt-0.5 mr-1 ${seen ? "text-emerald-500" : "text-gray-400"}`}>
-                          {seen ? "Seen" : "Delivered"}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-
-            {chatSomebodyTyping && chatOther && (
-              <div className="flex items-end gap-2 mt-1">
-                <Avatar name={chatOtherName} userId={chatOther._id} size="w-7 h-7" text="text-[10px]" />
-                <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm shadow-sm">
-                  <TypingDots />
+                    );
+                  })}
                 </div>
-              </div>
-            )}
+              ))}
 
-            <div ref={messagesEndRef} />
-          </div>
+              {chatSomebodyTyping && chatOther && (
+                <div className="flex items-end gap-2 mt-2">
+                  <Avatar name={chatOtherName} userId={chatOther._id} size="w-7 h-7" text="text-[10px]" />
+                  <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm shadow-sm px-3 py-2">
+                    <TypingDots />
+                  </div>
+                </div>
+              )}
 
-          {/* Input */}
-          <div className="bg-white border-t border-gray-100 flex items-center gap-2.5 px-4 py-3 flex-shrink-0">
-            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
-            <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-              title="Attach file"
-              className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
-                         text-gray-400 text-lg hover:bg-gray-50 hover:text-gray-600
-                         transition-colors flex-shrink-0 disabled:opacity-40">
-              📎
-            </button>
-            <textarea
-              ref={inputRef}
-              value={text}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              disabled={uploading}
-              placeholder={
-                uploading
-                  ? "Uploading…"
-                  : pendingChat
-                    ? `Message ${chatOtherName || ""}…`
-                    : "Type a message…"
-              }
-              rows={1}
-              className="flex-1 px-4 py-2.5 text-[13.5px] bg-gray-50 border border-gray-200
-                         rounded-2xl placeholder-gray-400 resize-none leading-snug max-h-20
-                         focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400
-                         transition-all disabled:opacity-50"
-              onInput={(e) => {
-                e.target.style.height = "auto";
-                e.target.style.height = Math.min(e.target.scrollHeight, 80) + "px";
-              }}
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={!text.trim() || uploading}
-              className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
-                          transition-all
-                          ${text.trim()
-                  ? "bg-sky-500 hover:bg-sky-600 shadow-sm"
-                  : "bg-gray-200 cursor-not-allowed"}`}>
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
-            </button>
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="bg-white border-t border-gray-100 px-4 py-3 flex items-center gap-2.5">
+              <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                title="Attach file"
+                className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                📎
+              </button>
+
+              <textarea
+                ref={inputRef}
+                value={text}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                disabled={uploading}
+                placeholder={
+                  uploading ? "Uploading…" : pendingChat ? `Message ${chatOtherName || ""}…` : "Type a message…"
+                }
+                rows={1}
+                className="flex-1 px-4 py-2.5 text-[13.5px] bg-gray-50 border border-gray-200 rounded-2xl placeholder-gray-400 resize-none leading-snug max-h-20 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 transition disabled:opacity-50"
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 80) + "px";
+                }}
+              />
+
+              <button
+                onClick={() => sendMessage()}
+                disabled={!text.trim() || uploading}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all
+                      ${text.trim()
+                    ? "bg-sky-500 hover:bg-sky-600 shadow-sm"
+                    : "bg-gray-200 cursor-not-allowed"}`}
+              >
+                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>}
     </div>
+
   );
 }

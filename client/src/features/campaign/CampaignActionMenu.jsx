@@ -24,11 +24,10 @@ function CampaignActionsMenu({
       )}
 
       <div
-        className={`absolute top-9 right-0 w-40 bg-white shadow-lg rounded-lg border border-gray-100 overflow-hidden transition-all duration-200 origin-top-right ${
-          popup === campaign?.id
+        className={`absolute z-10 top-9 right-0 w-40 bg-white shadow-lg rounded-lg border border-gray-100 overflow-hidden transition-all duration-200 origin-top-right ${popup === campaign?.id
             ? "scale-100 opacity-100"
             : "scale-95 opacity-0 pointer-events-none"
-        }`}
+          }`}
       >
         <Link
           to={`create-campaign/${campaign.id}`}

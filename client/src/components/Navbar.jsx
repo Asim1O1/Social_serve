@@ -9,7 +9,6 @@ function Navbar() {
   const location = useLocation();
   const { user, loading } = useAuth();
 
-  const [openChat, setOpenChat] = useState(false)
 
   const navLinkClass = (path) => {
     const isActive = location.pathname === path;
@@ -72,12 +71,8 @@ function Navbar() {
             (
               <NotificationBell />
             )}
-          {user && <div className="relative"><button onClick={() => setOpenChat(!openChat)}><MessageCircleMore className="text-primary" /></button>
-            {openChat && <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
-              onClose={() => setOpenChat(false)}
+          {user &&  <CampaignChat currentUser={{ _id: user?.id, firstName: user?.firstName || "unknown", lastName: user?.lastName, role: user?.role }}
             />}
-          </div>
-          }
         </div>
       </div>
     </nav>
