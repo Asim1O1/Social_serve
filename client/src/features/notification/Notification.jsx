@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { api } from "../../axios/axios";
 import { socket } from "../../socket/socket";
 
+function timeAgo(date) {
+  const diff = Date.now() - new Date(date);
+  const m = Math.floor(diff / 60000);
+  const h = Math.floor(diff / 3600000);
+  const d = Math.floor(diff / 86400000);
+  if (m < 1) return "Just now";
+  if (m < 60) return `${m}m ago`;
+  if (h < 24) return `${h}h ago`;
+  return `${d}d ago`;
+}
 function NotificationBell() {
   const [notifications, setNotifications] = useState([]); // flat array
   const [unreadCount, setUnreadCount] = useState(0);
@@ -78,64 +88,113 @@ function NotificationBell() {
     }
   };
 
-  // ── UI ───────────────────────────────────────────────────────────────
   return (
     <div className="relative">
-      {/* Bell Icon */}
+      {/* Bell Button */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="relative p-2 text-primary rounded-full hover:bg-gray-100 transition"
+        className="relative w-11 h-11 flex items-center justify-center rounded-[14px] border border-primary/20 bg-white shadow-sm text-primary transition-all duration-200 hover:bg-primary/5 hover:border-primary/40 hover:-translate-y-px hover:shadow-md active:translate-y-0 group"
       >
-        <Bell size={22} />
+        <Bell
+          size={20}
+          className="transition-transform duration-300 group-hover:-rotate-12"
+        />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+          <span className="absolute top-[7px] right-[7px] w-[9px] h-[9px] bg-red-500 rounded-full border-2 border-white animate-pulse" />
         )}
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-3 w-96 bg-white border border-primary/20 rounded-xl shadow-lg z-50">
+        <div className="absolute right-0 mt-2.5 w-[360px] bg-white border border-primary/15 rounded-[18px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 origin-top-right">
           {/* Header */}
-          <div className="flex justify-between items-center px-4 py-3 border-b">
-            <h4 className="font-semibold text-primary">Notifications</h4>
+          <div className="flex items-center justify-between px-[18px] py-4 border-b border-primary/10 bg-white">
+            <div className="flex items-center gap-2">
+              <h4 className="text-[15px] font-semibold text-primary tracking-tight">
+                Notifications
+              </h4>
+              {unreadCount > 0 && (
+                <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25 rounded-full px-2 py-0.5 leading-none">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs text-blue-500 hover:underline"
+                className="text-xs text-primary font-medium bg-primary/8 hover:bg-primary/15 border border-primary/25 rounded-lg px-2.5 py-1 transition-colors duration-150"
               >
-                Mark all as read
+                Mark all read
               </button>
             )}
           </div>
 
           {/* List */}
-          <div className="max-h-96 overflow-y-auto">
-            {notifications.length === 0 && (
-              <p className="text-center text-gray-400 py-6 text-sm">
-                No notifications
-              </p>
-            )}
-            {notifications.map((n) => (
-              <div
-                key={n._id}
-                className={`flex gap-3 px-4 py-3 border-b hover:bg-gray-50 cursor-pointer ${
-                  !n.isRead ? "bg-blue-50" : ""
-                }`}
-              >
-                <div onClick={() => handleClick(n)} className="flex-1">
-                  <p className="text-sm text-gray-800">{n.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(n.createdAt).toLocaleString()}
-                  </p>
+          <div className="max-h-[380px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+            {notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-gray-400">
+                <div className="w-11 h-11 rounded-[14px] bg-primary/8 flex items-center justify-center text-primary">
+                  <Bell size={20} />
                 </div>
-                <button
-                  onClick={() => deleteNotification(n._id)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <p className="text-sm">You're all caught up!</p>
               </div>
-            ))}
+            ) : (
+              notifications.map((n) => (
+                <div
+                  key={n._id}
+                  className={`relative flex items-start gap-3 px-[18px] py-[13px] border-b border-primary/8 transition-colors duration-150 cursor-pointer last:border-b-0 ${
+                    !n.isRead
+                      ? "bg-indigo-50/70 hover:bg-indigo-100/60"
+                      : "hover:bg-primary/5"
+                  }`}
+                >
+                  {/* Unread dot */}
+                  {!n.isRead && (
+                    <span className="absolute left-[7px] top-1/2 -translate-y-1/2 w-[5px] h-[5px] rounded-full bg-primary" />
+                  )}
+
+                  {/* Avatar */}
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white text-[13px] font-semibold ${
+                      !n.isRead
+                        ? "bg-gradient-to-br from-indigo-400 to-primary"
+                        : "bg-gradient-to-br from-primary/40 to-primary/70"
+                    }`}
+                  >
+                    {n.icon || "🔔"}
+                  </div>
+
+                  {/* Body */}
+                  <div
+                    className="flex-1 min-w-0"
+                    onClick={() => handleClick(n)}
+                  >
+                    <p
+                      className={`text-[13.5px] leading-snug ${
+                        !n.isRead
+                          ? "text-gray-800 font-medium"
+                          : "text-gray-700 font-normal"
+                      }`}
+                    >
+                      {n.message}
+                    </p>
+
+                    <p className="text-[11.5px] text-gray-400 mt-1">
+                      {timeAgo(n.createdAt)}
+                    </p>
+                  </div>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => deleteNotification(n._id)}
+                    className="self-center p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 flex-shrink-0"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

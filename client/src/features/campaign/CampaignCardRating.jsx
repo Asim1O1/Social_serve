@@ -1,11 +1,9 @@
-import { Star } from "lucide-react";
-import { useState } from "react";
+import { AtSign, Send, Star } from "lucide-react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { api } from "../../axios/axios";
 import { useCampaign } from "../../context/CampaignContext";
-
-import { useRef } from "react";
 
 function CampaignCardRating({
   campaignId,
@@ -19,28 +17,23 @@ function CampaignCardRating({
   const ratingId = initialMyRating?._id;
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
-
-  // mention state
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownUsers, setDropdownUsers] = useState([]);
   const [mentionStart, setMentionStart] = useState(null);
   const textareaRef = useRef(null);
-
   const { addComment } = useCampaign();
 
-  // build users list from volunteers prop
   const campaignUsers = volunteers.map((v) => ({
     id: v.volunteer._id,
     firstName: v.volunteer.firstName,
     lastName: v.volunteer.lastName,
   }));
 
-  // parse @mentions for highlight preview
   const parseCommentParts = (text) => {
     const parts = [];
     const regex = /@([a-zA-Z0-9._]+)/g;
-    let lastIndex = 0;
-    let match;
+    let lastIndex = 0,
+      match;
     while ((match = regex.exec(text)) !== null) {
       if (match.index > lastIndex)
         parts.push({ type: "text", value: text.slice(lastIndex, match.index) });
@@ -55,11 +48,8 @@ function CampaignCardRating({
   const handleCommentChange = (e) => {
     const value = e.target.value;
     setComment(value);
-
     const cursorPos = e.target.selectionStart;
-    const textUpToCursor = value.slice(0, cursorPos);
-    const mentionMatch = textUpToCursor.match(/@([a-zA-Z0-9._]*)$/);
-
+    const mentionMatch = value.slice(0, cursorPos).match(/@([a-zA-Z0-9._]*)$/);
     if (mentionMatch) {
       const query = mentionMatch[1].toLowerCase();
       setMentionStart(cursorPos - mentionMatch[0].length);
@@ -86,9 +76,11 @@ function CampaignCardRating({
 
   const handleRate = async (e) => {
     e.preventDefault();
-    if (!user?.id) navigate("/login");
-    if (!user?.id || loading) return;
-
+    if (!user?.id) {
+      navigate("/login");
+      return;
+    }
+    if (loading) return;
     setLoading(true);
     try {
       await api.post(`/campaign/${campaignId}/rating`, {
@@ -113,12 +105,12 @@ function CampaignCardRating({
   const hasMentions = commentParts.some((p) => p.type === "mention");
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <form
-        onSubmit={handleRate}
-        className={`w-full ${!user ? "blur-sm" : ""}`}
-      >
-        {/* Star Rating */}
+    <form
+      onSubmit={handleRate}
+      className={`w-full space-y-4 ${!user ? "blur-sm pointer-events-none" : ""}`}
+    >
+      {/* Star Rating */}
+      <div className="flex items-center gap-1">
         <div
           className="flex items-center gap-0.5"
           role="group"
@@ -132,82 +124,95 @@ function CampaignCardRating({
               onClick={() => setMyRating(value)}
               onMouseEnter={() => setHoverRating(value)}
               onMouseLeave={() => setHoverRating(0)}
-              className="p-0.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:pointer-events-none"
+              className="p-0.5 rounded transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-40 disabled:pointer-events-none"
               aria-label={`${value} star${value !== 1 ? "s" : ""}`}
             >
               <Star
-                size={20}
-                className={`shrink-0 transition-colors ${
+                size={22}
+                className={`transition-colors duration-150 ${
                   value <= displayRating
-                    ? "fill-primary text-primary"
-                    : "fill-transparent text-primary/30"
+                    ? "fill-amber-400 text-amber-400"
+                    : "fill-transparent text-gray-200"
                 }`}
               />
             </button>
           ))}
-          {myRating > 0 && (
-            <span className="text-xs text-accent/60 ml-1">({myRating}/5)</span>
-          )}
+        </div>
+        {myRating > 0 && (
+          <span className="ml-2 text-xs font-semibold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+            {myRating}/5
+          </span>
+        )}
+      </div>
+
+      {/* Textarea + mention dropdown */}
+      <div className="relative">
+        <textarea
+          ref={textareaRef}
+          value={comment}
+          onChange={handleCommentChange}
+          placeholder="Write your comment… use @ to mention someone"
+          rows={3}
+          className="w-full px-4 py-3 text-sm border border-primary/15 rounded-xl outline-none resize-none
+            focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all duration-150
+            hover:border-primary/25 bg-white text-gray-700 placeholder:text-gray-300"
+        />
+
+        {/* @ hint icon */}
+        <div className="absolute bottom-3 right-3 text-gray-200">
+          <AtSign size={14} />
         </div>
 
-        {/* Textarea with mention dropdown */}
-        <div className="relative mt-3">
-          <textarea
-            ref={textareaRef}
-            value={comment}
-            onChange={handleCommentChange}
-            placeholder="Write your comment... use @ to mention someone"
-            className="w-full border border-border rounded-xl p-3 outline-none focus:border-primary transition-all resize-none"
-            rows="3"
-          />
-
-          {/* Mention dropdown */}
-          {showDropdown && (
-            <div className="absolute z-10 left-0 mt-1 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden">
-              {dropdownUsers.map((u) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  onMouseDown={() => handleMentionSelect(u)}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-primary/10 transition-colors flex items-center gap-2"
-                >
-                  <span className="text-primary font-semibold">@</span>
-                  <span>
-                    {u.firstName} {u.lastName}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Mention highlight preview */}
-        {comment && hasMentions && (
-          <div className="mt-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-xl text-sm leading-relaxed">
-            {commentParts.map((part, i) =>
-              part.type === "mention" ? (
-                <span
-                  key={i}
-                  className="text-primary font-semibold bg-primary/10 rounded px-1"
-                >
-                  {part.value}
+        {/* Mention dropdown */}
+        {showDropdown && (
+          <div className="absolute z-20 left-0 mt-1 w-52 bg-white border border-primary/12 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {dropdownUsers.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onMouseDown={() => handleMentionSelect(u)}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
+                  {u.firstName[0]}
                 </span>
-              ) : (
-                <span key={i}>{part.value}</span>
-              ),
-            )}
+                {u.firstName} {u.lastName}
+              </button>
+            ))}
           </div>
         )}
+      </div>
 
-        <button
-          type="submit"
-          disabled={!user || loading}
-          className="mt-3 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-hover transition-all disabled:opacity-50 disabled:pointer-events-none"
-        >
-          {loading ? "Posting..." : "Post Comment"}
-        </button>
-      </form>
-    </div>
+      {/* Mention highlight preview */}
+      {comment && hasMentions && (
+        <div className="px-3 py-2.5 bg-primary/4 border border-primary/12 rounded-xl text-sm leading-relaxed text-gray-600">
+          {commentParts.map((part, i) =>
+            part.type === "mention" ? (
+              <span
+                key={i}
+                className="text-primary font-semibold bg-primary/10 rounded-md px-1 mx-0.5"
+              >
+                {part.value}
+              </span>
+            ) : (
+              <span key={i}>{part.value}</span>
+            ),
+          )}
+        </div>
+      )}
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={!user || loading}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold
+          hover:bg-primary/90 hover:-translate-y-px active:translate-y-0 transition-all duration-150 shadow-sm
+          disabled:opacity-40 disabled:pointer-events-none"
+      >
+        <Send size={14} />
+        {loading ? "Posting…" : "Post Comment"}
+      </button>
+    </form>
   );
 }
 
