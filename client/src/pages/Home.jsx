@@ -1,5 +1,5 @@
 import { ChevronRight, Megaphone } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Loading from "../components/Loading";
 import { useCampaign } from "../context/CampaignContext";
 import CampaignCard from "../features/campaign/CampaignCard";
@@ -123,6 +123,7 @@ if (typeof document !== "undefined" && !document.getElementById("home-anim-style
 
 /* ─── Heading underline hook ────────────────────────────────────────────── */
 import { useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function AnimatedHeading({ children, className = "" }) {
   const ref = useRef(null);
@@ -146,7 +147,15 @@ function AnimatedHeading({ children, className = "" }) {
 /* ─── Home ──────────────────────────────────────────────────────────────── */
 function Home() {
   const { status, campaigns, choseCampaign, handleRegister } = useCampaign();
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const isLoading = status === "loading";
+
+  useEffect(() => {
+    if (user?.role == 'ADMIN') {
+      navigate('/dashboard/campaign')
+    }
+  }, [])
 
   return (
     <div>

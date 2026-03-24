@@ -216,7 +216,7 @@ function Campaign() {
                   {(user?.id === c.author?._id || isAdmin) && (
                     <button
                       onClick={() => deleteComment(c._id)}
-                      className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0"
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
                     >
                       <X size={14} />
                     </button>
