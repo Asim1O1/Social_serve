@@ -53,14 +53,14 @@ function CreateTask() {
       const res = await api.post(`/task/campaigns/${id}/tasks`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (res.data?.status === "success") {
-        toast.success(res.data.message || "Task created successfully");
+      if (res.status === "success") {
+        toast.success(res.message || "Task created successfully");
         navigate(-1);
       } else {
-        toast.error(res.data?.message || "Something went wrong");
+        toast.error(res.message || "Something went wrong");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.response?.data?.error || "Failed to create task");
+      toast.error(error.message || "Failed to create task");
     } finally {
       setIsSubmitting(false);
     }
