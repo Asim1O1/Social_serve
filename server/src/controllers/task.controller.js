@@ -11,7 +11,10 @@ import { success } from "../utils/response.js";
 export const createTask = asyncHandler(async (req, res) => {
   const campaignId = req.params.campaignId;
   const userId = req.user.id;
-  const data = req.body;
+  const data = {
+    ...req.body,
+    files: req.files || [],
+  };
 
   const task = await createTaskService(campaignId, userId, data);
   return success(res, "Task created successfully", task);
@@ -33,6 +36,7 @@ export const submitTask = asyncHandler(async (req, res) => {
   const { summary } = req.body;
 
   const proofFiles = req.files || [];
+  console.log("The prrofFiles are as follows: ", proofFiles);
 
   const submission = await submitTaskService(
     taskId,

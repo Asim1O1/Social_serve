@@ -30,13 +30,7 @@ export const getConversationById = (conversationId) => {
 };
 
 export const getConversationsByUser = async (userId) => {
-  console.log("========== DB QUERY ==========");
-  console.log("UserId received:", userId);
-  console.log("UserId type:", typeof userId);
-
   const objectId = new mongoose.Types.ObjectId(userId);
-
-  console.log("Converted ObjectId:", objectId);
 
   const conversations = await Conversation.find({
     participants: { $in: [objectId] },
@@ -45,8 +39,6 @@ export const getConversationsByUser = async (userId) => {
     .populate("lastMessage")
     .populate("campaignId", "title")
     .sort({ updatedAt: -1 });
-
-  console.log("Conversations found:", conversations.length);
 
   return conversations;
 };

@@ -17,6 +17,8 @@ import { updateVolunteerLevelAndBadge } from "../utils/volunteerLevel.js";
 import { notifyTaskSubmissionReviewed } from "./notification.service.js";
 
 export const createTaskService = async (campaignId, userId, data) => {
+  const { files, ...taskFields } = data;
+
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
   assertOrThrow(
@@ -32,7 +34,23 @@ export const createTaskService = async (campaignId, userId, data) => {
     "Cannot add tasks to completed campaigns",
   );
 
-  const taskData = { ...data, campaign: campaignId };
+  let attachments = [];
+  if (files && files.length > 0) {
+    const uploadPromises = files.map(async (file) => {
+      const uploaded = await uploadToCloudinary(
+        file.buffer,
+        "task_attachments",
+      );
+      return {
+        url: uploaded.secure_url,
+        public_id: uploaded.public_id,
+        type: uploaded.resource_type,
+      };
+    });
+    attachments = await Promise.all(uploadPromises);
+  }
+
+  const taskData = { ...taskFields, attachments, campaign: campaignId };
   const task = await createTaskRepo(taskData);
 
   return task;
@@ -85,6 +103,7 @@ export const submitTaskService = async (
   summary,
   proofFiles,
 ) => {
+  console.log("The prrofFiles are as follows: ", proofFiles);
   const task = await getTaskById(taskId);
   assertOrThrow(task, HTTP_STATUS.NOT_FOUND, "Task not found");
 
@@ -120,17 +139,22 @@ export const submitTaskService = async (
   );
 
   let proof = [];
-  if (proofFiles.length > 0) {
-    const uploadPromises = proofFiles.map(async (file) => {
-      const uploaded = await uploadToCloudinary(file.buffer, "task_proofs");
-      return {
-        url: uploaded.secure_url,
-        public_id: uploaded.public_id,
-        type: uploaded.resource_type,
-      };
-    });
+  try {
+    if (proofFiles.length > 0) {
+      console.log("Uploading proof files to Cloudinary...");
+      const uploadPromises = proofFiles.map(async (file) => {
+        const uploaded = await uploadToCloudinary(file.buffer, "task_proofs");
+        return {
+          url: uploaded.secure_url,
+          public_id: uploaded.public_id,
+          type: uploaded.resource_type,
+        };
+      });
 
-    proof = await Promise.all(uploadPromises);
+      proof = await Promise.all(uploadPromises);
+    }
+  } catch (error) {
+    console.error("Error uploading proof files:", error);
   }
 
   const submission = await createTaskSubmissionRepo({
@@ -156,6 +180,12 @@ export const getTaskSubmissionsService = async (taskId, organizerId) => {
   );
 
   const submissions = await getTaskSubmissionsRepo(taskId);
+  assertOrThrow(
+    submissions.length > 0,
+    HTTP_STATUS.NOT_FOUND,
+    "No submissions found for this task",
+  );
+
   return submissions;
 };
 

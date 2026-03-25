@@ -1,31 +1,27 @@
+import { HTTP_STATUS } from "../constants/http.js";
 import {
   getConversationsService,
   getMessagesService,
   getOrCreateConversationService,
   uploadAttachmentService,
 } from "../services/message.service.js";
+import assertOrThrow from "../utils/assertOrThrow.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { success } from "../utils/response.js";
-import { HTTP_STATUS } from "../constants/http.js";
-import assertOrThrow from "../utils/assertOrThrow.js";
 
 export const getOrCreateConversation = asyncHandler(async (req, res) => {
-  console.log("req.body:", req.body);   // remove after confirming fix
-  console.log("req.user:", req.user);   // remove after confirming fix
+  console.log("req.body:", req.body); // remove after confirming fix
+  console.log("req.user:", req.user); // remove after confirming fix
 
   const { campaignId, volunteerId } = req.body;
 
-  assertOrThrow(
-    campaignId,
-    HTTP_STATUS.BAD_REQUEST,
-    "campaignId is required"
-  );
+  assertOrThrow(campaignId, HTTP_STATUS.BAD_REQUEST, "campaignId is required");
 
   if (req.user.role === "ADMIN") {
     assertOrThrow(
       volunteerId,
       HTTP_STATUS.BAD_REQUEST,
-      "volunteerId is required when an admin initiates a conversation"
+      "volunteerId is required when an admin initiates a conversation",
     );
   }
 
@@ -40,13 +36,9 @@ export const getOrCreateConversation = asyncHandler(async (req, res) => {
 export const getConversations = async (req, res, next) => {
   try {
     const userId = req.user?._id ?? req.user?.id;
-assertOrThrow(userId, HTTP_STATUS.INTERNAL_SERVER_ERROR, "User ID missing");
-    console.log("========== GET CONVERSATIONS ==========");
-    console.log("Authenticated User ID:", userId);
+    assertOrThrow(userId, HTTP_STATUS.INTERNAL_SERVER_ERROR, "User ID missing");
 
     const conversations = await getConversationsService(userId);
-
-    console.log("Conversations returned to controller:", conversations?.length);
 
     res.json({
       status: "success",

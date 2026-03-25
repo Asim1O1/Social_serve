@@ -16,9 +16,11 @@ import assertOrThrow from "../utils/assertOrThrow.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 const assertParticipant = (conversation, userId) => {
-  console.log("The conversation and user id dis", conversation, userId);
-
-  assertOrThrow(userId, HTTP_STATUS.INTERNAL_SERVER_ERROR, "User ID is missing");
+  assertOrThrow(
+    userId,
+    HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    "User ID is missing",
+  );
 
   const uid = userId.toString();
 
@@ -42,23 +44,25 @@ const resolveParticipants = (campaign, requestingUser, targetVolunteerId) => {
   assertOrThrow(
     campaignOwnerId,
     HTTP_STATUS.INTERNAL_SERVER_ERROR,
-    "Campaign has no valid creator"
+    "Campaign has no valid creator",
   );
 
   // Support both id (JWT payload) and _id (Mongoose document)
-  const requestingUserId = (requestingUser._id ?? requestingUser.id)?.toString();
+  const requestingUserId = (
+    requestingUser._id ?? requestingUser.id
+  )?.toString();
 
   assertOrThrow(
     requestingUserId,
     HTTP_STATUS.INTERNAL_SERVER_ERROR,
-    "Requesting user has no valid ID"
+    "Requesting user has no valid ID",
   );
 
   if (requestingUser.role === "ADMIN") {
     assertOrThrow(
       targetVolunteerId != null,
       HTTP_STATUS.BAD_REQUEST,
-      "volunteerId is required when an admin initiates a conversation"
+      "volunteerId is required when an admin initiates a conversation",
     );
     return {
       adminId: requestingUserId,
@@ -75,7 +79,7 @@ const resolveParticipants = (campaign, requestingUser, targetVolunteerId) => {
 export const getOrCreateConversationService = async (
   campaignId,
   requestingUser,
-  volunteerId
+  volunteerId,
 ) => {
   const campaign = await getCampaignById(campaignId);
   assertOrThrow(campaign, HTTP_STATUS.NOT_FOUND, "Campaign not found");
@@ -83,7 +87,7 @@ export const getOrCreateConversationService = async (
   const { adminId, participantId } = resolveParticipants(
     campaign,
     requestingUser,
-    volunteerId
+    volunteerId,
   );
 
   const volunteerRecord = campaign.volunteers?.find((v) => {
@@ -94,13 +98,13 @@ export const getOrCreateConversationService = async (
   assertOrThrow(
     volunteerRecord,
     HTTP_STATUS.FORBIDDEN,
-    "Volunteer has not applied to this campaign"
+    "Volunteer has not applied to this campaign",
   );
 
   assertOrThrow(
     volunteerRecord.status === "accepted",
     HTTP_STATUS.FORBIDDEN,
-    "Only accepted volunteers can use campaign chat"
+    "Only accepted volunteers can use campaign chat",
   );
 
   let conversation = await findConversation(campaignId, adminId, participantId);
@@ -114,23 +118,21 @@ export const getOrCreateConversationService = async (
 };
 
 export const getConversationsService = async (userId) => {
-  console.log("----- SERVICE: getConversationsService -----");
-  console.log("User ID received:", userId);
-
   const conversations = await getConversationsByUser(userId);
-
-  console.log("Conversations fetched from DB:", conversations.length);
-  console.log("Conversations:", JSON.stringify(conversations, null, 2));
 
   return conversations;
 };
 
-export const getMessagesService = async (conversationId, userId, query = {}) => {
+export const getMessagesService = async (
+  conversationId,
+  userId,
+  query = {},
+) => {
   const page = parseInt(query.page, 10) || 1;
   const limit = parseInt(query.limit, 10) || 30;
 
   const conversation = await getConversationById(conversationId);
-  console.log("The conversations are as folow", conversation)
+
   assertOrThrow(conversation, HTTP_STATUS.NOT_FOUND, "Conversation not found");
 
   assertParticipant(conversation, userId);
@@ -164,7 +166,7 @@ export const sendMessageService = async ({
   await updateConversationLastMessage(conversationId, message._id);
 
   const recipient = conversation.participants.find(
-    (p) => p._id.toString() !== senderId.toString()
+    (p) => p._id.toString() !== senderId.toString(),
   );
 
   if (recipient) {
@@ -173,7 +175,7 @@ export const sendMessageService = async ({
 
   const populated = await message.populate(
     "sender",
-    "firstName lastName profilePic role"
+    "firstName lastName profilePic role",
   );
 
   return {

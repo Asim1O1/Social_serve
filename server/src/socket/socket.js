@@ -6,7 +6,7 @@ import {
 
 let io;
 
-const onlineUsers = new Map(); // userId → socketId
+const onlineUsers = new Map();
 
 export const initSocket = (server) => {
   io = new Server(server, {
@@ -103,7 +103,6 @@ export const initSocket = (server) => {
           onlineUsers.delete(userId);
           console.log(`User ${userId} disconnected`);
 
-          // ── NEW: tell everyone this user is now offline ───────────────────
           socket.broadcast.emit("user_offline", { userId });
           break;
         }
