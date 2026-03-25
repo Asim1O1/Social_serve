@@ -39,10 +39,10 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
       return myStatus == "pending"
         ? "Pending"
         : myStatus == "accepted"
-        ? "Accepted"
-        : myStatus == "rejected"
-        ? "Rejected"
-        : "Register";
+          ? "Accepted"
+          : myStatus == "rejected"
+            ? "Rejected"
+            : "Register";
     }
 
     const adminStatus = latestStatus || campaign.status;
@@ -58,13 +58,11 @@ function EventCardFooter({ campaign, choseCampaign, user, location }) {
 
   return (
     <div className="flex gap-2 items-center justify-between pt-2">
-      <button
-        onClick={() => choseCampaign(campaign)}
+      <Link to={`../campaign/${campaign.id}`}
         className="flex gap-1 cursor-pointer items-center text-gray-600 hover:text-primary text-sm"
       >
         <MessageSquareText size={16} />
-        <span>{campaign?.comments?.length || 0}</span>
-      </button>
+      </Link>
 
       <Link to={`../campaign/${campaign.id}`} className="ml-auto primary-btn">
         View

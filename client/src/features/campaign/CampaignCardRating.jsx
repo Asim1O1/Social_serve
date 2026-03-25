@@ -132,7 +132,7 @@ function CampaignCardRating({
           role="group"
           aria-label="Rate this campaign"
         >
-          {[1, 2, 3, 4, 5].map((value) => (
+          {user.role !== 'ADMIN' && [1, 2, 3, 4, 5].map((value) => (
             <button
               key={value}
               type="button"
