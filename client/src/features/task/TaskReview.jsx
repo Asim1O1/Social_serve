@@ -82,6 +82,14 @@ function TaskReviewPage() {
                 <div className="h-1 w-full bg-gradient-to-r from-primary/40 via-primary/60 to-primary/30" />
 
                 <div className="p-5 flex flex-col gap-3 flex-1">
+                  {task.attachments.length > 0 && <div className="flex flex-wrap">
+                    {task?.attachments?.map(el => (
+                      <>
+                        {el.type == 'image' ? <img src={el.url} alt={el.title} className="w-20" /> :
+                          <a href={el.url} target="_black"><img src={`http://placehold.co/60x60?text=${el.type}`} className="w-20" /></a>}
+                      </>
+                    ))}
+                  </div>}
                   {/* Title + Points */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-base font-bold text-primary leading-tight truncate flex-1">
@@ -137,11 +145,10 @@ function TaskReviewPage() {
                   <div className="pt-3 border-t border-primary/8">
                     <Link
                       to={`../task/${task._id}`}
-                      className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
-                        updatingId === task._id
-                          ? "bg-primary/40 text-white cursor-not-allowed"
-                          : "bg-primary text-white hover:bg-primary/90 hover:-translate-y-px shadow-sm"
-                      }`}
+                      className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${updatingId === task._id
+                        ? "bg-primary/40 text-white cursor-not-allowed"
+                        : "bg-primary text-white hover:bg-primary/90 hover:-translate-y-px shadow-sm"
+                        }`}
                     >
                       View Task
                     </Link>
